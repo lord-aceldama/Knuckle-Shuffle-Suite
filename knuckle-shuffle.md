@@ -19,7 +19,10 @@ permutations of that key.
 Consider the keyspace [0-9a-f] when the hexadecimal key is "c0de1337". A traditional 
 brute-force algorithm would have to run through 3'235'779'384 of 4'294'967'296 keys
 before succeeding, whereas knuckle-shuffle would find it among the permutations in
-"01337cde". 
+"01337cde". Unfortunately I don't have an exact number, but permutations per key can
+be calculated by length/a!b!...n! where a, b ... n is the number of repeated characters
+in a key. So if the key is aaabbccd then the permutation formula is 8!/(3!2!2!1!) for a 
+total of 1'680 keys.
 
 
 ###PITFALLS:
