@@ -3,14 +3,16 @@ The Abacus class is designed to break a large keyspace into smaller chunks. When
 consider the traditional incremental brute-force algoritm, it's clear  to see that 
 keys starting with larger characters render incremental searches inefficient.
 
+
 ###FOR EXAMPLE:
-Consider the keyspace [0-9a-f] when the 4-character key is "dacb", it will scan 
+Consider the keyspace [0-9a-f] when the 4-character key is "dacb" Abacus will scan 
 permutations in keyspace as [0123------------], [1234, 2345, 3456, 4567, 5678, 6789, 
 789a, 89ab, 9abc] and [----------abcd--] which means that the key will be discovered 
-in under 2'176 keys. (11*4^4 - 10*4^3) If the traditional incremental search  was 
+in under 2'176 keys. (11\*4^4 - 10\*4^3) If the traditional incremental search  was 
 used however, 56'011 of 65'536 keys would need to be tested before reaching the 
 correct key. (NOTE: Do check my math here - I might not be entirely correct, although 
 the logic is sound.)
+
 
 ###PITFALLS:
 Of course this method is not fool-proof. If we consider the keyspace we used in the
