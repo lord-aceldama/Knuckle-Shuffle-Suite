@@ -30,7 +30,7 @@ CHARSET = sorted("abcdef")
 
 #-- Abacus class
 class Abacus():
-    """ For the theory on what makes abacus work, see the md file in the git repo at:
+    """ For the theory on what makes abacus work, see the abacus.md file in the git repo at:
         https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/abacus.md
     """
     
