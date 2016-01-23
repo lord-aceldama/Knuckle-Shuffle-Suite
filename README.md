@@ -10,20 +10,21 @@ whatever you're brute-forcing and/or obtained it with the legal owner's permissi
 
 
 ###REQUREMENTS:
-The knuckle-shuffle suite was designed for use with python 2.7.1. No other dependencies or libraries are needed.
+The knuckle-shuffle suite was designed for use with python 2.7.1.
 
 
 ###knuckle-shuffle.py
-######Usage:
+**Theory:** https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md  
+  
 *[ToDo]*
 
-######Theory:
-https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md  
-
 ###sausage-fest.py usage:
-*[to do]*  
+**Theory:** *[ToDo]*  
   
+*[ToDo]*  
 
 ###abacus.py usage:
-*[to do]*
+**Theory:** https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/abacus.md  
+  
+*[ToDo]*
 
