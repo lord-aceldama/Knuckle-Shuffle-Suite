@@ -1,7 +1,6 @@
 ###KNUCKLE-SHUFFLE SUITE
 Licensed under the GNU General Public License Version 2 (GNU GPL v2), 
-available at:  
-http://www.gnu.org/licenses/gpl-2.0.txt  
+available \[[here](http://www.gnu.org/licenses/gpl-2.0.txt)].  
 
 By using these scripts you agree that it is for intellectual purposes only, unless you own 
 whatever you're brute-forcing and/or obtained it with the legal owner's permission.  
