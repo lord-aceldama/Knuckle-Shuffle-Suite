@@ -3,7 +3,7 @@ Well, what can i say - if you have time on your hands...
 ...The knuckle-shuffle suite is designed to be a more efficient way of brute-forcing a 
 keyspace. It consists of the following scripts:
 * __knuckleshuffle.py:__ The main script. It sends the generated keys to STDOUT and messages to STDERR.
-* __sausage-fest.py:__ (Under construction) Will be the server script for cloud cracking should you have
+* __sausage-fest.py:__ (Future code) Will be the server script for cloud cracking should you have
   two or more slaves a-shufflin'.
 * __abacus.py:__ Will eventually be incorporated into knuckle-shuffle and sausage-fest. It's basically
   just here as a development script so i can experiment and develop the concept without altering the 
