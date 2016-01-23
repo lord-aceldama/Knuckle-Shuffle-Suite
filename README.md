@@ -13,9 +13,12 @@ whatever you're brute-forcing and/or obtained it with the legal owner's permissi
 The knuckle-shuffle suite was designed for use with python 2.7.1. No other dependencies or libraries are needed.
 
 
-###knuckle-shuffle.py usage:
-*[to do]*  
-  
+###knuckle-shuffle.py
+####Usage:
+*[ToDo]*
+
+####Theory:
+https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md  
 
 ###sausage-fest.py usage:
 *[to do]*  
