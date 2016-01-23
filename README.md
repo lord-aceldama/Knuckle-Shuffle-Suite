@@ -9,21 +9,21 @@ whatever you're brute-forcing and/or obtained it with the legal owner's permissi
 
 
 ###REQUREMENTS:
-The knuckle-shuffle suite was designed for use with python 2.7.1.
+The knuckle-shuffle suite was designed for use with Python 2.7.1.
 
 
 ###knuckle-shuffle.py
-**Theory:** The theory behind this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md)].  
+**Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md)].  
   
-*[ToDo]*
+**Usage:** *[ToDo]*
 
 ###sausage-fest.py usage:
 **Theory:** *[ToDo]*  
   
-*[ToDo]*  
+**Usage:** *[ToDo]*  
 
 ###abacus.py usage:
-**Theory:** The theory behind this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/abacus.md)].  
+**Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/abacus.md)].  
   
-*[ToDo]*
+**Usage:** *[ToDo]*
 
