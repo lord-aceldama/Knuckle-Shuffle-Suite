@@ -20,7 +20,7 @@ whatever you're brute-forcing and/or obtained it with the legal owner's permissi
 
 
 ###REQUREMENTS:
-The knuckle-shuffle suite was designed for use with Python 2.7.1.
+The knuckle-shuffle suite was designed for use with Python 2.7.1 on Linux.
 
 
 ###SCRIPTS:
