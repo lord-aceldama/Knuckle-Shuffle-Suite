@@ -28,12 +28,12 @@ The knuckle-shuffle suite was designed for use with Python 2.7.1.
   
 **Usage:** *[ToDo]*
 
-###sausage-fest.py usage:
+###sausage-fest.py
 **Theory:** *[ToDo]*  
   
 **Usage:** *[ToDo]*  
 
-###abacus.py usage:
+###abacus.py
 **Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/abacus.md)].  
   
 **Usage:** *[ToDo]*
