@@ -27,12 +27,10 @@ The knuckle-shuffle suite was designed for use with Python 2.7.1 on Linux.
 ####knuckle-shuffle.py
 **Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md)].  
   
-**Usage:** knuckle-shuffle.py \[options]
- switch | Purpose 
- --- | ---
--l=N | where N is the length of the key
--l=CHARS | where chars is a string of characters signifying the keyspace
--s=START | -s is the start hash 
+**Usage:** knuckle-shuffle.py \[-switch=value]
+ * -l=N where N is the length of the key
+ * -l=CHARS where CHARS is a string of characters signifying the keyspace
+ * -s=START where START is the start hash 
 
 **Examples:** 
   * knuckle-shuffle.py -l=8 -c=abcdefghjklmnpqrstuvwxyz -s=$(grep -Po "^\w+" sess.txt) | aircrack-ng -b E4:F4:C6:71:59:90 -w - *.cap
