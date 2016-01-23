@@ -33,7 +33,8 @@ The knuckle-shuffle suite was designed for use with Python 2.7.1 on Linux.
  * -s=START where START is the start hash 
 
 **Examples:** 
-  * knuckle-shuffle.py -l=8 -c=abcdefghjklmnpqrstuvwxyz -s=$(grep -Po "^\w+" sess.txt) | aircrack-ng -b E4:F4:C6:71:59:90 -w - *.cap
+  * knuckle-shuffle.py -l=3 -c=0123456789
+  * knuckle-shuffle.py -l=8 -c=abcdefghjklmnpqrstuvwxyz -s=$(grep -Po "^\w+" sess.txt)
 
 ####sausage-fest.py
 **Theory:** *[ToDo]*  
