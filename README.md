@@ -39,3 +39,8 @@ The knuckle-shuffle suite was designed for use with Python 2.7.1 on Linux.
   
 **Usage:** *[ToDo]*
 
+
+###INSTALLATION:
+Although installation is not strictly necessary, it certainly makes it easier if you copy the scripts 
+into the /usr/bin. I'll be sure to get back to this section once i have more than just knuckle-shuffle.py
+working.
