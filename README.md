@@ -14,10 +14,10 @@ The knuckle-shuffle suite was designed for use with python 2.7.1. No other depen
 
 
 ###knuckle-shuffle.py
-####Usage:
+######Usage:
 *[ToDo]*
 
-####Theory:
+######Theory:
 https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md  
 
 ###sausage-fest.py usage:
