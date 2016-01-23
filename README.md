@@ -28,9 +28,9 @@ The knuckle-shuffle suite was designed for use with Python 2.7.1 on Linux.
 **Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md)].  
   
 **Usage:** knuckle-shuffle.py -l=N -l=CHARS \[-s=TOKEN]
- * **-l=N** where N is the length of the key __*(Required)*__
- * **-l=CHARS** where CHARS is a string of characters signifying the keyspace __*(Required)*__
- * **-s=TOKEN** where TOKEN is the start hash  __*(Optional)*__
+ * **-l=N** where N is the length of the key. __*(Required)*__
+ * **-l=CHARS** where CHARS is a string of characters signifying the keyspace. __*(Required)*__
+ * **-s=TOKEN** where TOKEN is the start token.  __*(Optional)*__
 
 **Examples:** 
   * knuckle-shuffle.py -l=3 -c=0123456789
