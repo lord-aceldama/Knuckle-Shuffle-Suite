@@ -23,17 +23,18 @@ whatever you're brute-forcing and/or obtained it with the legal owner's permissi
 The knuckle-shuffle suite was designed for use with Python 2.7.1.
 
 
-###knuckle-shuffle.py
+###SCRIPTS:
+#### * knuckle-shuffle.py
 **Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/knuckle-shuffle.md)].  
   
 **Usage:** *[ToDo]*
 
-###sausage-fest.py
+#### * sausage-fest.py
 **Theory:** *[ToDo]*  
   
 **Usage:** *[ToDo]*  
 
-###abacus.py
+#### * abacus.py
 **Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/abacus.md)].  
   
 **Usage:** *[ToDo]*
