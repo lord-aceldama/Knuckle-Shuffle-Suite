@@ -47,15 +47,13 @@ class Abacus():
     
     #-- Special class methods
     def __init__(self, charset, token=None, token_length=None):
-        """ Initializes the class. Requires a valid charset and also either
-            a valid token or valid token length.
+        """ Initializes the class. Requires a valid charset and also either a valid token
+            or valid token length.
             
             VARIABLES: 
                 charset:        [str] of length 1 or greater
                 
-                token:          [str] consisting of unique characters. If chars
-                                are repeated, the correct indexes cannot be 
-                                deduced.
+                token:          [str] consisting of unique characters.
                 
                 token_length:   [int] of value greater than 0
         """
@@ -68,8 +66,16 @@ class Abacus():
         #-- Initialization
         self._charset = sorted(set(charset))
         self._checked = {char : set([]) for char in self._charset}
-
-
+        if token is None:
+            #-- Init indexes from token_length
+            self._indexes = [0 for _ in range(token_length)]
+            
+        else:
+            #-- Init indexes from token and build checked matrix *cough* no idea how i'm going get
+            #   that done efficiently though *cough*
+            self._indexes = [self._charset.index(token_char) for token_char in sorted(token)]
+    
+    
     def __str__(self):
         """ Returns the current token string. DOES NOT include a newline character and
             DOES NOT calculate the next token automatically. See: Abacus.print_token()
