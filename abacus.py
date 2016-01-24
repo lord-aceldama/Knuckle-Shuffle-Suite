@@ -71,15 +71,17 @@ class Abacus():
         self._charset = sorted(set(charset))
         self._checked = {char : set([]) for char in self._charset}
         if token is None:
-            #-- Init abacus incexes from token_length.
+            #-- Init abacus indexes from token_length.
             self._abacus = range(token_length)
             
         else:
-            #-- Init indexes from token.
-            self._indexes = [self._charset.index(token_char) for token_char in sorted(token)]
+            #-- Init abacus indexes from token.
+            self._abacus = range(len(token))
+            abacus_target = ",".join([self._charset.index(token_char) for token_char in sorted(token)])
             
             #-- Build checked matrix. *cough* No idea how i'm going get that done efficiently. *cough*
-            
+            while ",".join(self._abacus) != abacus_target:
+                self._abacus = [self._charset.index(token_char) for token_char in sorted(token)]
     
     
     def __str__(self):
