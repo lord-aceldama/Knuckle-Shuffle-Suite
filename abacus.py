@@ -39,10 +39,10 @@ class Abacus():
     
     
     #-- Global Vars
-    _charset = None     # [str] character set to be broken up and scanned
+    _charset = None     # [str] character set to be broken up and scanned.
     _checked = None     # [dict([chr]:[set])] keeps track of which chars were scanned together.
-    _indexes = None     # 
-    _abacus  = None     # 
+    _abacus  = None     # [list(int)] indexes of the charset subset.
+    _indexes = None     # [list(int)] current token charset indexes
     
     
     #-- Special class methods
@@ -53,11 +53,15 @@ class Abacus():
             VARIABLES: 
                 charset:        [str] of length 1 or greater
                 
-                token:          [str] consisting of unique characters.
+                token:          [str] consisting of unique characters. In order to get
+                                the abacus indexes from the token chars, they must all
+                                be unique.
                 
-                token_length:   [int] of value greater than 0
+                token_length:   [int] of value greater than 0. When a token length is 
+                                suplied, we assume the user intends to start from the
+                                very beginning.
         """
-        #-- Primary Assertions
+        #-- Make sure the user didn't mess up when passing parameters.
         assert((type(charset) is str) and (len(charset) > 0)),      "ERR: Bad charset."
         assert(((type(token) is str) and (len(token) > 0)) or
                ((token is None) and (type(token_length) is int) and
@@ -67,13 +71,15 @@ class Abacus():
         self._charset = sorted(set(charset))
         self._checked = {char : set([]) for char in self._charset}
         if token is None:
-            #-- Init indexes from token_length
-            self._indexes = [0 for _ in range(token_length)]
+            #-- Init abacus incexes from token_length.
+            self._abacus = range(token_length)
             
         else:
-            #-- Init indexes from token and build checked matrix *cough* no idea how i'm going get
-            #   that done efficiently though *cough*
+            #-- Init indexes from token.
             self._indexes = [self._charset.index(token_char) for token_char in sorted(token)]
+            
+            #-- Build checked matrix. *cough* No idea how i'm going get that done efficiently. *cough*
+            
     
     
     def __str__(self):
