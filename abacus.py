@@ -46,12 +46,14 @@ class Abacus():
     
     
     #-- Special class methods
-    def __init__(self, charset, token=None, token_length=None):
+    def __init__(self, charset, token=None, token_length=None): #subset=None, 
         """ Initializes the class. Requires a valid charset and also either a valid token
             or valid token length.
             
             VARIABLES: 
                 charset:        [str] of length 1 or greater
+                
+                subset:         [str] where 0 < len(subset) <= len(charset)
                 
                 token:          [str] consisting of unique characters. In order to get
                                 the abacus indexes from the token chars, they must all
@@ -79,9 +81,15 @@ class Abacus():
             self._abacus = range(len(token))
             abacus_target = ",".join([self._charset.index(token_char) for token_char in sorted(token)])
             
-            #-- Build checked matrix. *cough* No idea how i'm going get that done efficiently. *cough*
+            #-- Build checked matrix by iterating through all the abacus charset subsets until the
+            #   target subset is reached. 
+            #       *cough*  No idea how i'm going get that done more efficiently.  *cough*
             while ",".join(self._abacus) != abacus_target:
+                self._shift()
                 self._abacus = [self._charset.index(token_char) for token_char in sorted(token)]
+            
+            #-- Set up the indexes
+            self._indexes = range(len(self._abacus))
     
     
     def __str__(self):
@@ -122,20 +130,29 @@ class Abacus():
     def _shift(self):
         """ Docstring.
         """
-        offset = 0
-        shifts = []
-        while offset + self._indexes[-1] < len(self._charset):
-            subset = ""
-            for nchr in self._indexes:
-                subset += self._charset[offset + nchr]
-            shifts += [subset]
-            offset += 1
+        #-- Update checked matrix
+        for char in self._abacus:
+            self._checked[char] = self._checked[char].union(self._abacus)
         
-        return shifts
+        #-- Perform the abacus shift operation.
+        if (self._abacus[-1] + 1) < len(self._charset):
+            #-- Shift the abacus one position on
+            for idx in range(len(self._abacus)):
+                self._abacus[idx] += 1
+        else:
+            #-- Shift the entire abacus back to first position
+            offset = self._abacus[0]
+            for idx in range(len(self._abacus)):
+                self._abacus[idx] -= offset
+            
+            #-- Progress the abacus
+            #[To Do]
+        
+        return 0
     
     
     def inc(self):
-        """ Calculates the next token. """
+        """ Calculates the next token and shifts the abacus as required. """
         return self._indexes[0] #-- To Do
     
     
