@@ -151,16 +151,16 @@ class Abacus():
                 self._abacus[idx] -= offset
             
             #-- Progress the abacus                 # xooo
-            self._abacus[1] += 1 #-- 1st value stays stationary, we start from the 2nd.
+            self._abacus[1] += 1                                            #-- [0] stays stationary, increment [1].
             if (len(self._abacus) > 2) and (self._abacus[1] == self._abacus[2]):
                 #-- Index collision detected        # x-8o          x-8-o
                 idx = 2
                 flr = 1
                 while (idx < len(self._abacus)) and (self._abacus[idx - 1] == self._abacus[idx]):
-                    self._abacus[idx - 1] = flr     # xooo  xooo    xoo-o
-                    flr += 1                        #  || // ||      ||
-                    self._abacus[idx] += 1          # xo-8  xoo-o   xo-oo
-                    idx += 1
+                    self._abacus[idx - 1] = flr     # xooo  xooo    xoo-o   #-- Move colliding value to floor.
+                    flr += 1                        #  || // ||      ||     #-- Increment floor position.
+                    self._abacus[idx] += 1          # xo-8  xoo-o   xo-oo   #-- Increment checked value.
+                    idx += 1                                                #-- Increment position to check.
         
         #-- Let the user know whether continuing is possible
         return self._abacus[-1] < len(self._charset)
