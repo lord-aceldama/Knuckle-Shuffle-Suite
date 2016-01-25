@@ -52,7 +52,7 @@ class Abacus():
     
     
     #-- Special class methods
-    def __init__(self, charset, token=None, token_length=None, stdout=None, stderr=None): #subset=None
+    def __init__(self, charset, token=None, token_length=None, std_out=None, std_err=None): #subset=None
         """ Initializes the class. Requires a valid charset and also either a valid token
             or valid token length.
             
@@ -100,17 +100,19 @@ class Abacus():
             #       *cough*  No idea how i'm going get that done more efficiently.  *cough*
             while ",".join(self._abacus) != abacus_target:
                 self._shift()
+                
+                #-- Remove when _shift works.
                 self._abacus = [self._charset.index(token_char) for token_char in sorted(token)]
             
             #-- Set up the indexes
             self._indexes = range(len(self._abacus))
 
         #-- Set output vectors
-        if stdout is not None:
-            self._stdout = stdout
+        if std_out is not None:
+            self._stdout = std_out
         
-        if stderr is not None:
-            self._stderr = stderr
+        if std_err is not None:
+            self._stderr = std_err
     
     
     def __str__(self):
@@ -119,13 +121,15 @@ class Abacus():
         """
         token = ""
         for idx in self._indexes:
-            token += self._charset[idx]
+            token += self._charset[self._abacus[idx]]
         return token
     
     
     #-- Private methods
     def _shift(self):
-        """ Docstring.
+        """ This updates both the abacus as well as the checked matrix. For more info
+            on exactly how it works, see the documentation which will (eventually) be
+            include a detailed segment on the shift method.
         """
         #-- Update checked matrix
         for char in self._abacus:
