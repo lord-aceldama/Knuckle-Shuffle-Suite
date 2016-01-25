@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
-#-- Making Pylint behave
+#-- Making Pylint behave (Haters gonna hate)
 # pylint: disable = old-style-class
 # pylint: disable = trailing-whitespace
 # pylint: disable = line-too-long
 # pylint: disable = bad-whitespace
+# pylint: disable = too-many-arguments
 
 """ Knuckle Shuffle
     
@@ -21,7 +22,7 @@
 """
 
 #-- Dependencies
-#import math
+import sys
 
 
 #-- Global Constants
@@ -38,6 +39,11 @@ class Abacus():
     #[None]
     
     
+    #-- Output
+    _stdout = sys.stdout
+    _stderr = sys.stderr
+    
+    
     #-- Global Vars
     _charset = None     # [str] character set to be broken up and scanned.
     _checked = None     # [dict([chr]:[set])] keeps track of which chars were scanned together.
@@ -46,7 +52,7 @@ class Abacus():
     
     
     #-- Special class methods
-    def __init__(self, charset, token=None, token_length=None): #subset=None, 
+    def __init__(self, charset, token=None, token_length=None, stdout=None, stderr=None): #subset=None
         """ Initializes the class. Requires a valid charset and also either a valid token
             or valid token length.
             
@@ -62,6 +68,14 @@ class Abacus():
                 token_length:   [int] of value greater than 0. When a token length is 
                                 suplied, we assume the user intends to start from the
                                 very beginning.
+                
+                stdout:         Is either PIPE, a valid file descriptor or an existing
+                                file object. This is where the class's successfully
+                                generated output goes.
+                
+                stderr:         Is either PIPE, a valid file descriptor or an existing
+                                file object. This is where the class's error output
+                                goes.
         """
         #-- Make sure the user didn't mess up when passing parameters.
         assert((type(charset) is str) and (len(charset) > 0)),      "ERR: Bad charset."
@@ -90,6 +104,13 @@ class Abacus():
             
             #-- Set up the indexes
             self._indexes = range(len(self._abacus))
+
+        #-- Set output vectors
+        if stdout is not None:
+            self._stdout = stdout
+        
+        if stderr is not None:
+            self._stderr = stderr
     
     
     def __str__(self):
@@ -103,30 +124,6 @@ class Abacus():
     
     
     #-- Private methods
-    def _fromindexes(self, indexes):
-        """ Docstring.
-        """
-        offsets = [] + self._abacus
-        for idx in range(1, len(indexes)):
-            offsets += [0 for _ in range(1, indexes[idx] - indexes[idx - 1])]
-        
-        return  [1] + offsets + [1]
-    
-    
-    def _fromstrtoken(self, token):
-        """ Returns the abacus from the given token string.
-        """
-        offsets = [] + self._charset[0]
-        
-        return offsets + sorted(token)
-    
-    
-    #-- Public methods
-    def str_token(self):
-        """ Returns the current token string """
-        return str(self)
-    
-    
     def _shift(self):
         """ Docstring.
         """
@@ -149,6 +146,12 @@ class Abacus():
             #[To Do]
         
         return 0
+    
+    
+    #-- Public methods
+    def str_token(self):
+        """ Returns the current token string """
+        return str(self)
     
     
     def inc(self):
