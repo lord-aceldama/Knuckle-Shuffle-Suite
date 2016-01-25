@@ -45,10 +45,11 @@ class Abacus():
     
     
     #-- Global Vars
-    _charset = None     # str               character set to be broken up and scanned.
-    _checked = None     # {chr:set([chr])}  keeps track of which chars were scanned together.
-    _abacus  = None     # [int]             indexes of the charset subset.
-    _indexes = None     # [int]             current token charset indexes
+    _charset = None     # str                   character set to be broken up and scanned.
+    _checked = None     # {chr:set([chr])}      keeps track of which chars were scanned together.
+    _abacus  = None     # [int]                 indexes of the charset subset.
+    _indexes = None     # [int]                 current token charset indexes
+    _grp_chr = None     # [int, [chr], [chr]]   groups matched and unmached chars to speed up inc().
     
     
     #-- Special class methods
@@ -86,9 +87,13 @@ class Abacus():
         #-- Initialization
         self._charset = sorted(set(charset))
         self._checked = {char : set([]) for char in self._charset}
+        
         if token is None:
             #-- Init abacus indexes from token_length.
             self._abacus = range(token_length)
+            
+            #-- Create and zero the indexes
+            self._indexes = [0 for _ in range(token_length)]
             
         else:
             #-- Init abacus indexes from token.
@@ -100,13 +105,13 @@ class Abacus():
             #       *cough*  No idea how i'm going get that done more efficiently.  *cough*
             while ",".join(self._abacus) != abacus_target:
                 self._shift()
-                
-                #-- Remove when _shift works.
-                self._abacus = [self._charset.index(token_char) for token_char in sorted(token)]
             
-            #-- Set up the indexes
+            #-- Set up the indexes from the recovered abacus
             self._indexes = range(len(self._abacus))
-
+    
+        #-- Init grouped chars.
+        self._grp_idx = self._get_grouped_chars()
+        
         #-- Set output vectors
         if std_out is not None:
             self._stdout = std_out
@@ -135,7 +140,7 @@ class Abacus():
             Returns True until the abacus expands beyond the scope of the charset, ie. 
             abacus[-1] < len(charset).
         """
-        #-- Update checked matrix
+        #-- Update checked characters dictionary
         for char in self._abacus:
             self._checked[char] = self._checked[char].union(self._abacus)
         
@@ -162,16 +167,19 @@ class Abacus():
                     self._abacus[idx] += 1          # xo-8  xoo-o   xo-oo   #-- Increment checked value.
                     idx += 1                                                #-- Increment position to check.
         
+        #-- Grouped the indexes to speed up inc.
+        self._grp_idx = self._get_grouped_chars()
+        
         #-- Let the user know whether continuing is possible
         return self._abacus[-1] < len(self._charset)
     
     
+    def _get_grouped_chars(self):
+        """ Looks at the current char subset and  """
+        return [self._abacus[0], [], []]
+    
+    
     #-- Public methods
-    def str_token(self):
-        """ Returns the current token string """
-        return str(self)
-    
-    
     def inc(self):
         """ Calculates the next token and shifts the abacus as required. """
         return self._indexes[0] #-- To Do
