@@ -53,7 +53,7 @@ class Abacus():
             VARIABLES: 
                 charset:        [str] of length 1 or greater
                 
-                subset:         [str] where 0 < len(subset) <= len(charset)
+                **subset:**     [str] where 0 < len(subset) <= len(charset)
                 
                 token:          [str] consisting of unique characters. In order to get
                                 the abacus indexes from the token chars, they must all
