@@ -122,6 +122,7 @@ class Abacus():
         token = ""
         for idx in self._indexes:
             token += self._charset[self._abacus[idx]]
+        
         return token
     
     
@@ -130,6 +131,9 @@ class Abacus():
         """ This updates both the abacus as well as the checked matrix. For more info
             on exactly how it works, see the documentation which will (eventually) be
             include a detailed segment on the shift method.
+            
+            Returns True until the abacus expands beyond the scope of the charset, ie. 
+            abacus[-1] < len(charset).
         """
         #-- Update checked matrix
         for char in self._abacus:
@@ -147,9 +151,19 @@ class Abacus():
                 self._abacus[idx] -= offset
             
             #-- Progress the abacus
-            #[To Do]
+            self._abacus[1] += 1
+            if (len(self._abacus) > 2) and (self._abacus[1] == self._abacus[2]):
+                #-- Index collision detected        # x-8o
+                idx = 2
+                flr = 1
+                while (idx < len(self._abacus)) and (self._abacus[idx - 1] == self._abacus[idx]):
+                    self._abacus[idx - 1] = flr     # xooo      xooo
+                    flr += 1
+                    self._abacus[idx] += 1          # xo-8      xoo-o
+                    idx += 1
         
-        return 0
+        #-- And we're done
+        return self._abacus[-1] < len(self._charset)
     
     
     #-- Public methods
