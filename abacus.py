@@ -48,7 +48,7 @@ class Abacus():
     _charset = None     # str                   character set to be broken up and scanned.
     _checked = None     # {chr:set([chr])}      keeps track of which chars were scanned together.
     _abacus  = None     # [int]                 indexes of the charset subset.
-    _indexes = None     # [int]                 current token charset indexes
+    _indexes = None     # [int]                 current token charset indexes.
     _grp_chr = None     # [int, [chr], [chr]]   groups matched and unmached chars to speed up inc().
     
     
@@ -92,7 +92,7 @@ class Abacus():
             #-- Init abacus indexes from token_length.
             self._abacus = range(token_length)
             
-            #-- Create and zero the indexes
+            #-- Create and zero the indexes.
             self._indexes = [0 for _ in range(token_length)]
             
         else:
@@ -102,17 +102,17 @@ class Abacus():
             
             #-- Build checked matrix by iterating through all the abacus charset subsets until the
             #   target subset is reached. 
-            #       *cough*  No idea how i'm going get that done more efficiently.  *cough*
+            #       *cough*  No idea how i'm going get that done any more efficiently.  *cough*
             while ",".join(self._abacus) != abacus_target:
                 self._shift()
             
-            #-- Set up the indexes from the recovered abacus
+            #-- Set up the indexes from the recovered abacus.
             self._indexes = range(len(self._abacus))
     
         #-- Init grouped chars.
         self._grp_idx = self._get_grouped_chars()
         
-        #-- Set output vectors
+        #-- Set output vectors.
         if std_out is not None:
             self._stdout = std_out
         
@@ -140,7 +140,7 @@ class Abacus():
             Returns True until the abacus expands beyond the scope of the charset, ie. 
             abacus[-1] < len(charset).
         """
-        #-- Update checked characters dictionary
+        #-- Update checked characters dictionary.
         for char in self._abacus:
             self._checked[char] = self._checked[char].union(self._abacus)
         
@@ -150,15 +150,15 @@ class Abacus():
             for idx in range(len(self._abacus)):
                 self._abacus[idx] += 1
         else:
-            #-- Shift the entire abacus back to first position
+            #-- Shift the entire abacus back to first position.
             offset = self._abacus[0]
             for idx in range(len(self._abacus)):
                 self._abacus[idx] -= offset
             
-            #-- Progress the abacus                 # xooo
+            #-- Progress the abacus.                # xooo
             self._abacus[1] += 1                                            #-- [0] stays stationary, increment [1].
             if (len(self._abacus) > 2) and (self._abacus[1] == self._abacus[2]):
-                #-- Index collision detected        # x-8o          x-8-o
+                #-- Index collision detected!       # x-8o          x-8-o
                 idx = 2
                 flr = 1
                 while (idx < len(self._abacus)) and (self._abacus[idx - 1] == self._abacus[idx]):
@@ -170,13 +170,21 @@ class Abacus():
         #-- Grouped the indexes to speed up inc.
         self._grp_idx = self._get_grouped_chars()
         
-        #-- Let the user know whether continuing is possible
+        #-- Let the user know whether continuing is possible.
         return self._abacus[-1] < len(self._charset)
     
     
     def _get_grouped_chars(self):
-        """ Looks at the current char subset and  """
-        return [self._abacus[0], [], []]
+        """ Looks at the current char subset and matches it with the checked chars 
+            dictionary to create an efficient bundle for use in the inc() method.
+            The idea is to create an array with the characters that have been checked.
+        """
+        tmp = [0, [], []]
+        
+        if len(tmp[1]) > 0:
+            tmp[0] = len(self._abacus) - 2
+            
+        return tmp
     
     
     #-- Public methods
