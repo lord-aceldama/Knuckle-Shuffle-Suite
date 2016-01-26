@@ -8,7 +8,7 @@ bbb
 bbc
 bcc
 ccc
-bbd < -cbd-
+bbd < -bcd-
 bcd
 ccd
 bdd
