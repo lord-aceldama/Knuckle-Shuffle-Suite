@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 #-- Making Pylint behave (Haters gonna hate)
-# pylint: disable = old-style-class
-# pylint: disable = trailing-whitespace
-# pylint: disable = line-too-long
-# pylint: disable = bad-whitespace
-# pylint: disable = too-many-arguments
+# spylint: disable = old-style-class
+# spylint: disable = trailing-whitespace
+# spylint: disable = line-too-long
+# spylint: disable = bad-whitespace
+# spylint: disable = too-many-arguments
 
 """ Knuckle Shuffle
     
@@ -49,7 +49,7 @@ class Abacus():
     _checked = None     # {chr:set([chr])}      keeps track of which chars were scanned together.
     _abacus  = None     # [int]                 indexes of the charset subset.
     _indexes = None     # [int]                 current token charset indexes.
-    _grp_chr = None     # [int, [chr], [chr]]   groups matched and unmached chars to speed up inc().
+    _eff_idx = None     # [int, [chr], [chr]]   groups matched and unmached chars to speed up inc().
     
     
     #-- Special class methods
@@ -110,7 +110,7 @@ class Abacus():
             self._indexes = range(len(self._abacus))
     
         #-- Init grouped chars.
-        self._grp_idx = self._get_grouped_chars()
+        self._eff_idx = self._get_efficient_charset()
         
         #-- Set output vectors.
         if std_out is not None:
@@ -168,13 +168,13 @@ class Abacus():
                     idx += 1                                                #-- Increment position to check.
         
         #-- Grouped the indexes to speed up inc.
-        self._grp_idx = self._get_grouped_chars()
+        self._eff_idx = self._get_efficient_charset()
         
         #-- Let the user know whether continuing is possible.
         return self._abacus[-1] < len(self._charset)
     
     
-    def _get_grouped_chars(self):
+    def _get_efficient_charset(self):
         """ Looks at the current char subset and matches it with the checked chars 
             dictionary to create an efficient bundle for use in the inc() method.
             The idea is to create an array with the characters that have been checked.
@@ -201,6 +201,53 @@ class Abacus():
         token = str(self) + "\n"
         self.inc()
         return token
+
+
+class Shuffle():
+    """ Docstring. """
+    
+    #-- Constants
+    #[None]
+    
+    
+    #-- Output
+    _stdout = sys.stdout
+    _stderr = sys.stderr
+    
+    
+    #-- Global Vars
+    #[None]
+    
+    
+    #-- Special class methods
+    def __init__(self, std_out=None, std_err=None):
+        """ Docstring. """
+        
+        #-- Set output vectors.
+        if std_out is not None:
+            self._stdout = std_out
+        
+        if std_err is not None:
+            self._stderr = std_err
+        
+    
+    def __str__(self):
+        """ Docstring. """
+        return ""
+    
+    
+    #-- Private Methods
+    #[None]
+    
+    
+    #-- Public Methods
+    def reset(self, charset=None):
+        """ Docstring. """
+        
+        
+    def print_shuffle(self):
+        """ Generates and prints all unique permutations of a char array.
+        """
 
 
 #print gen_subsets(CHARSET, 4)
