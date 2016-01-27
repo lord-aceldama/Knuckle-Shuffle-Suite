@@ -1,12 +1,5 @@
 #!/usr/bin/env python
 
-#-- Making Pylint behave (Haters gonna hate)
-# spylint: disable = old-style-class
-# spylint: disable = trailing-whitespace
-# spylint: disable = line-too-long
-# spylint: disable = bad-whitespace
-# spylint: disable = too-many-arguments
-
 """ Knuckle Shuffle
     
     author: aceldama.v1.0 at gmail
