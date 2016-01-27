@@ -24,7 +24,9 @@ whatever you're brute-forcing and/or obtained it with the legal owner's permissi
 
 
 ###REQUREMENTS:
-The knuckle-shuffle suite was designed for use with Python 2.7.1 on Linux.
+The knuckle-shuffle suite was designed for use with Python 2.7.1 on Linux, but should work on windows 
+too. I haven't tested it yet, so I don't know if I'll need to add a different EOL marker, or at least 
+add the option to use it as a command-line parameter.
 
 
 ###SCRIPTS:

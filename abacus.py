@@ -178,8 +178,9 @@ class Abacus():
         """ Looks at the current char subset and matches it with the checked chars 
             dictionary to create an efficient bundle for use in the inc() method.
             The idea is to create an array with the characters that have been checked.
+                [[indexes], [[charset pos1], ..., [charset posN]]]
         """
-        tmp = [0, [], []]
+        tmp = [[], [[],[],[]]]
         
         if len(tmp[1]) > 0:
             tmp[0] = len(self._abacus) - 2
