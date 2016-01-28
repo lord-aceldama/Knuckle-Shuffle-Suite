@@ -7,7 +7,7 @@
     Licensed under the GNU General Public License Version 2 (GNU GPL v2), 
         available at: http://www.gnu.org/licenses/gpl-2.0.txt
     
-    (C) 2015 David A Swanepoel
+    (C) 2016 David A Swanepoel
 
     -----------------
 
@@ -19,7 +19,7 @@ import sys
 
 
 #-- Global Constants
-CHARSET = sorted("abcdef")
+DEBUG_MODE = True       # For the printing of Debug Messages to stderr
 
 
 #-- Abacus class
@@ -33,7 +33,6 @@ class Abacus():
     
     
     #-- Output
-    _stdout = sys.stdout
     _stderr = sys.stderr
     
     
@@ -46,33 +45,50 @@ class Abacus():
     
     
     #-- Special class methods
-    def __init__(self, charset, token=None, token_length=None, std_out=None, std_err=None): #subset=None
+    def __init__(self, charset, token=None, subset=None, token_length=None, std_err=None):
         """ Initializes the class. Requires a valid charset and also either a valid token
             or valid token length.
-            
+                
+            SYNTAX
+                x = Abacus(charset, (token[, subset] | [[token,] subset,] token_length)[, std_err])
+
             VARIABLES: 
-                charset:        [str] of length 1 or greater
+                charset:        [str] the character set we wish to brute-force.
                 
-                **subset:**     [str] where 0 < len(subset) <= len(charset)                 <- Future
+                token:          [str] the token from which to resume. If the token
+                                contains repeated chars, a subset is required as we 
+                                cannot deduce the subset the keyspace falls in. In 
+                                cases where a token is supplied, token_length will be
+                                ignored because len(token), unless the user screwed 
+                                up, should do the same thing.
+                                
+                subset:         [str] the current subset to be resumed from. It is only
+                                required in cases where only the token_length or a token
+                                containing duplicate characters is supplied.
                 
-                token:          [str] consisting of unique characters. In order to get
-                                the abacus indexes from the token chars, they must all
-                                be unique.
-                
-                token_length:   [int] of value greater than 0. When a token length is 
-                                suplied, we assume the user intends to start from the
-                                very beginning.
-                
-                stdout:         Is either PIPE, a valid file descriptor or an existing
-                                file object. This is where the class's successfully
-                                generated output goes.
+                token_length:   [int] If token_length is supplied, token, start token and 
+                                subset are all optional.
                 
                 stderr:         Is either PIPE, a valid file descriptor or an existing
-                                file object. This is where the class's error output
-                                goes.
+                                file object. This is where the class's error and debug
+                                output goes to.
+            
+            EXAMPLE:
+                x = Abacus("abcde")
+                x = Abacus("abcde", "bde")
+                x = Abacus("abcde", "bbe", "bde")
+                x = Abacus("abcde", token_length:=3)
         """
         #-- Make sure the user didn't mess up when passing parameters.
-        assert((type(charset) is str) and (len(charset) > 0)),      "ERR: Bad charset."
+        assert(self._chkvar(str, charset, 1)),  "ERR: Bad charset."
+        assert(self._chkvar(int, token_length, 1) or 
+               self._chkvar(str, token, 1)),    "ERR: Either token or token_length required."    
+        assert(self._chkvar(str, subset, 1) and 
+               self._chkvar(str, subset, 1)),   "ERR: Bad starting subset."
+        assert(self._chkvar(str, subset, 1)),   "ERR: Bad starting token."
+        
+        assert(self._chkvar(str, subset, 1, len(charset))),         "ERR: "
+        
         assert(((type(token) is str) and (len(token) > 0)) or
                ((token is None) and (type(token_length) is int) and
                 (len(token) == len(set(sorted(token)))))),          "ERR: Bad token/token_length."
@@ -105,10 +121,7 @@ class Abacus():
         #-- Init grouped chars.
         self._eff_idx = self._get_efficient_charset()
         
-        #-- Set output vectors.
-        if std_out is not None:
-            self._stdout = std_out
-        
+        #-- Set output vectors (Abacus does not print to stdout, but may print messages to stderr).
         if std_err is not None:
             self._stderr = std_err
     
@@ -124,7 +137,41 @@ class Abacus():
         return token
     
     
+    #-- Private static methods
+    @staticmethod
+    def _chkvar(var_type, var, var_min=None, var_max=None):
+        """ Shorthand for checking variables on given criteria. """
+        flag = type(var) is var_type
+        
+        if flag or (var_type in [int, float]):
+            #-- Check int
+            if type(var_min):
+                flag = (var >= 0)
+            if type(var_max) in [int, float]:
+                flag = (var <= 0)
+                
+        if flag or (var_type in [str, list, tuple]):
+            #-- Check string, list or tuple
+            if type(var_min) is int:
+                flag = (len(var) >= 0)
+            if type(var_max) is int:
+                flag = (len(var) <= 0)
+    
+        #-- Return result
+        return flag
+    
+    
     #-- Private methods
+    def _print_debug(self, text):
+        """ Prints the value of the text variable to stderr if the DEBUG_MODE global
+            variable is set to True.
+        """
+        if ('DEBUG_MODE' in globals()) and (DEBUG_MODE == True):
+            if (self._stderr is not None) and (type(text) is str) and len(text):
+                self._stderr.write("DEBUG::ABACUS> " + text + "\n")
+                self._stderr.flush()
+    
+    
     def _shift(self):
         """ This updates both the abacus as well as the checked matrix. For more info
             on exactly how it works, see the documentation which will (eventually) be
@@ -196,6 +243,7 @@ class Abacus():
         return token
 
 
+#-- Shuffle Class (Stub)
 class Shuffle():
     """ Docstring. """
     
@@ -230,7 +278,16 @@ class Shuffle():
     
     
     #-- Private Methods
-    #[None]
+    def _print_debug(self, text):
+        """ Prints the value of the text variable to stderr if the DEBUG_MODE global
+            variable is set to True.
+        """
+        if ('DEBUG_MODE' in globals()) and (DEBUG_MODE == True):
+            if (self._stderr is not None) and (type(text) is str) and len(text):
+                self._stderr.write("DEBUG::SHUFFLE> " + text + "\n")
+                self._stderr.flush()
+    
+    
     
     
     #-- Public Methods
