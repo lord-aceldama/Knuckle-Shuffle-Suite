@@ -62,12 +62,12 @@ class Abacus():
                                 ignored because len(token), unless the user screwed 
                                 up, should do the same thing.
                                 
-                subset:         [str] the current subset to be resumed from. It is only
-                                required in cases where only the token_length or a token
-                                containing duplicate characters is supplied.
+                subset:         [str] the current subset to be resumed from. It is
+                                only required in cases where only the token_length
+                                or a token with repeating characters is given.
                 
-                token_length:   [int] If token_length is supplied, token, start token and 
-                                subset are all optional.
+                token_length:   [int] If token_length is supplied, token, start token
+                                and subset are all optional.
                 
                 stderr:         Is either PIPE, a valid file descriptor or an existing
                                 file object. This is where the class's error and debug
@@ -286,8 +286,6 @@ class Shuffle():
             if (self._stderr is not None) and (type(text) is str) and len(text):
                 self._stderr.write("DEBUG::SHUFFLE> " + text + "\n")
                 self._stderr.flush()
-    
-    
     
     
     #-- Public Methods
