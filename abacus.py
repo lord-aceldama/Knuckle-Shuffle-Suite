@@ -37,6 +37,8 @@ class Abacus():
     
     
     #-- Global Vars
+    _startup = None     # {}                    variables for reset go here.
+    
     _charset = None     # str                   character set to be broken up and scanned.
     _checked = None     # {chr:set([chr])}      keeps track of which chars were scanned together.
     _abacus  = None     # [int]                 indexes of the charset subset.
@@ -69,7 +71,7 @@ class Abacus():
                 token_length:   [int] If token_length is supplied, token, start token
                                 and subset are all optional.
                 
-                stderr:         Is either PIPE, a valid file descriptor or an existing
+                std_err:        Is either PIPE, a valid file descriptor or an existing
                                 file object. This is where the class's error and debug
                                 output goes to.
             
@@ -80,18 +82,26 @@ class Abacus():
                 x = Abacus("abcde", token_length:=3)
         """
         #-- Make sure the user didn't mess up when passing parameters.
-        assert(self._chkvar(str, charset, 1)),  "ERR: Bad charset."
-        assert(self._chkvar(int, token_length, 1) or 
-               self._chkvar(str, token, 1)),    "ERR: Either token or token_length required."    
-        assert(self._chkvar(str, subset, 1) and 
-               self._chkvar(str, subset, 1)),   "ERR: Bad starting subset."
-        assert(self._chkvar(str, subset, 1)),   "ERR: Bad starting token."
+        assert(self._chkvar(str, charset, 1)),          "ERR: Bad charset."
+        assert(self._chkvar(int, token_length, 1) or
+               self._chkvar(str, token, 1)),            "ERR: Either token or token_length required."
+        assert(self._chkunique(token) or
+               self._chkvar(str, subset, 1)),           "ERR: Subset required if token contains duplicate chars."
+        assert(self._chkvar(int, token_length, 1) or
+               self._chkunique(token) or
+               (self._chkvar(str, subset, 1) and
+                self._chkunique(subset))),              "ERR: Required subset contains duplicate chars."
         
-        assert(self._chkvar(str, subset, 1, len(charset))),         "ERR: "
+        #-- Set output vector (Abacus does not print to stdout, but may print messages to stderr).
+        if std_err is not None:
+            self._stderr = std_err
         
-        assert(((type(token) is str) and (len(token) > 0)) or
-               ((token is None) and (type(token_length) is int) and
-                (len(token) == len(set(sorted(token)))))),          "ERR: Bad token/token_length."
+        #-- Non-fatal errors (warnings)
+        if not self._chkunique(token):
+            if not self._chkvar(str, subset, 1):
+                self._print("WARNING", "Token ignored as it contains duplicate chars and no subset supplied.")
+            elif not self._chkunique(subset):
+                self._print("WARNING", "Token and subset ignored as both contain duplicate characters.")
         
         #-- Initialization
         self._charset = sorted(set(charset))
@@ -121,9 +131,11 @@ class Abacus():
         #-- Init grouped chars.
         self._eff_idx = self._get_efficient_charset()
         
-        #-- Set output vectors (Abacus does not print to stdout, but may print messages to stderr).
-        if std_err is not None:
-            self._stderr = std_err
+        #-- Set up reset parameters
+        self._startup["checked"] = dict(self._checked)
+        self._startup["abacus"]  = list(self._abacus)
+        self._startup["indexes"] = list(self._indexes)
+        self._startup["eff_idx"] = list(self._eff_idx[0], list(self._eff_idx[1]), list(self._eff_idx[2]))
     
     
     def __str__(self):
@@ -156,20 +168,35 @@ class Abacus():
                 flag = (len(var) >= 0)
             if type(var_max) is int:
                 flag = (len(var) <= 0)
-    
+        
         #-- Return result
         return flag
     
     
+    @staticmethod
+    def _chkunique(var):
+        """ Checks whether a string, list or tuple consists of unique items. """
+        return len(var) == len(set(sorted(var)))
+
+    
     #-- Private methods
+    def _print(self, state, text):
+        """ Prints the value of the text variable to stderr if it has been set to something
+            other than none. State is just the indicator variable for the message source like 
+            debug, warning or error etc.
+        """
+        if self._stderr is not None:
+            if (type(text) is str) and len(text):
+                self._stderr.write("ABACUS::" + state + "> " + text + "\n")
+                self._stderr.flush()
+    
+    
     def _print_debug(self, text):
         """ Prints the value of the text variable to stderr if the DEBUG_MODE global
             variable is set to True.
         """
         if ('DEBUG_MODE' in globals()) and (DEBUG_MODE == True):
-            if (self._stderr is not None) and (type(text) is str) and len(text):
-                self._stderr.write("DEBUG::ABACUS> " + text + "\n")
-                self._stderr.flush()
+            self._print("DEBUG", text)
     
     
     def _shift(self):
@@ -229,18 +256,21 @@ class Abacus():
     
     
     #-- Public methods
+    def reset(self):
+        """ Resets the state """
+        assert(self._charset is not None), "ERR: Charset not initialized."
+        
+        self._checked = dict(self._startup["checked"])
+        self._abacus  = list(self._startup["abacus"])
+        self._indexes = list(self._startup["indexes"])
+        self._eff_idx = list(self._startup["eff_idx"][0], 
+                             list(self._startup["eff_idx"][1]), 
+                             list(self._startup["eff_idx"][2]))
+    
+    
     def inc(self):
         """ Calculates the next token and shifts the abacus as required. """
         return self._indexes[0] #-- To Do
-    
-    
-    def print_token(self):
-        """ Returns the current token and calculates the next. Includes the 
-            newline charcter in the returned string.
-        """
-        token = str(self) + "\n"
-        self.inc()
-        return token
 
 
 #-- Shuffle Class (Stub)
