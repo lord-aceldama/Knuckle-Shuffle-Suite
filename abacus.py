@@ -81,16 +81,21 @@ class Abacus():
                 x = Abacus("abcde", "bbe", "bde")
                 x = Abacus("abcde", token_length:=3)
         """
+        #-- Local ignore flags
+        ignore_token_length = False
+        ignore_token        = False
+        ignore_subset       = False
+        
         #-- Make sure the user didn't mess up when passing parameters.
-        assert(self._chkvar(str, charset, 1)),          "ERR: Bad charset."
+        assert(self._chkvar(str, charset, 1)),      "ERR: Bad charset."
         assert(self._chkvar(int, token_length, 1) or
-               self._chkvar(str, token, 1)),            "ERR: Either token or token_length required."
+               self._chkvar(str, token, 1)),        "ERR: Either token or token_length required."
         assert(self._chkunique(token) or
-               self._chkvar(str, subset, 1)),           "ERR: Subset required if token contains duplicate chars."
+               self._chkvar(str, subset, 1)),       "ERR: Subset required if token contains duplicate chars."
         assert(self._chkvar(int, token_length, 1) or
                self._chkunique(token) or
                (self._chkvar(str, subset, 1) and
-                self._chkunique(subset))),              "ERR: Required subset contains duplicate chars."
+                self._chkunique(subset))),          "ERR: Required subset contains duplicate chars."
         
         #-- Set output vector (Abacus does not print to stdout, but may print messages to stderr).
         if std_err is not None:
@@ -100,14 +105,30 @@ class Abacus():
         if not self._chkunique(token):
             if not self._chkvar(str, subset, 1):
                 self._print("WARNING", "Token ignored as it contains duplicate chars and no subset supplied.")
+                ignore_token  = True
             elif not self._chkunique(subset):
-                self._print("WARNING", "Token and subset ignored as both contain duplicate characters.")
+                self._print("WARNING", "Both token and subset ignored because they contain duplicate characters.")
+                ignore_token  = True
+                ignore_subset = True
+        
+        if self._chkvar(int, token_length, 1):
+            if (not ignore_token) and self._chkvar(str, token, 1) and (token_length != len(token)):
+                self._print("WARNING", "Token ignored as len(token) does not match token_length.")
+                ignore_token  = True
+            if (not ignore_subset) and self._chkvar(str, subset, 1) and (token_length != len(subset)):
+                self._print("WARNING", "Subset ignored as len(subset) does not match token_length.")
+                ignore_subset = True
+        else:
+            ignore_token_length = True
+        
+        #-- Last check(s)
+        assert(not (ignore_token_length and ignore_token and ignore_subset)), "ERR: Required parameters ignored."
         
         #-- Initialization
         self._charset = sorted(set(charset))
         self._checked = {char : set([]) for char in self._charset}
         
-        if token is None:
+        if ignore_token and ignore_subset:
             #-- Init abacus indexes from token_length.
             self._abacus = range(token_length)
             
@@ -257,15 +278,22 @@ class Abacus():
     
     #-- Public methods
     def reset(self):
-        """ Resets the state """
+        """ Resets and returns the old and new tokens as a tuple. """
         assert(self._charset is not None), "ERR: Charset not initialized."
         
+        #-- Get current token
+        temp_token = str(self)
+        
+        #-- Reset state
         self._checked = dict(self._startup["checked"])
         self._abacus  = list(self._startup["abacus"])
         self._indexes = list(self._startup["indexes"])
         self._eff_idx = list(self._startup["eff_idx"][0], 
                              list(self._startup["eff_idx"][1]), 
                              list(self._startup["eff_idx"][2]))
+        
+        #-- Return state tuple
+        return (temp_token, str(self))
     
     
     def inc(self):
