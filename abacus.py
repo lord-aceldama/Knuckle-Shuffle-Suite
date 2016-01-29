@@ -37,13 +37,14 @@ class Abacus():
     
     
     #-- Global Vars
-    _startup = None     # {}                    variables for reset go here.
+    _startup = None     # {}                variables for reset go here.
+    _alldone = False    # [bool]            flag for keeping track when entire keyspace has been searched.
     
-    _charset = None     # str                   character set to be broken up and scanned.
-    _checked = None     # {chr:set([chr])}      keeps track of which chars were scanned together.
-    _abacus  = None     # [int]                 indexes of the charset subset.
-    _indexes = None     # [int]                 current token charset indexes.
-    _eff_idx = None     # [int, [chr], [chr]]   groups matched and unmached chars to speed up inc().
+    _charset = None     # str               character set to be broken up and scanned.
+    _checked = None     # {chr:set([chr])}  keeps track of which chars were scanned together.
+    _abacus  = None     # [int]             indexes of the charset subset.
+    _indexes = None     # [int]             current token charset indexes.
+    _eff_idx = None     # [[int], [[chr]]]  groups matched and unmached chars to speed up inc().
     
     
     #-- Special class methods
@@ -124,35 +125,37 @@ class Abacus():
         #-- Last check(s)
         assert(not (ignore_token_length and ignore_token and ignore_subset)), "ERR: Required parameters ignored."
         
-        #-- Initialization
+        #-- Global variable initialization
         self._charset = sorted(set(charset))
         self._checked = {char : set([]) for char in self._charset}
         
-        if ignore_token and ignore_subset:
-            #-- Init abacus indexes from token_length.
-            self._abacus = range(token_length)
-            
-            #-- Create and zero the indexes.
-            self._indexes = [0 for _ in range(token_length)]
-            
-        else:
-            #-- Init abacus indexes from token.
-            self._abacus = range(len(token))
-            abacus_target = ",".join([self._charset.index(token_char) for token_char in sorted(token)])
-            
-            #-- Build checked matrix by iterating through all the abacus charset subsets until the
-            #   target subset is reached. 
-            #       *cough*  No idea how i'm going get that done any more efficiently.  *cough*
-            while ",".join(self._abacus) != abacus_target:
-                self._shift()
-            
-            #-- Set up the indexes from the recovered abacus.
-            self._indexes = range(len(self._abacus))
-    
-        #-- Init grouped chars.
-        self._eff_idx = self._get_efficient_charset()
+        #-- Fill in the blanks
+        if ignore_token:
+            if ignore_subset:
+                #-- Generate token from subset.
+                token = "".join([charset[0] for _ in range(token_length)])
+            else:
+                #-- Generate token from token_length.
+                token = "".join(sorted(subset))
+
+        if ignore_subset:
+            #-- Generate subset from token.
+            subset = "".join(sorted(token))
         
-        #-- Set up reset parameters
+        if ignore_token_length:
+            #-- Generate token_length from token.
+            token_length = len(token)
+            
+        #-- Build checked matrix by iterating through all the abacus charset subsets until the
+        #   target subset is reached. 
+        #       *cough*  No idea how i'm going get that done any more efficiently.  *cough*
+        self._abacus  = [0 for _ in range(token_length)]
+        self._indexes = [self._charset.index(token[idx]) for idx in range(token_length)]
+        abacus_target = ",".join([self._charset.index(token_char) for token_char in sorted(subset)])
+        while ",".join(self._abacus) != abacus_target:
+            self._shift()   #-- Sets self._checked and self._eff_idx
+        
+        #-- Save reset parameters
         self._startup["checked"] = dict(self._checked)
         self._startup["abacus"]  = list(self._abacus)
         self._startup["indexes"] = list(self._indexes)
@@ -160,12 +163,13 @@ class Abacus():
     
     
     def __str__(self):
-        """ Returns the current token string. DOES NOT include a newline character and
-            DOES NOT calculate the next token automatically. See: Abacus.print_token()
+        """ Returns the current token string or and empty string if the entire keyspace 
+            has been comleted.
         """
         token = ""
-        for idx in self._indexes:
-            token += self._charset[self._abacus[idx]]
+        if not self._alldone:
+            for idx in self._indexes:
+                token += self._charset[self._abacus[idx]]
         
         return token
     
@@ -196,7 +200,7 @@ class Abacus():
     
     @staticmethod
     def _chkunique(var):
-        """ Checks whether a string, list or tuple consists of unique items. """
+        """ Checks whether a string, list or tuple consists of unique chars/items. """
         return len(var) == len(set(sorted(var)))
 
     
@@ -259,7 +263,8 @@ class Abacus():
         self._eff_idx = self._get_efficient_charset()
         
         #-- Let the user know whether continuing is possible.
-        return self._abacus[-1] < len(self._charset)
+        self._alldone = self._abacus[-1] >= len(self._charset)
+        return not self._alldone
     
     
     def _get_efficient_charset(self):
@@ -280,25 +285,43 @@ class Abacus():
     def reset(self):
         """ Resets and returns the old and new tokens as a tuple. """
         assert(self._charset is not None), "ERR: Charset not initialized."
+        assert(self._startup is not None), "ERR: Startup not initialized."
         
         #-- Get current token
-        temp_token = str(self)
+        old_token = str(self)
         
         #-- Reset state
         self._checked = dict(self._startup["checked"])
         self._abacus  = list(self._startup["abacus"])
         self._indexes = list(self._startup["indexes"])
-        self._eff_idx = list(self._startup["eff_idx"][0], 
-                             list(self._startup["eff_idx"][1]), 
-                             list(self._startup["eff_idx"][2]))
+        self._eff_idx = list(list(self._startup["eff_idx"][0]), 
+                             [list(subset) for subset in self._startup["eff_idx"][1]])
+        self._alldone = False
         
         #-- Return state tuple
-        return (temp_token, str(self))
+        return (old_token, str(self))
     
     
     def inc(self):
         """ Calculates the next token and shifts the abacus as required. """
-        return self._indexes[0] #-- To Do
+        token = str(self)
+        if self._chkvar(str, token, 1):
+            if self._eff_idx is None:
+                #-- Get the efficient indexes
+                self._eff_idx = self._get_efficient_charset()
+            else:
+                #-- Inc efficient indexes
+                idx  = len(self._eff_idx[0]) - 1
+                self._eff_idx[0][idx] += 1
+                while (idx >= 0) and (self._eff_idx[0][idx] >= len(self._eff_idx[1][idx])):
+                    self._eff_idx[0][idx] = 0
+                    idx -= 1
+                    self._eff_idx[0][idx] += 1
+                
+                #-- Check if we need to shift
+                if self._eff_idx[0][0] >= len(self._eff_idx[1][0]):
+                    self._shift()
+        return token
 
 
 #-- Shuffle Class (Stub)
