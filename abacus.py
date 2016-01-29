@@ -334,7 +334,7 @@ class Abacus():
         return (old_token, str(self))
     
     
-    def inc(self): ############## REMEMBER TO REPLACE _opt_idx, _opt_chr and self._startup[] from here down!!!
+    def inc(self):
         """ Returns the current token and then calculates the next one, shifting the abacus as
             required. If the entire keyspace has been processed, an empty token is returned.
         """
@@ -355,6 +355,11 @@ class Abacus():
         
         #-- Return the token we got before doing the increment.
         return token
+    
+    
+    def done(self):
+        """ Returns a simple boolean to say if work's complete. """
+        return self._alldone
 
 
 #-- Shuffle Class (Stub)
@@ -412,6 +417,12 @@ class Shuffle():
         """
 
 
-#print gen_subsets(CHARSET, 4)
-#print [[0 for _ in range(4)], [range(4) for _ in range(4)]]
+def debug_test():
+    """ Test run """
+    test = Abacus("abcde", token_length=3)
+    stop = 0
+    while not (test.done() or (stop > 100)):
+        print "%s: %s" % (stop, test.inc())
+        stop += 1
 
+debug_test()
