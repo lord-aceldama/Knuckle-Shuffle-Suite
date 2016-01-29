@@ -43,8 +43,8 @@ class Abacus():
     _charset = None     # str               character set to be broken up and scanned.
     _checked = None     # {chr:set([chr])}  keeps track of which chars were scanned together.
     _abacus  = None     # [int]             indexes of the charset subset.
-    _indexes = None     # [int]             current token charset indexes.
-    _eff_idx = None     # [[int], [[chr]]]  groups matched and unmached chars to speed up inc().
+    _opt_chr = None     # [[chr]]           optimised (precalculated) characters.
+    _opt_idx = None     # [int]             current optimised charset indexes.
     
     
     #-- Special class methods
@@ -146,30 +146,33 @@ class Abacus():
             #-- Generate token_length from token.
             token_length = len(token)
             
+        #-- On first run, we generate the special optimised subset.
+        self._abacus  = range(token_length)
+        self._opt_chr = [range(token_length) for _ in range(token_length)]
+        self._opt_idx = [0 for _ in range(token_length)]
+        
         #-- Build checked matrix by iterating through all the abacus charset subsets until the
         #   target subset is reached. 
         #       *cough*  No idea how i'm going get that done any more efficiently.  *cough*
-        self._abacus  = [0 for _ in range(token_length)]
-        self._indexes = [self._charset.index(token[idx]) for idx in range(token_length)]
         abacus_target = ",".join([self._charset.index(token_char) for token_char in sorted(subset)])
         while ",".join(self._abacus) != abacus_target:
-            self._shift()   #-- Sets self._checked and self._eff_idx
+            self._shift()   #-- Updates self._checked and self._eff_idx
         
         #-- Save reset parameters
         self._startup["checked"] = dict(self._checked)
         self._startup["abacus"]  = list(self._abacus)
-        self._startup["indexes"] = list(self._indexes)
-        self._startup["eff_idx"] = list(self._eff_idx[0], list(self._eff_idx[1]), list(self._eff_idx[2]))
+        self._startup["opt_idx"] = list(self._opt_idx)
+        self._startup["opt_chr"] = [list(lst) for lst in self._opt_chr]
     
     
     def __str__(self):
         """ Returns the current token string or and empty string if the entire keyspace 
-            has been comleted.
+            has been completed.
         """
         token = ""
         if not self._alldone:
-            for idx in self._indexes:
-                token += self._charset[self._abacus[idx]]
+            for idx in self._opt_idx:
+                token += self._opt_chr[idx]
         
         return token
     
@@ -233,8 +236,9 @@ class Abacus():
             abacus[-1] < len(charset).
         """
         #-- Update checked characters dictionary.
-        for char in self._abacus:
-            self._checked[char] = self._checked[char].union(self._abacus)
+        checked_chars = [self._charset[idx] for idx in self._abacus]
+        for char in checked_chars:
+            self._checked[char].update(checked_chars)
         
         #-- Perform the abacus shift operation.
         if (self._abacus[-1] + 1) < len(self._charset):
@@ -259,25 +263,54 @@ class Abacus():
                     self._abacus[idx] += 1          # xo-8  xoo-o   xo-oo   #-- Increment checked value.
                     idx += 1                                                #-- Increment position to check.
         
-        #-- Grouped the indexes to speed up inc.
-        self._eff_idx = self._get_efficient_charset()
-        
         #-- Let the user know whether continuing is possible.
         self._alldone = self._abacus[-1] >= len(self._charset)
+        
+        #-- Characters changed, see if we need a new optimisation.
+        if not self._alldone:
+            #-- Zero the indexes.
+            self._opt_idx = [0 for _ in self._abacus]
+            
+            #-- Get the new optimized charset.
+            self._opt_chr = self._get_optimised_charset()
+        
+        #-- Return True if we haven't finished scanning the charset.
         return not self._alldone
     
     
-    def _get_efficient_charset(self):
+    def _get_optimised_charset(self):
         """ Looks at the current char subset and matches it with the checked chars 
             dictionary to create an efficient bundle for use in the inc() method.
             The idea is to create an array with the characters that have been checked.
-                [[indexes], [[charset pos1], ..., [charset posN]]]
         """
-        tmp = [[], [[],[],[]]]
         
-        if len(tmp[1]) > 0:
-            tmp[0] = len(self._abacus) - 2
+        #-- Build full set.
+        abacus_chars = [self._charset[idx] for idx in self._abacus]
+        tmp = list(abacus_chars)
+        
+        #-- Get set stats.
+        #partial_sets    = 0
+        empty_sets      = 0
+        complete_sets   = 0
+        for char in abacus_chars:
+            if len(self._checked[char]) == len(self._abacus):
+                complete_sets += 1
+            if len(self._checked[char]) == 0:
+                empty_sets += 1
+            #else:
+            #    partial_sets += 1
+        
+        #-- Optimise
+        if complete_sets < len(abacus_chars):
+            #-- Set first and last entries are static
+            for idx in range(1, len(tmp) - 1):
+                tmp[idx] = list(abacus_chars)
             
+            if empty_sets == 1:
+                #-- Set only the last entry as static
+                tmp[idx] = list(abacus_chars)
+        
+        #-- Return charset
         return tmp
     
     
@@ -291,36 +324,36 @@ class Abacus():
         old_token = str(self)
         
         #-- Reset state
+        self._alldone = False
         self._checked = dict(self._startup["checked"])
         self._abacus  = list(self._startup["abacus"])
-        self._indexes = list(self._startup["indexes"])
-        self._eff_idx = list(list(self._startup["eff_idx"][0]), 
-                             [list(subset) for subset in self._startup["eff_idx"][1]])
-        self._alldone = False
+        self._opt_idx = list(self._startup["opt_idx"])
+        self._opt_chr = list([list(lst) for lst in self._startup["opt_chr"]])
         
         #-- Return state tuple
         return (old_token, str(self))
     
     
-    def inc(self):
-        """ Calculates the next token and shifts the abacus as required. """
+    def inc(self): ############## REMEMBER TO REPLACE _opt_idx, _opt_chr and self._startup[] from here down!!!
+        """ Returns the current token and then calculates the next one, shifting the abacus as
+            required. If the entire keyspace has been processed, an empty token is returned.
+        """
+        #-- Grab the current token
         token = str(self)
         if self._chkvar(str, token, 1):
-            if self._eff_idx is None:
-                #-- Get the efficient indexes
-                self._eff_idx = self._get_efficient_charset()
-            else:
-                #-- Inc efficient indexes
-                idx  = len(self._eff_idx[0]) - 1
-                self._eff_idx[0][idx] += 1
-                while (idx >= 0) and (self._eff_idx[0][idx] >= len(self._eff_idx[1][idx])):
-                    self._eff_idx[0][idx] = 0
-                    idx -= 1
-                    self._eff_idx[0][idx] += 1
-                
-                #-- Check if we need to shift
-                if self._eff_idx[0][0] >= len(self._eff_idx[1][0]):
-                    self._shift()
+            #-- Inc efficient indexes.
+            idx  = len(self._opt_idx[0]) - 1
+            self._opt_idx[idx] += 1
+            while (idx >= 0) and (self._opt_idx[idx] >= len(self._opt_chr[idx])):
+                self._opt_idx[idx] = 0
+                idx -= 1
+                self._opt_idx[idx] += 1
+            
+            #-- Check if we need to shift.
+            if self._opt_idx[0] >= len(self._opt_chr[0]):
+                self._shift()
+        
+        #-- Return the token we got before doing the increment.
         return token
 
 
@@ -380,3 +413,5 @@ class Shuffle():
 
 
 #print gen_subsets(CHARSET, 4)
+#print [[0 for _ in range(4)], [range(4) for _ in range(4)]]
+
