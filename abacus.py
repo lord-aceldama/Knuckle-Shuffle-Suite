@@ -88,15 +88,15 @@ class Abacus():
         ignore_subset       = False
         
         #-- Make sure the user didn't mess up when passing parameters.
-        assert(self._chkvar(str, charset, 1)),      "ERR: Bad charset."
+        assert(self._chkvar(str, charset, 1)),      "Bad charset."
         assert(self._chkvar(int, token_length, 1) or
-               self._chkvar(str, token, 1)),        "ERR: Either token or token_length required."
-        assert(self._chkunique(token) or
-               self._chkvar(str, subset, 1)),       "ERR: Subset required if token contains duplicate chars."
+               self._chkvar(str, token, 1)),        "Either token or token_length required."
+        #assert(self._chkunique(token) or
+        #       self._chkvar(str, subset, 1)),       "Subset required if token contains duplicate chars."
         assert(self._chkvar(int, token_length, 1) or
                self._chkunique(token) or
                (self._chkvar(str, subset, 1) and
-                self._chkunique(subset))),          "ERR: Required subset contains duplicate chars."
+                self._chkunique(subset))),          "Required subset contains duplicate chars."
         
         #-- Set output vector (Abacus does not print to stdout, but may print messages to stderr).
         if std_err is not None:
@@ -104,13 +104,13 @@ class Abacus():
         
         #-- Non-fatal errors (warnings)
         if not self._chkunique(token):
-            if not self._chkvar(str, subset, 1):
-                self._print("WARNING", "Token ignored as it contains duplicate chars and no subset supplied.")
-                ignore_token  = True
-            elif not self._chkunique(subset):
+            if not self._chkunique(subset):
                 self._print("WARNING", "Both token and subset ignored because they contain duplicate characters.")
                 ignore_token  = True
                 ignore_subset = True
+            elif not self._chkvar(str, subset, 1):
+                self._print("WARNING", "Token ignored as it contains duplicate chars and no subset supplied.")
+                ignore_token  = True
         
         if self._chkvar(int, token_length, 1):
             if (not ignore_token) and self._chkvar(str, token, 1) and (token_length != len(token)):
@@ -123,7 +123,7 @@ class Abacus():
             ignore_token_length = True
         
         #-- Last check(s)
-        assert(not (ignore_token_length and ignore_token and ignore_subset)), "ERR: Required parameters ignored."
+        assert(not (ignore_token_length and ignore_token and ignore_subset)), "Required parameters ignored."
         
         #-- Global variable initialization
         self._charset = sorted(set(charset))
@@ -133,7 +133,7 @@ class Abacus():
         if ignore_token:
             if ignore_subset:
                 #-- Generate token from subset.
-                token = "".join([charset[0] for _ in range(token_length)])
+                token = "".join([charset[idx] for idx in range(token_length)])
             else:
                 #-- Generate token from token_length.
                 token = "".join(sorted(subset))
@@ -148,18 +148,20 @@ class Abacus():
             
         #-- On first run, we generate the special optimised subset.
         self._abacus  = range(token_length)
-        self._opt_chr = [range(token_length) for _ in range(token_length)]
+        self._checked = {char:set([]) for char in self._charset}
+        self._opt_chr = [[self._charset[idx] for idx in range(token_length)] for _ in range(token_length)]
         self._opt_idx = [0 for _ in range(token_length)]
         
         #-- Build checked matrix by iterating through all the abacus charset subsets until the
         #   target subset is reached. 
         #       *cough*  No idea how i'm going get that done any more efficiently.  *cough*
-        abacus_target = ",".join([self._charset.index(token_char) for token_char in sorted(subset)])
-        while ",".join(self._abacus) != abacus_target:
+        abacus_target = ",".join([str(self._charset.index(token_char)) for token_char in sorted(subset)])
+        while ",".join([str(token_char) for token_char in self._abacus]) != abacus_target:
             self._shift()   #-- Updates self._checked and self._eff_idx
         
         #-- Save reset parameters
-        self._startup["checked"] = dict(self._checked)
+        self._startup = {}
+        self._startup["checked"] =self._checked.copy()
         self._startup["abacus"]  = list(self._abacus)
         self._startup["opt_idx"] = list(self._opt_idx)
         self._startup["opt_chr"] = [list(lst) for lst in self._opt_chr]
@@ -171,8 +173,10 @@ class Abacus():
         """
         token = ""
         if not self._alldone:
-            for idx in self._opt_idx:
-                token += self._opt_chr[idx]
+            idx = 0
+            while idx < len(self._opt_idx):
+                token +=  self._opt_chr[idx][self._opt_idx[idx]]
+                idx += 1
         
         return token
     
@@ -183,28 +187,31 @@ class Abacus():
         """ Shorthand for checking variables on given criteria. """
         flag = type(var) is var_type
         
-        if flag or (var_type in [int, float]):
+        if flag and (var_type in [int, float]):
             #-- Check int
             if type(var_min):
-                flag = (var >= 0)
+                flag = (var >= var_min)
             if type(var_max) in [int, float]:
-                flag = (var <= 0)
-                
-        if flag or (var_type in [str, list, tuple]):
+                flag = (var <= var_max)
+        elif flag and (var_type in [str, list, tuple]):
             #-- Check string, list or tuple
             if type(var_min) is int:
-                flag = (len(var) >= 0)
+                flag = (len(var) >= var_min)
             if type(var_max) is int:
-                flag = (len(var) <= 0)
+                flag = (len(var) <= var_max)
         
         #-- Return result
+        #self._debug_print("%s(%s) [%s, %s] [%s]" % (var_type, var, var_min, var_max, flag))
         return flag
     
     
     @staticmethod
     def _chkunique(var):
         """ Checks whether a string, list or tuple consists of unique chars/items. """
-        return len(var) == len(set(sorted(var)))
+        flag = False
+        if type(var) in [str, list, tuple]:
+            flag = len(var) == len(set(sorted(var)))
+        return flag
 
     
     #-- Private methods
@@ -286,14 +293,14 @@ class Abacus():
         
         #-- Build full set.
         abacus_chars = [self._charset[idx] for idx in self._abacus]
-        tmp = list(abacus_chars)
+        tmp = [[self._charset[idx]] for idx in self._abacus]
         
         #-- Get set stats.
         #partial_sets    = 0
         empty_sets      = 0
         complete_sets   = 0
         for char in abacus_chars:
-            if len(self._checked[char]) == len(self._abacus):
+            if self._checked[char].issuperset(abacus_chars):
                 complete_sets += 1
             if len(self._checked[char]) == 0:
                 empty_sets += 1
@@ -308,7 +315,7 @@ class Abacus():
             
             if empty_sets == 1:
                 #-- Set only the last entry as static
-                tmp[idx] = list(abacus_chars)
+                tmp[0] = list(abacus_chars)
         
         #-- Return charset
         return tmp
@@ -325,7 +332,7 @@ class Abacus():
         
         #-- Reset state
         self._alldone = False
-        self._checked = dict(self._startup["checked"])
+        self._checked = self._startup["checked"].copy()
         self._abacus  = list(self._startup["abacus"])
         self._opt_idx = list(self._startup["opt_idx"])
         self._opt_chr = list([list(lst) for lst in self._startup["opt_chr"]])
@@ -342,7 +349,7 @@ class Abacus():
         token = str(self)
         if self._chkvar(str, token, 1):
             #-- Inc efficient indexes.
-            idx  = len(self._opt_idx[0]) - 1
+            idx  = len(self._opt_idx) - 1
             self._opt_idx[idx] += 1
             while (idx >= 0) and (self._opt_idx[idx] >= len(self._opt_chr[idx])):
                 self._opt_idx[idx] = 0
@@ -350,8 +357,15 @@ class Abacus():
                 self._opt_idx[idx] += 1
             
             #-- Check if we need to shift.
-            if self._opt_idx[0] >= len(self._opt_chr[0]):
+            if idx < 0:
+                #-- Yes, shift.
                 self._shift()
+            else:
+                #-- No, just iron out the indexes to avoid duplicate shuffles.
+                idx += 1
+                while idx < len(self._opt_idx):
+                    self._opt_idx[idx] = min(self._opt_idx[idx - 1], len(self._opt_chr[idx]) - 1)
+                    idx += 1
         
         #-- Return the token we got before doing the increment.
         return token
