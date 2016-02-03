@@ -422,11 +422,11 @@ class Shuffle(object):
             self._stdout.write(text + "\n")
             self._stdout.flush()
     
-    def _print_error(self, text):
+    def _print_stderr(self, text, token="INFO"):
         """ Prints text to stderr.
         """
         if (self._stderr is not None) and (type(text) is str):
-            self._stdout.write("SHUFFLE::ERROR> " + text + "\n")
+            self._stdout.write("SHUFFLE::" + token + "> " + text + "\n")
             self._stdout.flush()
     
     
@@ -435,9 +435,7 @@ class Shuffle(object):
             variable is set to True.
         """
         if ('DEBUG_MODE' in globals()) and (DEBUG_MODE == True):
-            if (self._stderr is not None) and (type(text) is str) and len(text):
-                self._stderr.write("SHUFFLE::DEBUG> " + text + "\n")
-                self._stderr.flush()
+            self._print_stderr(text, "DEBUG")
     
     
     #-- Public Static Methods
