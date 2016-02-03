@@ -30,7 +30,7 @@ class Abacus(object):
         
             EXPOSES:
                 reset()
-                inc()
+                next()
                 done()
     """
     
@@ -345,7 +345,7 @@ class Abacus(object):
         return (old_token, str(self))
     
     
-    def inc(self):
+    def next(self):
         """ Returns the current token and then calculates the next one, shifting the abacus as
             required. If the entire keyspace has been processed, an empty token is returned.
         """
@@ -382,7 +382,10 @@ class Abacus(object):
 
 #-- Shuffle Class (Stub)
 class Shuffle(object):
-    """ Docstring. """
+    """ Calculates (and print) all unique permutations of a given token string. I'm putting this
+        in a dedicated class because i plan to add multi-processing and buffering capabilities
+        later on.
+    """
     
     #-- Constants
     #[None]
@@ -463,22 +466,42 @@ class Shuffle(object):
 
     #-- Public Methods
     def reset(self, charset=None):
-        """ Docstring. """
+        """ To do. """
         
         
-    def print_shuffle(self):
-        """ Generates and prints all unique permutations of a char array.
+    def print_shuffle(self, token, prefix=""):
+        """ Generates and prints all unique permutations of a token string. It 
+            currently returns the total amount of permutations.
         """
+        total = 0
+        if len(token) == 1:
+            #-- End of recursion reached and successful token found.
+            self._print(prefix + token[0])
+            total = 1
+        else:
+            #-- Cycle through allcharacters in the chars array
+            idx = 0
+            while idx < len(token):
+                #-- If the character at the current position also to the right
+                #   we don't need process it as it would create duplicates. 
+                if token[idx] not in token[idx + 1:]:
+                    total += self.print_shuffle(token[:idx] + token[idx + 1:], prefix + token[idx])
+                idx += 1
+        return total
 
 
 def debug_test():
     """ Test run """
     test = Abacus("abcde", token_length=3)
+    shuffle = Shuffle()
     #test = Abacus("abcde", "bde")          #-- Fix Me!!
     #test = Abacus("abcde", "bbe", "bde")
     stop = 0
     while not (test.done() or (stop > 100)):
-        print "%s: %s" % (stop, test.inc())
+        token = test.next()
+        print "%s: %s" % (stop, token)
+        shuffle.print_shuffle(token)
         stop += 1
 
 debug_test()
+

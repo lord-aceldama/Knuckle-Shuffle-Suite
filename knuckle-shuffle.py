@@ -58,18 +58,15 @@ def print_shuffle(chars, prefix=""):
         total = 1
     else:
         #-- Cycle through allcharacters in the chars array
-        for i in range(len(chars)):
-            #-- Because of smart_inc, we no longer need to check whether 
-            #   the current permutation is larger than the smallest token.
-            #   The 2nd condition is therefore redundant and not needed:
-            #     > (prefix+chars[i]) >= strlowest[0:len(prefix) + 1]
-            
+        idx = 0
+        while idx < len(chars):
             #-- If the character at the current position also to the right
             #   we don't need process it as it would create duplicates. 
-            if (ENDFLAG == 0) and (chars[i] not in chars[i + 1:]):
+            if (ENDFLAG == 0) and (chars[idx] not in chars[idx + 1:]):
                 tchr = list(chars)
-                tpop = tchr.pop(i)
+                tpop = tchr.pop(idx)
                 total += print_shuffle(tchr, prefix + tpop)
+            idx += 1
     
     return total
     
