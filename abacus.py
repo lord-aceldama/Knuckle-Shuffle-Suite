@@ -23,7 +23,7 @@ import math
 DEBUG_MODE = True       # For the printing of Debug Messages to stderr
 
 
-#-- Abacus class
+#----------------------------------------------------------------------------------------------------[ ABACUS CLASS ]--
 class Abacus(object):
     """ For the theory on what makes abacus work, see the abacus.md file in the git repo at:
         https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/abacus.md
@@ -380,7 +380,7 @@ class Abacus(object):
         return self._alldone
 
 
-#-- Shuffle Class (Stub)
+#---------------------------------------------------------------------------------------------------[ SHUFFLE CLASS ]--
 class Shuffle(object):
     """ Calculates (and print) all unique permutations of a given token string. I'm putting this
         in a dedicated class because i plan to add multi-processing and buffering capabilities
@@ -490,6 +490,7 @@ class Shuffle(object):
         return total
 
 
+#------------------------------------------------------------------------------------------------------------[ MAIN ]--
 def debug_test():
     """ Test run """
     test = Abacus("abcde", token_length=3)
@@ -503,5 +504,6 @@ def debug_test():
         shuffle.print_shuffle(token)
         stop += 1
 
-debug_test()
+if DEBUGMODE:
+    debug_test()
 
