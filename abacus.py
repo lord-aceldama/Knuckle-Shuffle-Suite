@@ -16,6 +16,7 @@
 
 #-- Dependencies
 import sys
+import math
 
 
 #-- Global Constants
@@ -23,9 +24,14 @@ DEBUG_MODE = True       # For the printing of Debug Messages to stderr
 
 
 #-- Abacus class
-class Abacus():
+class Abacus(object):
     """ For the theory on what makes abacus work, see the abacus.md file in the git repo at:
         https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/abacus.md
+        
+            EXPOSES:
+                reset()
+                inc()
+                done()
     """
     
     #-- Constants
@@ -91,8 +97,6 @@ class Abacus():
         assert(self._chkvar(str, charset, 1)),      "Bad charset."
         assert(self._chkvar(int, token_length, 1) or
                self._chkvar(str, token, 1)),        "Either token or token_length required."
-        #assert(self._chkunique(token) or
-        #       self._chkvar(str, subset, 1)),       "Subset required if token contains duplicate chars."
         assert(self._chkvar(int, token_length, 1) or
                self._chkunique(token) or
                (self._chkvar(str, subset, 1) and
@@ -201,7 +205,6 @@ class Abacus():
                 flag = (len(var) <= var_max)
         
         #-- Return result
-        #self._debug_print("%s(%s) [%s, %s] [%s]" % (var_type, var, var_min, var_max, flag))
         return flag
     
     
@@ -293,6 +296,7 @@ class Abacus():
         
         #-- Build full set.
         abacus_chars = [self._charset[idx] for idx in self._abacus]
+        search_chars = set(abacus_chars)
         tmp = [[self._charset[idx]] for idx in self._abacus]
         
         #-- Get set stats.
@@ -300,7 +304,7 @@ class Abacus():
         empty_sets      = 0
         complete_sets   = 0
         for char in abacus_chars:
-            if self._checked[char].issuperset(abacus_chars):
+            if search_chars.issubset(self._checked[char]):
                 complete_sets += 1
             if len(self._checked[char]) == 0:
                 empty_sets += 1
@@ -324,8 +328,8 @@ class Abacus():
     #-- Public methods
     def reset(self):
         """ Resets and returns the old and new tokens as a tuple. """
-        assert(self._charset is not None), "ERR: Charset not initialized."
-        assert(self._startup is not None), "ERR: Startup not initialized."
+        assert(self._charset is not None), "Charset not initialized."
+        assert(self._startup is not None), "Startup not initialized."
         
         #-- Get current token
         old_token = str(self)
@@ -377,7 +381,7 @@ class Abacus():
 
 
 #-- Shuffle Class (Stub)
-class Shuffle():
+class Shuffle(object):
     """ Docstring. """
     
     #-- Constants
@@ -411,16 +415,54 @@ class Shuffle():
     
     
     #-- Private Methods
+    def _print(self, text):
+        """ Prints text to stdout.
+        """
+        if (self._stdout is not None) and (type(text) is str):
+            self._stdout.write(text + "\n")
+            self._stdout.flush()
+    
+    def _print_error(self, text):
+        """ Prints text to stderr.
+        """
+        if (self._stderr is not None) and (type(text) is str):
+            self._stdout.write("SHUFFLE::ERROR> " + text + "\n")
+            self._stdout.flush()
+    
+    
     def _print_debug(self, text):
         """ Prints the value of the text variable to stderr if the DEBUG_MODE global
             variable is set to True.
         """
         if ('DEBUG_MODE' in globals()) and (DEBUG_MODE == True):
             if (self._stderr is not None) and (type(text) is str) and len(text):
-                self._stderr.write("DEBUG::SHUFFLE> " + text + "\n")
+                self._stderr.write("SHUFFLE::DEBUG> " + text + "\n")
                 self._stderr.flush()
     
     
+    #-- Public Static Methods
+    @staticmethod
+    def shuffle_count(token):
+        """ Calculates the number of unique permutations for a given string/array.
+                MATH:> p = n! / a! * b! * ... * k!
+        """
+        set_t = set(token)
+        if len(set_t) == len(token):
+            #-- all characters are different
+            result = math.factorial(len(token))
+        else:
+            if (len(token) - len(set_t)) == 1:
+                #-- Only one character is repeated
+                result = 0.5 * math.factorial(len(token))
+            else:
+                #-- One or more characters are repeated
+                factp = 1
+                for idx in set_t:
+                    factp *= math.factorial(token.count(idx))
+                result = math.factorial(len(token)) / factp
+        return result
+
+
     #-- Public Methods
     def reset(self, charset=None):
         """ Docstring. """
@@ -434,6 +476,8 @@ class Shuffle():
 def debug_test():
     """ Test run """
     test = Abacus("abcde", token_length=3)
+    #test = Abacus("abcde", "bde")          #-- Fix Me!!
+    #test = Abacus("abcde", "bbe", "bde")
     stop = 0
     while not (test.done() or (stop > 100)):
         print "%s: %s" % (stop, test.inc())
