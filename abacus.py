@@ -283,40 +283,52 @@ class Abacus(object):
         return not self._alldone
     
     
-    def _get_optimised_charset(self):
-        """ Looks at the current char subset and matches it with the checked chars 
-            dictionary to create an efficient bundle for use in the inc() method.
-            The idea is to create an array with the characters that have been checked.
+    def _get_optimised_stats(self):
+        """ Moved this segment to it's own dedicated function for reuse in self._reset().
+            It returns a tuple containing number of empty, partial and complete sets (in 
+            that order).
         """
-        
         #-- Build full set.
         abacus_chars = [self._charset[idx] for idx in self._abacus]
         search_chars = set(abacus_chars)
-        tmp = [[self._charset[idx]] for idx in self._abacus]
         
         #-- Get set stats.
-        #partial_sets    = 0
         empty_sets      = 0
+        partial_sets    = 0
         complete_sets   = 0
         for char in abacus_chars:
             if search_chars.issubset(self._checked[char]):
                 complete_sets += 1
             if len(self._checked[char]) == 0:
                 empty_sets += 1
-            #else:
-            #    partial_sets += 1
+            else:
+                partial_sets += 1
         
-        #-- Optimise
-        if complete_sets < len(abacus_chars):
-            #-- Set first and last entries are static
+        #-- Return tuple.
+        return (empty_sets, partial_sets, complete_sets)
+    
+    
+    def _get_optimised_charset(self):
+        """ Looks at the current char subset and matches it with the checked chars 
+            dictionary to create an efficient bundle for use in the inc() method.
+            The idea is to create an array with the characters that have been checked.
+        """
+        #-- Set up an array containing single-value (static value) arrays.
+        tmp = [[self._charset[idx]] for idx in self._abacus]
+        
+        #-- Optimise.
+        stats = self._get_optimised_stats()
+        abacus_chars = [self._charset[idx] for idx in self._abacus]
+        if stats[3] < len(abacus_chars):
+            #-- Set first and last entries are static.
             for idx in range(1, len(tmp) - 1):
                 tmp[idx] = list(abacus_chars)
             
-            if empty_sets == 1:
+            if stats[0] == 1:
                 #-- Set only the last entry as static
                 tmp[0] = list(abacus_chars)
         
-        #-- Return charset
+        #-- Return charset.
         return tmp
     
     
@@ -324,28 +336,47 @@ class Abacus(object):
         """ Builds a checked matrix by iterating through all the abacus charset subsets until the
             target subset and token is reached. 
                 *cough*  No idea how i'm going get that done any more efficiently.  *cough*
-            Returns the number of tokens skipped (eventually... ...returns 0 for now)
+            Returns the number of token permutations skipped (eventually... ...returns 0 for now)
         """
+        #-- Token counter.
+        count = 0
+        
         #-- Reset the indexes
         self._opt_idx = [0 for _ in range(len(token))]
         
         #-- Big steps: Shift abacus
+        stats = self._get_optimised_stats()
         abacus_target = ",".join([str(self._charset.index(token_char)) for token_char in sorted(subset)])
         while ",".join([str(token_char) for token_char in self._abacus]) != abacus_target:
-            self._shift()   #-- Updates self._checked and self._eff_idx
+            #-- Get permutation count
+            if stats[0] + stats[1] == 0:
+                #-- All chars in set checked.
+                count += 1
+            elif stats[1] + stats[2] == 0:
+                #-- No chars in set checked.
+                count += len(self._abacus) ** 2
+            elif stats[0] == 1:
+                #-- 1 static optimized charset.
+                count += (len(self._abacus) - 1) ** 2
+            else:
+                #-- 2 static optimized charsets.
+                count += (len(self._abacus) - 2) ** 2
+            
+            #-- Updates self._checked and self._eff_idx
+            self._shift()
+            stats = self._get_optimised_stats()
         
         #-- Little steps: Adjust the optimised indexes accordingly.
         idx = 0
         while (idx < len(self._opt_idx)) and (subset != token):
             #self._print_debug("T: %s IDX: %s, CHR: %s" % (token, self._opt_idx, self._opt_chr))
-            assert(token[idx] in self._opt_chr[idx]), "Invalid token for subset. (%s[%s]%s) %s" % (token[:idx], 
-                                                                                                   token[idx], 
-                                                                                                   token[idx + 1:],
-                                                                                                   self._opt_chr)
+            assert (token[idx] in self._opt_chr[idx]
+                   ), ("Invalid token for subset. (%s[%s]%s) %s"
+                      ) % (token[:idx], token[idx], token[idx + 1:], self._opt_chr)
             self._opt_idx[idx] = self._opt_chr[idx].index(token[idx])
             idx += 1
         
-        return 0
+        return count
     
     #-- Public methods
     def reset(self):
