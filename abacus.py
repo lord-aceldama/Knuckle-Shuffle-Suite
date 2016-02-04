@@ -285,8 +285,8 @@ class Abacus(object):
     
     def _get_optimised_stats(self):
         """ Moved this segment to it's own dedicated function for reuse in self._reset().
-            It returns a tuple containing number of empty, partial and complete sets (in 
-            that order).
+            It returns a tuple containing number of empty, partial and complete sets, as
+            well as the full abacus character list (in that order).
         """
         #-- Build full set.
         abacus_chars = [self._charset[idx] for idx in self._abacus]
@@ -305,7 +305,7 @@ class Abacus(object):
                 partial_sets += 1
         
         #-- Return tuple.
-        return (empty_sets, partial_sets, complete_sets)
+        return (empty_sets, partial_sets, complete_sets, abacus_chars)
     
     
     def _get_optimised_charset(self):
@@ -318,15 +318,14 @@ class Abacus(object):
         
         #-- Optimise.
         stats = self._get_optimised_stats()
-        abacus_chars = [self._charset[idx] for idx in self._abacus]
-        if stats[3] < len(abacus_chars):
+        if stats[3] < len(stats[4]):
             #-- Set first and last entries are static.
             for idx in range(1, len(tmp) - 1):
-                tmp[idx] = list(abacus_chars)
+                tmp[idx] = list(stats[4])
             
             if stats[0] == 1:
                 #-- Set only the last entry as static
-                tmp[0] = list(abacus_chars)
+                tmp[0] = list(stats[4])
         
         #-- Return charset.
         return tmp
