@@ -154,19 +154,14 @@ class Abacus(object):
         self._abacus  = range(token_length)
         self._checked = {char:set([]) for char in self._charset}
         self._opt_chr = [[self._charset[idx] for idx in range(token_length)] for _ in range(token_length)]
-        self._opt_idx = [0 for _ in range(token_length)]
         
-        #-- Build checked matrix by iterating through all the abacus charset subsets until the
-        #   target subset is reached. 
-        #       *cough*  No idea how i'm going get that done any more efficiently.  *cough*
-        abacus_target = ",".join([str(self._charset.index(token_char)) for token_char in sorted(subset)])
-        while ",".join([str(token_char) for token_char in self._abacus]) != abacus_target:
-            self._shift()   #-- Updates self._checked and self._eff_idx
+        #-- Update the optimised indexes
+        self._resume(subset, token)
         
         #-- Save reset parameters
         self._startup = {}
-        self._startup["checked"] =self._checked.copy()
         self._startup["abacus"]  = list(self._abacus)
+        self._startup["checked"] = self._checked.copy()
         self._startup["opt_idx"] = list(self._opt_idx)
         self._startup["opt_chr"] = [list(lst) for lst in self._opt_chr]
     
@@ -324,6 +319,33 @@ class Abacus(object):
         #-- Return charset
         return tmp
     
+    
+    def _resume(self, subset, token):
+        """ Builds a checked matrix by iterating through all the abacus charset subsets until the
+            target subset and token is reached. 
+                *cough*  No idea how i'm going get that done any more efficiently.  *cough*
+            Returns the number of tokens skipped (eventually... ...returns 0 for now)
+        """
+        #-- Reset the indexes
+        self._opt_idx = [0 for _ in range(len(token))]
+        
+        #-- Big steps: Shift abacus
+        abacus_target = ",".join([str(self._charset.index(token_char)) for token_char in sorted(subset)])
+        while ",".join([str(token_char) for token_char in self._abacus]) != abacus_target:
+            self._shift()   #-- Updates self._checked and self._eff_idx
+        
+        #-- Little steps: Adjust the optimised indexes accordingly.
+        idx = 0
+        while (idx < len(self._opt_idx)) and (subset != token):
+            #self._print_debug("T: %s IDX: %s, CHR: %s" % (token, self._opt_idx, self._opt_chr))
+            assert(token[idx] in self._opt_chr[idx]), "Invalid token for subset. (%s[%s]%s) %s" % (token[:idx], 
+                                                                                                   token[idx], 
+                                                                                                   token[idx + 1:],
+                                                                                                   self._opt_chr)
+            self._opt_idx[idx] = self._opt_chr[idx].index(token[idx])
+            idx += 1
+        
+        return 0
     
     #-- Public methods
     def reset(self):
@@ -493,17 +515,19 @@ class Shuffle(object):
 #------------------------------------------------------------------------------------------------------------[ MAIN ]--
 def debug_test():
     """ Test run """
-    test = Abacus("abcde", token_length=3)
     shuffle = Shuffle()
-    #test = Abacus("abcde", "bde")          #-- Fix Me!!
-    #test = Abacus("abcde", "bbe", "bde")
+    #test = Abacus("abcde", token_length = 3)
+    #test = Abacus("abcde", token_length = 6)   #-- Fix Me!!
+    #test = Abacus("abcde", "bde")              #-- Fix Me!!
+    test = Abacus("abcde", "bbe", "bce")
+    #test = Abacus("01adoprswxyz", "1adoprssw", "01adoprsw" ,token_length=len("password1"))
     stop = 0
-    while not (test.done() or (stop > 100)):
+    while not (test.done() or (stop < 0)):
         token = test.next()
-        print "%s: %s" % (stop, token)
+        #print "%s: %s" % (stop, token)
         shuffle.print_shuffle(token)
         stop += 1
 
-if DEBUGMODE:
+if DEBUG_MODE:
     debug_test()
 
