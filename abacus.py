@@ -157,7 +157,9 @@ class Abacus(object):
         self._opt_chr = [[self._charset[idx] for idx in range(token_length)] for _ in range(token_length)]
         
         #-- Update the optimised indexes
-        self._resume(subset, token)
+        skip_counter = self._resume(subset, token)
+        if skip_counter > 0:
+            self._print("INFO", "Resumed skipping %s tokens" % skip_counter)
         
         #-- Save reset parameters
         self._startup = {}
@@ -212,6 +214,26 @@ class Abacus(object):
             flag = len(var) == len(set(sorted(var)))
         return flag
 
+    
+    @staticmethod
+    def _get_optimised_type(stats):
+        """ Returns an integer representation of the distinct types of optimised token 
+            stats, namely 0:Empty, 1:SingleEmpty, 2:Partial and 3:Complete. 
+        """
+        #-- Assume 2 static optimized charsets. (most common)
+        stat_type = 2
+        if stats[1] * stats[2] == 0:
+            if stats[0] + stats[1] == 0:
+                #-- All chars in set checked.
+                stat_type = 3
+            elif stats[1] + stats[2] == 0:
+                #-- No chars in set checked.
+                stat_type = 0
+            else:
+                #-- 1 static optimized charset.
+                stat_type = 1
+        return stat_type
+    
     
     #-- Private methods
     def _print(self, state, text):
@@ -300,7 +322,7 @@ class Abacus(object):
         for char in abacus_chars:
             if search_chars.issubset(self._checked[char]):
                 complete_sets += 1
-            if len(self._checked[char]) == 0:
+            elif len(self._checked[char]) == 0:
                 empty_sets += 1
             else:
                 partial_sets += 1
@@ -319,14 +341,14 @@ class Abacus(object):
         
         #-- Optimise.
         stats = self._get_optimised_stats()
-        if stats[3] < len(stats[4]):
+        if stats[2] < len(stats[3]):
             #-- Set first and last entries are static.
             for idx in range(1, len(tmp) - 1):
-                tmp[idx] = list(stats[4])
+                tmp[idx] = stats[3]
             
             if stats[0] == 1:
                 #-- Set only the last entry as static
-                tmp[0] = list(stats[4])
+                tmp[0] = stats[3]
         
         #-- Return charset.
         return tmp
@@ -349,18 +371,26 @@ class Abacus(object):
         abacus_target = ",".join([str(self._charset.index(token_char)) for token_char in sorted(subset)])
         while ",".join([str(token_char) for token_char in self._abacus]) != abacus_target:
             #-- Get permutation count
-            if stats[0] + stats[1] == 0:
-                #-- All chars in set checked.
-                count += 1
-            elif stats[1] + stats[2] == 0:
+            self._print_debug("%s: %s -> %s" % (stats[:3], self._abacus, [self._charset[idx] for idx in self._abacus]))
+            self._print_debug("Chk: %s" % {char:self._checked[char]  for char in stats[3]})
+            
+            t_len = len(self._abacus)
+            t_exp = t_len ** t_len
+            stype = self._get_optimised_type(stats)
+            if stype == 0:
                 #-- No chars in set checked.
-                count += len(self._abacus) ** 2
-            elif stats[0] == 1:
-                #-- 1 static optimized charset.
-                count += (len(self._abacus) - 1) ** 2
+                count += t_exp
+                self._print_debug("Empty, adding %s tokens [%s]" % (t_exp, count))
+            elif stype == 3:
+                #-- All chars checked.
+                t_sum = 1
+                count += t_sum
+                self._print_debug("Complete, adding %s tokens [%s]" % (t_sum, count))
             else:
-                #-- 2 static optimized charsets.
-                count += (len(self._abacus) - 2) ** 2
+                #-- Static optimized charsets.
+                t_sum = t_exp - (t_len ** (t_len - stype))
+                count += t_sum
+                self._print_debug("%s Static chars, adding %s tokens [%s]" % (stype, t_sum, count))
             
             #-- Updates self._checked and self._eff_idx
             self._shift()
@@ -368,15 +398,21 @@ class Abacus(object):
         
         #-- Little steps: Adjust the optimised indexes accordingly.
         idx = 0
+        temp_count = 0
         while (idx < len(self._opt_idx)) and (subset != token):
             #self._print_debug("T: %s IDX: %s, CHR: %s" % (token, self._opt_idx, self._opt_chr))
             assert (token[idx] in self._opt_chr[idx]
                    ), ("Invalid token for subset. (%s[%s]%s) %s"
                       ) % (token[:idx], token[idx], token[idx + 1:], self._opt_chr)
             self._opt_idx[idx] = self._opt_chr[idx].index(token[idx])
+            
+            #-- Increment skipped token counter
+            if len(self._opt_chr[idx]) > 1:
+                temp_count *= len(self._opt_chr[idx])
+                temp_count += self._opt_chr[idx].index(token[idx]) + 1
             idx += 1
         
-        return count
+        return count + temp_count
     
     #-- Public methods
     def reset(self):
@@ -433,21 +469,21 @@ class Abacus(object):
         return self._alldone
     
     
-    def abacus_string():
+    def abacus_string(self):
         """ Returns a string representation of the current abacus. """
         tmp = ""
         for idx in range(len(self._charset)):
             if idx in self._abacus:
                 tmp += self._charset[idx]
             else:
-                temp += "-"
+                tmp += "-"
         return tmp
 
 
 #---------------------------------------------------------------------------------------------------[ SHUFFLE CLASS ]--
 class Shuffle(object):
     """ Calculates (and print) all unique permutations of a given token string. I'm putting this
-        in a dedicated class because i plan to add multi-processing and buffering capabilities
+        in a dedicated class because I plan to add multi-processing and buffering capabilities
         later on.
     """
     
@@ -558,15 +594,15 @@ class Shuffle(object):
 def debug_test():
     """ Test run """
     shuffle = Shuffle()
-    #test = Abacus("abcde", token_length = 3)
+    test = Abacus("abcde", token_length = 3)
     #test = Abacus("abcde", token_length = 6)   #-- Fix Me!!
     #test = Abacus("abcde", "bde")              #-- Fix Me!!
-    test = Abacus("abcde", "bbe", "bce")
+    #test = Abacus("abcde", "ace", "ace")
     #test = Abacus("01adoprswxyz", "1adoprssw", "01adoprsw" ,token_length=len("password1"))
     stop = 0
     while not (test.done() or (stop < 0)):
         token = test.next()
-        #print "%s: %s" % (stop, token)
+        #print "%s: %s" % (stop + 1, token)
         shuffle.print_shuffle(token)
         stop += 1
 

@@ -1,0 +1,125 @@
+aaa     < abc--
+aab
+  aba
+  baa
+aac
+  aca
+  caa
+abb
+  bab
+  bba
+abc
+  acb
+  bac
+  bca
+  cab
+  cba
+acc
+  cac
+  cca
+bbb
+bbc
+  bcb
+  cbb
+bcc
+  cbc
+  ccb
+ccc
+bbd      < -bcd-
+  bdb
+  dbb
+bcd
+  bdc
+  cbd
+  cdb
+  dbc
+  dcb
+bdd
+  dbd
+  ddb
+ccd
+  cdc
+  dcc
+cdd
+  dcd
+  ddc
+ddd
+cce      < --cde
+  cec
+  ecc
+cde
+  ced
+  dce
+  dec
+  ecd
+  edc
+cee
+  ece
+  eec
+dde
+  ded
+  edd
+dee
+  ede
+  eed
+eee
+aad      < ab-d-
+  ada
+  daa
+abd
+  adb
+  bad
+  bda
+  dab
+  dba
+add
+  dad
+  dda
+bbe      < -bc-e
+  beb
+  ebb
+bce
+  bec
+  cbe
+  ceb
+  ebc
+  ecb
+bee
+  ebe
+  eeb
+acd      < a-cd-
+  adc
+  cad
+  cda
+  dac
+  dca
+bde      < -b-de
+  bed
+  dbe
+  deb
+  ebd
+  edb
+aae      < ab--e
+  aea
+  eaa
+abe
+  aeb
+  bae
+  bea
+  eab
+  eba
+aee
+  eae
+  eea
+ace      < a-c-e
+  aec
+  cae
+  cea
+  eac
+  eca
+ade      < a--de
+  aed
+  dae
+  dea
+  ead
+  eda
