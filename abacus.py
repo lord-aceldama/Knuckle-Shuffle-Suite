@@ -32,6 +32,7 @@ class Abacus(object):
                 reset()
                 next()
                 done()
+                abacus_string()
     """
     
     #-- Constants
@@ -430,6 +431,17 @@ class Abacus(object):
     def done(self):
         """ Returns a simple boolean to say if work's complete. """
         return self._alldone
+    
+    
+    def abacus_string():
+        """ Returns a string representation of the current abacus. """
+        tmp = ""
+        for idx in range(len(self._charset)):
+            if idx in self._abacus:
+                tmp += self._charset[idx]
+            else:
+                temp += "-"
+        return tmp
 
 
 #---------------------------------------------------------------------------------------------------[ SHUFFLE CLASS ]--
