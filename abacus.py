@@ -380,17 +380,22 @@ class Abacus(object):
             if stype == 0:
                 #-- No chars in set checked.
                 count += t_exp
-                self._print_debug("Empty, adding %s tokens [%s]" % (t_exp, count))
-            elif stype == 3:
+                #self._print_debug("Empty, adding %s tokens [%s]" % (t_exp, count))
+            elif stype == 1:
+                #-- 1 Static optimized charsets.
+                t_sum = t_exp - ((t_len - 1) ** t_len)
+                count += t_sum
+                #self._print_debug("1 Empty, adding %s tokens [%s]" % (t_sum, count))
+            elif stype == 2:
+                #-- 2 Static optimized charsets.
+                t_sum = t_exp + ((t_len - 2) ** t_len) - 2 * ((t_len - 1) ** t_len)
+                count += t_sum
+                #self._print_debug("2 Partial, adding %s tokens [%s]" % (t_sum, count))
+            else: #-- stype == 3:
                 #-- All chars checked.
                 t_sum = math.factorial(len(self._abacus))
                 count += t_sum
-                self._print_debug("Complete, adding %s tokens [%s]" % (t_sum, count))
-            else:
-                #-- Static optimized charsets.
-                t_sum = t_exp - (t_len ** (t_len - (2 - (stype % 2)))) #-- Wrong!! Too big! (That's what she said!)
-                count += t_sum
-                self._print_debug("%s Static chars, adding %s tokens [%s]" % (stype, t_sum, count))
+                #self._print_debug("Complete, adding %s tokens [%s]" % (t_sum, count))
             
             #-- Updates self._checked and self._eff_idx
             self._shift()
@@ -595,14 +600,19 @@ def debug_test():
     """ Test run """
     shuffle = Shuffle()
     #test = Abacus("abcde", token_length = 3)
+    
+    test = Abacus("abcde", token_length = 4)
+    #test = Abacus("abcde", "aeee", "abce")
+    
     #test = Abacus("abcde", token_length = 6)   #-- Fix Me!!
     #test = Abacus("abcde", "bde")              #-- Fix Me!!
-    test = Abacus("abcde", "ace", "ace")
+    #test = Abacus("abcde", "ace", "ace")
     #test = Abacus("01adoprswxyz", "1adoprssw", "01adoprsw" ,token_length=len("password1"))
     stop = 0
     while not (test.done() or (stop < 0)):
+        abacus = test.abacus_string()
         token = test.next()
-        #print "%s: %s" % (stop + 1, token)
+        print "\n%s     < %s" % (token, abacus)
         shuffle.print_shuffle(token)
         stop += 1
 
