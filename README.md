@@ -31,7 +31,7 @@ add the option to use it as a command-line parameter.
 
 ###SCRIPTS:
 ####knuckle-shuffle.py
-**Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/documentation/knuckle-shuffle.md)].  
+**Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/doc/knuckle-shuffle.md)].  
   
 **Usage:** knuckle-shuffle.py -l=N -l=CHARS \[-s=TOKEN]
  * **-l=N** where N is the length of the key. __*(Required)*__
@@ -48,7 +48,7 @@ add the option to use it as a command-line parameter.
 **Usage:** *[ToDo]*  
 
 ####abacus.py
-**Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/documentation/abacus.md)].  
+**Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/doc/abacus.md)].  
   
 **Usage:** *[ToDo]*
 
