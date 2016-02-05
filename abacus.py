@@ -383,12 +383,12 @@ class Abacus(object):
                 self._print_debug("Empty, adding %s tokens [%s]" % (t_exp, count))
             elif stype == 3:
                 #-- All chars checked.
-                t_sum = 1
+                t_sum = math.factorial(len(self._abacus))
                 count += t_sum
                 self._print_debug("Complete, adding %s tokens [%s]" % (t_sum, count))
             else:
                 #-- Static optimized charsets.
-                t_sum = t_exp - (t_len ** (t_len - stype))
+                t_sum = t_exp - (t_len ** (t_len - (2 - (stype % 2)))) #-- Wrong!! Too big! (That's what she said!)
                 count += t_sum
                 self._print_debug("%s Static chars, adding %s tokens [%s]" % (stype, t_sum, count))
             
@@ -594,10 +594,10 @@ class Shuffle(object):
 def debug_test():
     """ Test run """
     shuffle = Shuffle()
-    test = Abacus("abcde", token_length = 3)
+    #test = Abacus("abcde", token_length = 3)
     #test = Abacus("abcde", token_length = 6)   #-- Fix Me!!
     #test = Abacus("abcde", "bde")              #-- Fix Me!!
-    #test = Abacus("abcde", "ace", "ace")
+    test = Abacus("abcde", "ace", "ace")
     #test = Abacus("01adoprswxyz", "1adoprssw", "01adoprsw" ,token_length=len("password1"))
     stop = 0
     while not (test.done() or (stop < 0)):

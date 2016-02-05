@@ -1,4 +1,4 @@
-aaa     < abc--
+aaa     < abc--     (3, 0, 0)   10/27[1+3+3+3+6+3+3+3+1: 3^3]
 aab
   aba
   baa
@@ -25,7 +25,7 @@ bcc
   cbc
   ccb
 ccc
-bbd      < -bcd-
+bbd      < -bcd-    (1, 2, 0)   6/19[3+6+3+3+3+1: ??]
   bdb
   dbb
 bcd
@@ -44,7 +44,7 @@ cdd
   dcd
   ddc
 ddd
-cce      < --cde
+cce      < --cde    (1, 2, 0)   6/19[3+6+3+3+3+1: ??]
   cec
   ecc
 cde
@@ -63,7 +63,7 @@ dee
   ede
   eed
 eee
-aad      < ab-d-
+aad      < ab-d-    (0, 2, 1)   3/12[3+6+3: ??]
   ada
   daa
 abd
@@ -75,7 +75,7 @@ abd
 add
   dad
   dda
-bbe      < -bc-e
+bbe      < -bc-e    (0, 1, 2)   3/12[3+6+3: ??]
   beb
   ebb
 bce
@@ -87,19 +87,19 @@ bce
 bee
   ebe
   eeb
-acd      < a-cd-
+acd      < a-cd-    (0, 0, 3)   1/6[6: 3!]
   adc
   cad
   cda
   dac
   dca
-bde      < -b-de
+bde      < -b-de    (0, 0, 3)   1/6[6: 3!]
   bed
   dbe
   deb
   ebd
   edb
-aae      < ab--e
+aae      < ab--e    (0, 2, 1)   3/12[3+6+3: ??]
   aea
   eaa
 abe
@@ -111,13 +111,13 @@ abe
 aee
   eae
   eea
-ace      < a-c-e
+ace      < a-c-e    (0, 0, 3)   1/6[6: 3!]
   aec
   cae
   cea
   eac
   eca
-ade      < a--de
+ade      < a--de    (0, 0, 3)   1/6[6: 3!]
   aed
   dae
   dea
