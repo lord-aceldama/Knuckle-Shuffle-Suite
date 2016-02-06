@@ -599,7 +599,7 @@ class Shuffle(object):
 def debug_test():
     """ Test run """
     shuffle = Shuffle()
-    test = Abacus("abcde", token_length = 3)
+    #test = Abacus("abcde", token_length = 3)
     
     #test = Abacus("abcde", token_length = 4)
     #test = Abacus("abcde", "acde", "acde")
@@ -608,7 +608,9 @@ def debug_test():
     #test = Abacus("abcde", "bde")              #-- Fix Me!!
     #test = Abacus("abcde", "ace", "ace")
     
-    #test = Abacus("01adoprswxyz", "1adoprssw", "01adoprsw" ,token_length=len("password1"))
+    #test = Abacus("01adoprswxyz", "1adoprssw", "01adoprsw", token_length=len("password1"))
+    #test = Abacus("0123456789abcdef", "abcd", "abcd", 4)
+    test = Abacus("0123456789abcdef", token_length=6)
     stop = 0
     while not (test.done() or (stop < 0)):
         token = test.next()
