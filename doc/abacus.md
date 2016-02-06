@@ -8,10 +8,9 @@ keys starting with larger characters render incremental searches inefficient.
 Consider the keyspace [0-9a-f] when the 4-character key is "dacb" Abacus will scan 
 permutations in keyspace as [0123------------], [1234, 2345, 3456, 4567, 5678, 6789, 
 789a, 89ab, 9abc] and [----------abcd--] which means that the key will be discovered 
-in under 2'176 keys. (4^4 + 10\*(4^4 - 4^3)) In fact, having piped Abacus' output through 
-**grep -n "dacb"**, it showed that the token was found on line *1'897*. If the traditional
-incremental search was used however, 56'011 of 65'536 keys would need to be tested before 
-reaching the correct key.
+in under 2'176 keys. (4^4 + 10 \* (4^4 - 4^3)) In fact, having piped Abacus' output 
+through **grep -n "dacb"**, it showed that the token was found on line 1'897 which 
+is a vast improvement over 56'011 (of 65'536) keys had .
 
 
 ###PITFALLS:

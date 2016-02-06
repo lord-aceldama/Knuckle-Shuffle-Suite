@@ -569,11 +569,37 @@ class Shuffle(object):
         return result
 
 
+    @staticmethod
+    def non_recursive_shuffle(token):
+        """ Planning to use this to create a "next" or "inc" function which should make resuming 
+            from a previously calculated token easier.
+        """
+        stack = [[token, "", 0]]  #-- [(token, prefix, idx)]
+        total = 0
+        while (len(stack) > 0) and (total < 30):
+            while len(stack[-1][0]) > 1:
+                print stack
+                index = stack[-1][2]
+                token = stack[-1][0]
+                stack += [[token[:index] + token[index + 1:], stack[-1][1] + token[index], 0]]
+            
+            print stack, " >> ", stack[-1][1] + stack[-1][0]
+
+            while (len(stack) > 0) and (len(stack[-1][0]) == (stack[-1][2] + 1)):
+                stack.pop()
+            
+            if len(stack) > 0:
+                stack[-1][2] += 1
+            
+            total += 1
+        
+        return total
+    
+    
     #-- Public Methods
     def reset(self, charset=None):
         """ To do. """
-        
-        
+    
     def print_shuffle(self, token, prefix=""):
         """ Generates and prints all unique permutations of a token string. It 
             currently returns the total amount of permutations.
@@ -610,7 +636,9 @@ def debug_test():
     
     #test = Abacus("01adoprswxyz", "1adoprssw", "01adoprsw", token_length=len("password1"))
     #test = Abacus("0123456789abcdef", "abcd", "abcd", 4)
-    test = Abacus("0123456789abcdef", token_length=6)
+    #test = Abacus("0123456789abcdef", token_length=6)
+    test = Abacus("abc", token_length=3)
+    
     stop = 0
     while not (test.done() or (stop < 0)):
         token = test.next()
@@ -620,5 +648,11 @@ def debug_test():
         stop += 1
 
 if DEBUG_MODE:
-    debug_test()
+    test = Shuffle()
+    test.print_shuffle("abc")
+    print test.shuffle_count("abc")
+    test.non_recursive_shuffle("abc")
+    print""
+    print""
+    #debug_test()
 
