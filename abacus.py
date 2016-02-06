@@ -581,7 +581,8 @@ class Shuffle(object):
                 print stack
                 index = stack[-1][2]
                 token = stack[-1][0]
-                stack += [[token[:index] + token[index + 1:], stack[-1][1] + token[index], 0]]
+                if token[index] not in token[index + 1:]:
+                    stack += [[token[:index] + token[index + 1:], stack[-1][1] + token[index], 0]]
             
             print stack, " >> ", stack[-1][1] + stack[-1][0]
 
@@ -648,10 +649,11 @@ def debug_test():
         stop += 1
 
 if DEBUG_MODE:
+    test_token = "abb"
     test = Shuffle()
-    test.print_shuffle("abc")
-    print test.shuffle_count("abc")
-    test.non_recursive_shuffle("abc")
+    test.print_shuffle(test_token)
+    print test.shuffle_count(test_token)
+    test.non_recursive_shuffle(test_token)
     print""
     print""
     #debug_test()
