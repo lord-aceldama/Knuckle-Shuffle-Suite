@@ -568,35 +568,33 @@ class Shuffle(object):
                 result = math.factorial(len(token)) / factp
         return result
 
-
+    
     @staticmethod
     def non_recursive_shuffle(token):
         """ Planning to use this to create a "next" or "inc" function which should make resuming 
             from a previously calculated token easier.
         """
+        def get_stack(token, prefix):
+            """ test """
+            idx = 0
+            while token[idx] in token[idx + 1:]:
+                idx += 1
+            return [token, prefix, idx]
+            
+        def get_stack_child(parent):
+            """ test """
+            return get_stack(parent[0][:parent[2]] + parent[0][parent[2] + 1:], parent[1] + parent[0][parent[2]])
+        
         #-- New token added.
-        stack = [[token, "", 0]]  #-- [(token, prefix, idx)]
+        stack = [get_stack(token, "")]  #-- [(token, prefix, idx)]
         
         total = 0
-        while (len(stack) > 0) and (total < 30): 
-            while stack[-1][0][0] in stack[-1][0][1:]:
-                print "juan"
-                stack[-1][1] += stack[-1][0][0]
-                stack[-1][0] = stack[-1][0][1:]
-
+        while (len(stack) > 0) and (total < 30):
             #-- Climb a tree motherfucker.
             while len(stack[-1][0]) > 1:
-                index = stack[-1][2]
-                token = stack[-1][0]
-                stack += [[token[:index] + token[index + 1:], stack[-1][1] + token[index], 0]]
+                print stack
+                stack = stack + [get_stack_child(stack[-1])]
                 
-                while stack[-1][0][0] in stack[-1][0][1:]:
-                    print "tuh"
-                    stack[-1][1] += stack[-1][0][0]
-                    stack[-1][0] = stack[-1][0][1:]
-                #while stack[-1][0][stack[-1][2]] in stack[-1][0][stack[-1][2] + 1:]:
-                #    stack[-1][2] += 1
-            
             print stack[-1][1] + stack[-1][0], " >> ", stack
             
             #-- Pop all ended elements
@@ -605,6 +603,8 @@ class Shuffle(object):
             
             if len(stack) > 0:
                 stack[-1][2] += 1
+                while stack[-1][0][stack[-1][2]] in  stack[-1][0][stack[-1][2] + 1:]:
+                    stack[-1][2] += 1
             
             total += 1
         
@@ -637,7 +637,7 @@ class Shuffle(object):
 
 
 #------------------------------------------------------------------------------------------------------------[ MAIN ]--
-def debug_test():
+def debug_test_abacus():
     """ Test run """
     shuffle = Shuffle()
     #test = Abacus("abcde", token_length = 3)
@@ -662,13 +662,17 @@ def debug_test():
         shuffle.print_shuffle(token)
         stop += 1
 
-if DEBUG_MODE:
-    test_token = "abbc"
+
+def debug_test_shuffle():
+    """ Test run """
+    test_token = "abba"
     test = Shuffle()
     test.print_shuffle(test_token)
     print test.shuffle_count(test_token)
     test.non_recursive_shuffle(test_token)
-    print""
-    print""
-    #debug_test()
+
+    
+if DEBUG_MODE:
+    #debug_test_abacus()
+    debug_test_shuffle()
 
