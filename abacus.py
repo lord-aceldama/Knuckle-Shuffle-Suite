@@ -482,6 +482,95 @@ class Abacus(object):
         return (tmp, tmp2, self._get_optimised_stats()[0:3])
 
 
+#-----------------------------------------------------------------------------------------------------[ STACK CLASS ]--
+class Stack(object):
+    """ Simple array-stack class for use in the Shuffle class. """
+    
+    #-- Constants
+    #[None]
+    
+    
+    #-- Global Vars
+    _stack = []
+    _index = -1
+    
+    _structure = None
+    
+    
+    #-- Special class methods
+    def __init__(self, *keynames):
+        """ Docstring. """
+        self._structure = dict()
+        for key in keynames:
+            self._structure[key] = 0
+    
+    
+    def __str__(self):
+        """ Docstring. """
+        return str(self._stack)
+    
+    
+    def __len__(self):
+        """ Docstring. """
+        return self._index + 1
+    
+    
+    #-- Private Methods
+    #[None]
+    
+    
+    #-- Public Methods
+    def push(self, **kv_pairs):
+        """ Adds a key-value pair to the top of the stack and returns the new stack length.
+        """
+        self._index += 1
+        
+        #-- Expand internal stack if necessary
+        if len(self) == self._index:
+            idx = 0
+            while idx < 5:
+                self._stack.append(self._structure.copy())
+                idx += 1
+        
+        #-- Update the value
+        for key, value in kv_pairs.iteritems():
+            self._stack[self._index][key] = value
+        
+        return len(self)
+    
+    
+    def pop(self, copy=False):
+        """ Pops the top value off the stack and returns it. If copy is set to true, it returns a copy 
+            instead of a reference. Will return None if the stack is empty.
+        """
+        value = self.value_at(self._index, copy)
+        if value is not None:
+            self._index = self._index - 1
+        
+        return value
+    
+    
+    def top(self, copy=False):
+        """ Returns the top value of the stack. If copy is set to true, it returns a copy instead of a 
+            reference. Will return None if the stack is empty.
+        """
+        value = self.value_at(self._index, copy)
+        return value
+    
+    
+    def value_at(self, pos, copy=False):
+        """ Returns the value at a specific position on the stack. If copy is set to true, it returns a
+            copy instead of a reference. Will return None if the stack is empty.
+        """
+        value = None
+        if (pos >= 0) and (pos <= self._index):
+            value = self._stack[pos]
+            if copy:
+                value = value.copy()
+        
+        return value
+
+
 #---------------------------------------------------------------------------------------------------[ SHUFFLE CLASS ]--
 class Shuffle(object):
     """ Calculates (and print) all unique permutations of a given token string. I'm putting this
@@ -643,7 +732,7 @@ class Shuffle(object):
         return total
 
 
-#------------------------------------------------------------------------------------------------------------[ MAIN ]--
+#--[ DEBUGGING TEST METHODS ]------------------------------------------------------------------------------------------
 def debug_test_abacus():
     """ Test run """
     shuffle = Shuffle()
@@ -678,8 +767,19 @@ def debug_test_shuffle():
     print test.shuffle_count(test_token)
     test.non_recursive_shuffle(test_token)
 
-    
+
+def debug_test_stack():
+    """ Test run """
+    test = Stack("key", "key2")
+    print test
+    test.push(key=666)
+    print test
+    print test.pop()
+
+
+#------------------------------------------------------------------------------------------------------------[ MAIN ]--
 if DEBUG_MODE:
     #debug_test_abacus()
-    debug_test_shuffle()
+    #debug_test_shuffle()
+    debug_test_stack()
 
