@@ -484,7 +484,9 @@ class Abacus(object):
 
 #-----------------------------------------------------------------------------------------------------[ STACK CLASS ]--
 class Stack(object):
-    """ Simple array-stack class for use in the Shuffle class. """
+    """ Simple array-stack class for use in the Shuffle class. 
+            Using properties:  http://blaag.haard.se/What-s-the-point-of-properties-in-Python/
+    """
     
     #-- Constants
     #[None]
@@ -498,21 +500,38 @@ class Stack(object):
     
     
     #-- Special class methods
-    def __init__(self, *keynames):
+    def __init__(self, **default_dict):
         """ Docstring. """
         self._structure = dict()
-        for key in keynames:
-            self._structure[key] = 0
+        for key, value in default_dict.iteritems():
+            self._structure[key] = value
     
     
     def __str__(self):
         """ Docstring. """
-        return str(self._stack)
+        return str(self._stack[:self._index + 1])
     
     
     def __len__(self):
         """ Docstring. """
         return self._index + 1
+    
+    
+    #-- Properties
+    @property
+    def top(self):
+        """ Returns the top value of the stack. If copy is set to true, it returns a copy instead of a 
+            reference. Will return None if the stack is empty.
+        """
+        value = self.value_at(self._index)
+        return value
+    
+    
+    @property
+    def empty(self):
+        """ Returns True if there are no items on the stack, ie. len(self) == 0.
+        """
+        return len(self) == 0
     
     
     #-- Private Methods
@@ -523,19 +542,21 @@ class Stack(object):
     def push(self, **kv_pairs):
         """ Adds a key-value pair to the top of the stack and returns the new stack length.
         """
+        #-- Inrease the 
         self._index += 1
-        
-        #-- Expand internal stack if necessary
-        if len(self) == self._index:
+
+        #-- Expand internal stack if necessary.
+        if len(self._stack) == self._index:
             idx = 0
             while idx < 5:
                 self._stack.append(self._structure.copy())
                 idx += 1
         
-        #-- Update the value
+        #-- Update the value.
         for key, value in kv_pairs.iteritems():
             self._stack[self._index][key] = value
         
+        #-- Return the new stack length.
         return len(self)
     
     
@@ -550,14 +571,6 @@ class Stack(object):
         return value
     
     
-    def top(self, copy=False):
-        """ Returns the top value of the stack. If copy is set to true, it returns a copy instead of a 
-            reference. Will return None if the stack is empty.
-        """
-        value = self.value_at(self._index, copy)
-        return value
-    
-    
     def value_at(self, pos, copy=False):
         """ Returns the value at a specific position on the stack. If copy is set to true, it returns a
             copy instead of a reference. Will return None if the stack is empty.
@@ -568,6 +581,57 @@ class Stack(object):
             if copy:
                 value = value.copy()
         
+        return value
+
+
+#---------------------------------------------------------------------------------------------------[ SHUFFLE CLASS ]--
+class Queue(object):
+    """ Simple Queue class.
+    """
+    
+    #-- Global Vars
+    _queue = []
+    
+    
+    #-- Special Class Methods
+    def __init__(self):
+        """ Docstring. """
+        self._queue = []
+    
+    
+    def __str__(self):
+        """ Returns a string representation of the queue.
+        """
+        return "%s %s" % (len(self._queue), self._queue)
+    
+    
+    def __len__(self):
+        """ Returns the length of the queue. """
+        return len(self._queue)
+    
+    
+    #-- Properties
+    @property
+    def empty(self):
+        """ Returns True if the queue is empty. """
+        return len(self) == 0
+    
+    
+    #-- Private Methods
+    #[None]
+    
+    
+    #-- Public Methods
+    def push(self, value):
+        """ Appends a value to the end of the list. """
+        self._queue.append(value)
+    
+    
+    def pop(self):
+        """ Removes and returns the last item in the queue. """
+        value = None
+        if len(self._queue) > 0:
+            value = self._queue.pop(0)
         return value
 
 
@@ -591,7 +655,8 @@ class Shuffle(object):
     
     
     #-- Global Vars
-    #[None]
+    _queue = Queue()
+    _stack = Stack(token="", prefix="", index = 0)
     
     
     #-- Special class methods
@@ -770,10 +835,13 @@ def debug_test_shuffle():
 
 def debug_test_stack():
     """ Test run """
-    test = Stack("key", "key2")
+    test = Stack(key1=0, key2=0)
     print test
-    test.push(key=666)
+    test.push(key1=666)
+    test.push(key1=123)
+    test.top["key2"] = 456
     print test
+    print test.top, test
     print test.pop()
 
 
