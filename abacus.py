@@ -585,19 +585,16 @@ class Shuffle(object):
             """ test """
             return get_stack(parent[0][:parent[2]] + parent[0][parent[2] + 1:], parent[1] + parent[0][parent[2]])
         
-        #-- New token added.
-        stack = [get_stack(token, "")]  #-- [(token, prefix, idx)]
-        
-        total = 0
-        while (len(stack) > 0) and (total < 30):
-            #-- Climb a tree motherfucker.
+        def get_stack_next(stack):
+            """ test """
+            #-- Expand it
             while len(stack[-1][0]) > 1:
-                print stack
-                stack = stack + [get_stack_child(stack[-1])]
-                
-            print stack[-1][1] + stack[-1][0], " >> ", stack
+                stack.append(get_stack_child(stack[-1]))
             
-            #-- Pop all ended elements
+            #-- Register it
+            leaf = stack[-1][1] + stack[-1][0]
+            
+            #-- Pop it
             while (len(stack) > 0) and (len(stack[-1][0]) == (stack[-1][2] + 1)):
                 stack.pop()
             
@@ -606,6 +603,16 @@ class Shuffle(object):
                 while stack[-1][0][stack[-1][2]] in  stack[-1][0][stack[-1][2] + 1:]:
                     stack[-1][2] += 1
             
+            #-- Return it
+            return leaf
+            
+        #-- New token added.
+        stack = []
+        stack.append(get_stack(token, ""))  #-- [(token, prefix, idx)]
+        
+        total = 0
+        while (len(stack) > 0) and (total < 30):
+            print get_stack_next(stack), " >> ", stack
             total += 1
         
         return total
