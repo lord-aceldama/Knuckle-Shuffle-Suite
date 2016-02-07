@@ -578,18 +578,24 @@ class Shuffle(object):
         stack = [[token, "", 0]]  #-- [(token, prefix, idx)]
         
         total = 0
-        while (len(stack) > 0) and (total < 30):
-            while stack[-1][0][stack[-1][2]] in stack[-1][0][stack[-1][2] + 1:]:
-                stack[-1][2] += 1
-            
+        while (len(stack) > 0) and (total < 30): 
+            while stack[-1][0][0] in stack[-1][0][1:]:
+                print "juan"
+                stack[-1][1] += stack[-1][0][0]
+                stack[-1][0] = stack[-1][0][1:]
+
             #-- Climb a tree motherfucker.
             while len(stack[-1][0]) > 1:
                 index = stack[-1][2]
                 token = stack[-1][0]
                 stack += [[token[:index] + token[index + 1:], stack[-1][1] + token[index], 0]]
                 
-                while stack[-1][0][stack[-1][2]] in stack[-1][0][stack[-1][2] + 1:]:
-                    stack[-1][2] += 1
+                while stack[-1][0][0] in stack[-1][0][1:]:
+                    print "tuh"
+                    stack[-1][1] += stack[-1][0][0]
+                    stack[-1][0] = stack[-1][0][1:]
+                #while stack[-1][0][stack[-1][2]] in stack[-1][0][stack[-1][2] + 1:]:
+                #    stack[-1][2] += 1
             
             print stack[-1][1] + stack[-1][0], " >> ", stack
             
