@@ -584,9 +584,9 @@ class Stack(object):
         return value
 
 
-#---------------------------------------------------------------------------------------------------[ SHUFFLE CLASS ]--
+#-----------------------------------------------------------------------------------------------------[ QUEUE CLASS ]--
 class Queue(object):
-    """ Simple Queue class.
+    """ Simple Queue class. They don't get much simpler than this...
     """
     
     #-- Global Vars
