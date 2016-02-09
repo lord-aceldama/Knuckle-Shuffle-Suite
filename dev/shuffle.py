@@ -34,7 +34,7 @@ class Shuffle(object):
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
     _queue = xifo.Queue()
-    _stack = xifo.Stack(token="", prefix="", index = 0)
+    _stack = xifo.DictStack(token="", prefix="", index = 0)
     
     
     #-- Special class methods -----------------------------------------------------------------------------------------

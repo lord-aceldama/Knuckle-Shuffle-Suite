@@ -30,7 +30,5 @@ def debug_test():
 
 #------------------------------------------------------------------------------------------------------------[ MAIN ]--
 if DEBUG_MODE:
-    #debug_test_abacus()
-    #debug_test_shuffle()
     debug_test
 
