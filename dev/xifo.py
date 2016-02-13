@@ -31,14 +31,14 @@ class Queue(object):
     def __str__(self):
         """ Returns a string representation of the queue.
         """
-        string = 'Q[%s](' % len(self)               # Q[0](
+        string = 'Q[%s](' % len(self)                   # Q[0](
         if len(self) > 0:
             if len(self) > 1:
-                string += '%s, ' % self._items[0]   # Q[0]([X, ]
+                string += '%s, ' % self._items[0]       # Q[0]([X, ]
                 if len(self) > 2:
-                    string += '..., '               # Q[0]([X, [..., ]]
-            string += '%s' % self._items[-1]        # Q[0]([X, [..., ]][N]
-        return string + ")"                         # Q[0]([X, [..., ]][N])
+                    string += '..., '                   # Q[0]([X, [..., ]]
+            string += '%s' % self._items[len(self) - 1] # Q[0]([X, [..., ]][N]
+        return string + ")"                             # Q[0]([X, [..., ]][N])
     
     
     def __len__(self):
@@ -58,6 +58,11 @@ class Queue(object):
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
+    def contains(self, value):
+        """ Returns True if the value is in the items """
+        return value in self._items
+    
+    
     def push(self, value):
         """ Appends a value to the end of the list. """
         self._items.append(value)
@@ -98,7 +103,14 @@ class Stack(Queue):
     def __str__(self):
         """ Returns a string representation of the stack.
         """
-        return "S" + Queue.__str__(self)[1:]
+        string = 'S[%s](' % len(self)                   # Q[0](
+        if len(self) > 0:
+            if len(self) > 1:
+                string += '%s, ' % self._items[0]       # Q[0]([X, ]
+                if len(self) > 2:
+                    string += '..., '                   # Q[0]([X, [..., ]]
+            string += '%s' % self._items[len(self) - 1] # Q[0]([X, [..., ]][N]
+        return string + ")"                             # Q[0]([X, [..., ]][N])
     
     
     def __len__(self):
@@ -128,6 +140,11 @@ class Stack(Queue):
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
+    def contains(self, value):
+        """ Returns True if the value is in the items """
+        return Queue.contains(self, value)
+
+
     def push(self, value):
         """ Adds a key-value pair to the top of the stack and returns the new stack length.
         """
@@ -177,7 +194,7 @@ class DictStack(Stack):
     
     
     #-- Global Vars
-    # Inherits: _stack, _index
+    # Inherits: _items, _index
     _structure = None
     
     
