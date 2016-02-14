@@ -148,22 +148,6 @@ class Shuffle(object):
         if not self.done:
             self._progval += 1
             self._stack_next_branch()
-
-    
-    def next(self):
-        """ Returns the current token and moves on to the next.
-        """
-        value = self.token 
-        self._shift()
-        return value
-    
-    
-    def next_n(self, qty):
-        """ Generates the next N tokens or completes early if Shuffle.done is True. """
-        idx = 0
-        while (idx < qty) and (not self.done):
-            idx += 1
-            yield self.next()
     
     
     def _print(self, text):
@@ -213,58 +197,10 @@ class Shuffle(object):
         return result
 
     
-    @staticmethod
-    def non_recursive_shuffle(token):
-        """ Planning to use this to create a "next" or "inc" function which should make resuming 
-            from a previously calculated token easier.
-        """
-        def get_stack(token, prefix):
-            """ test """
-            idx = 0
-            while token[idx] in token[idx + 1:]:
-                idx += 1
-            return [token, prefix, idx]
-            
-        def get_stack_child(parent):
-            """ test """
-            return get_stack(parent[0][:parent[2]] + parent[0][parent[2] + 1:], parent[1] + parent[0][parent[2]])
-        
-        def get_stack_next(stack):
-            """ test """
-            #-- Expand it
-            while len(stack[-1][0]) > 1:
-                stack.append(get_stack_child(stack[-1]))
-            
-            #-- Register it
-            leaf = stack[-1][1] + stack[-1][0]
-            
-            #-- Pop it
-            while (len(stack) > 0) and (len(stack[-1][0]) == (stack[-1][2] + 1)):
-                stack.pop()
-            
-            if len(stack) > 0:
-                stack[-1][2] += 1
-                while stack[-1][0][stack[-1][2]] in  stack[-1][0][stack[-1][2] + 1:]:
-                    stack[-1][2] += 1
-            
-            #-- Return it
-            return leaf
-            
-        #-- New token added.
-        stack = []
-        stack.append(get_stack(token, ""))  #-- [(token, prefix, idx)]
-        
-        total = 0
-        while (len(stack) > 0) and (total < 30):
-            print get_stack_next(stack), " >> ", stack
-            total += 1
-        
-        return total
-    
-    
     #-- Public Methods ------------------------------------------------------------------------------------------------
     def reset(self, charset=None):
-        """ To do. """
+        """ To do.
+        """
     
     
     def add(self, *tokens):
@@ -278,7 +214,26 @@ class Shuffle(object):
         
         self._stack_from_queue()
         return len(self)
-
+    
+    
+    def next(self):
+        """ Returns the current token and moves on to the next.
+        """
+        value = self.token 
+        self._shift()
+        return value
+    
+    
+    #-- Generator
+    def next_n(self, qty_max=None):
+        """ Generator that yields the next tokens or completes early if Shuffle.done is True or qty_max is supplied 
+            and reached.
+        """
+        idx = 0
+        while (not self.done) and ((qty_max is None) or (idx < qty_max)):
+            idx += 1
+            yield self.next()
+    
     
     def print_shuffle(self, token, prefix=""):
         """ Generates and prints all unique permutations of a token string. It 
