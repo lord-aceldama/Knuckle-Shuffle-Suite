@@ -18,14 +18,16 @@ class CmdArgs(object):
         
         EXPOSES:
             Methods:
-                [None] add(option)          - Adds an option and re-parses command-line arguments ["cmd args" herafter]
+                add(option)                 - Adds an option and re-parses command-line arguments ["cmd args" herafter]
+            
+            Functions:
                 [list] value(option)        - Returns a list containing option and synonym value(s)
                 [type] type_of(option)      - Returns the user-defined type of an option
                 [bool] isset(option)        - Returns true if the option is present in the cmd args.
                 [list] synonyms(option)     - Returns a list containing option's synonyms.
             
             Properties:
-                [list] orphans (ro)         - Returns a list of orphan arguments (cmd args without a preceeding option) 
+                (ro) [list] orphans         - Returns a list of orphan arguments (cmd args without a preceeding option) 
     """
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
