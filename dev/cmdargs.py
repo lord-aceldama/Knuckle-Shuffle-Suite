@@ -18,28 +18,47 @@ class CmdArgs(object):
     """
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
-    _emo  = None    # Case sensitive flag.
-    _opts = []      # Options to look for.
-    _args = {}      # Args to parse - we save it to speed up case-insensitive scans
-    
-    _parsed = {}    # Dict containing parsed options
+    _parsed  = {}   # Dict containing parsed options
+    _orphans = []   # Args that weren't preceeded by a valid option
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
-    def __init__(self, case_sensitive, *options):
-        """ X
+    def __init__(self, *options):
+        """ Initializes the class. Options can be either strings or tuples/lists. If a tuple/list is supplied, then
+            it needs to be in the format ([type, ]name[, synonym[, synonym_n]]).
         """
-        self.match_case = case_sensitive
-        self._parse(options)
+        self._parse_options(options)
+    
+    
+    def __str__(self):
+        """ Returns a string representation of the parsed command-line arguments.
+        """
+        result = "ARGS({0})".format(len(self))
+        r_temp = []
+        for key in self._parsed.keys():
+            r_temp.append("{0}({1},{2})".format(key, self._parsed[key]["type"].__name__, "{0}"))
+            if self._parsed[key]["value"] is None:
+                r_temp[-1] = r_temp[-1].format("-")
+            else:
+                r_temp[-1] = r_temp[-1].format(len(list(self._parsed[key]["value"])))
+        return result + (": [{0}]".format(", ".join(r_temp)) if len(r_temp) > 0 else "")
+    
+    
+    def __len__(self):
+        """ Returns the number of valid options being checked. Synonyms count as a single entry.
+        """
+        count = 0
+        for key in self._parsed.keys():
+            if key["link"] is None:
+                count += 1
+        return len(count)
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
     @property
-    def match_case(self, value):
-        """ X
-        """
-        if (value != self._emo) and (type(value) == bool):
-            self._emo = value
+    def orphans(self):
+        """ Return a list of orphans. """
+        return self._orphans
     
     
     #-- Private static methods ----------------------------------------------------------------------------------------
@@ -51,44 +70,127 @@ class CmdArgs(object):
     
     
     #-- Private methods -----------------------------------------------------------------------------------------------
-    def _parse(self, *options):
-        """ X
+    def _add_raw(self, opt_type, opt_name, opt_link):
+        """ Adds a single option to the parsed dictionary.
         """
-        def modify_if(flag, value, *modifier):
-            """ X
-            """
-            result = value
-            if flag:
-                for modify in modifier:
-                    result = modify(result)
-            return result
+        if (len(opt_name) > 0) and (opt_name not in self._parsed.keys()):
+            self._parsed[opt_name] = { "link" : opt_link, "type" : opt_type, "value":None, "isset":False }
+    
+    
+    def _add(self, opt):
+        """ Processes tuples/lists and option names.
+        """
+        if type(opt) in [list, tuple]:
+            #-- Type and/or synonym(s) specified: ([type, ]name[, synonym[, synonym_n]])
+            if len(opt) > 1:
+                opt_synonym = None
+                start_index = 1 if (type(opt[0]) == type) else 0
+                for opt_name in opt[start_index:]:
+                    if opt_synonym is not None:
+                        #-- Link to existing option.
+                        self._add_raw(None, opt_name.trim(), opt_synonym)
+                    else:
+                        #-- New option.
+                        opt_synonym = opt_name.trim()
+                        self._add_raw(str if start_index == 0 else opt[0], opt_name.trim(), None)
+        else:
+            #-- Single option.
+            self._add_raw(str, opt.trim(), None)
+    
+    
+    def _parse_args(self):
+        """ Parses the command-line arguments.
+        """
+        #-- Kill orphans. (Yes, I'm a sociopath)
+        self._orphans = []
         
+        #-- Empty all option values.
+        for key in self._parsed:
+            self._parsed[key].value = None
+        
+        #-- Fill option values.
+        c_opt = ""
+        for arg in sys.argv[1:]:
+            clean = arg.trim()
+            if clean in self._parsed.keys():
+                #-- Select primary synonym instead.
+                c_opt = clean if self._parsed[c_opt]["link"] is None else self._parsed[c_opt]["link"]
+                self._parsed[c_opt]["isset"] = True
+            else: 
+                if len(c_opt) > 0:
+                    #-- Type conversion
+                    if self._parsed[c_opt]["type"] is not str:
+                        #-- Force the type.
+                        clean = self._parsed[c_opt]["type"](arg)
+                    
+                    #-- Process value
+                    if self._parsed[c_opt]["value"] is None:
+                        #-- Set the value.
+                        self._parsed[c_opt]["value"] = arg
+                    elif self._parsed[c_opt]["value"] is list:
+                        #-- Add to the value.
+                        self._parsed[c_opt]["value"].append(arg)
+                    else:
+                        #-- Convert to list.
+                        self._parsed[c_opt]["value"] = list(self._parsed[c_opt]["value"], arg)
+                else:
+                    #-- Orphan
+                    self._orphans.append(arg)
+    
+    
+    def _parse_options(self, *options):
+        """ Parses the user-supplied option list.
+        """
+        #-- First get the options sorted...
         self._parsed = dict()
-        for idx in xrange(2):
-            flag = idx == 0
-            self._parsed[flag] = {"opts":set(), "vals":dict(), "args":list()}
-            for arg in sys.argv[:1]:
-                self._parsed[flag]["args"].append(modify_if(not flag, arg, str.upper))
-            for opt in options:
-                self._parsed[flag]["opts"].add(modify_if(not flag, opt, str.upper, str.strip))
+        for opt in options:
+            self._add(opt)
         
-        return False
+        #-- ...and then, the command line arguments.
+        self._parse_args()
+    
+    
+    def _get_root(self, option):
+        """ Returns the primary link for the option.
+        """
+        root = option
+        if self._parsed[root]["link"] is not None:
+            root = self._parsed[root]["link"]
+        return root
     
     
     #-- Public methods ------------------------------------------------------------------------------------------------
-    def is_set(self, option):
-        """ X
+    def add(self, option):
+        """ Add a single option and re-parse the command-line arguments.
         """
+        self._add(option)
+        self._parse_args()
     
     
-    def value(self, option, synonym = None):
-        """ X
+    def value(self, option):
+        """ Returns a value (or list of values if more than one was found) or None if it was not supplied.
         """
+        result = None
+        if option in self._parsed.keys():
+            result = self._parsed[self._get_root(option)]["value"]
+        return result
+    
+    
+    def isset(self, option):
+        """ Returns true if the option (or its synonym[s]) is present in the command-line.
+        """
+        flag = False
+        if option in self._parsed.keys():
+            flag = self._parsed[self._get_root(option)]["isset"]
+        return flag
 
 
 #====================================================================================================[ TEST METHODS ]==
 def test_cmdargs():
     """ Test run """
+    print [1,2,3,4,5][1:]
+    print sys.argv
+    print int.__name__
 
 
 #============================================================================================================[ MAIN ]==
