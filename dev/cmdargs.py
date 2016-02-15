@@ -33,14 +33,17 @@ class CmdArgs(object):
     def __str__(self):
         """ Returns a string representation of the parsed command-line arguments.
         """
-        result = "ARGS({0})".format(len(self))
+        result = "ARGS({0}/{1})".format(len(self), len(self._parsed.keys()))
         r_temp = []
         for key in self._parsed.keys():
-            r_temp.append("{0}({1},{2})".format(key, self._parsed[key]["type"].__name__, "{0}"))
-            if self._parsed[key]["value"] is None:
-                r_temp[-1] = r_temp[-1].format("-")
+            if self._parsed[key]["link"] is None:
+                r_temp.append("{0}({1},{2})".format(key, self._parsed[key]["type"].__name__, "{0}"))
+                if self._parsed[key]["value"] is None:
+                    r_temp[-1] = r_temp[-1].format("-")
+                else:
+                    r_temp[-1] = r_temp[-1].format(len(list(self._parsed[key]["value"])))
             else:
-                r_temp[-1] = r_temp[-1].format(len(list(self._parsed[key]["value"])))
+                r_temp.append("{0} >> {1}".format(key, self._parsed[key]["link"]))
         return result + (": [{0}]".format(", ".join(r_temp)) if len(r_temp) > 0 else "")
     
     
@@ -49,9 +52,9 @@ class CmdArgs(object):
         """
         count = 0
         for key in self._parsed.keys():
-            if key["link"] is None:
+            if self._parsed[key]["link"] is None:
                 count += 1
-        return len(count)
+        return count
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
@@ -71,7 +74,7 @@ class CmdArgs(object):
     
     #-- Private methods -----------------------------------------------------------------------------------------------
     def _add_raw(self, opt_type, opt_name, opt_link):
-        """ Adds a single option to the parsed dictionary.
+        """ Adds a single processed option to the parsed dictionary, provided it doesn't already exist.
         """
         if (len(opt_name) > 0) and (opt_name not in self._parsed.keys()):
             self._parsed[opt_name] = { "link" : opt_link, "type" : opt_type, "value":None, "isset":False }
@@ -88,14 +91,14 @@ class CmdArgs(object):
                 for opt_name in opt[start_index:]:
                     if opt_synonym is not None:
                         #-- Link to existing option.
-                        self._add_raw(None, opt_name.trim(), opt_synonym)
+                        self._add_raw(None, opt_name.strip(), opt_synonym)
                     else:
                         #-- New option.
-                        opt_synonym = opt_name.trim()
-                        self._add_raw(str if start_index == 0 else opt[0], opt_name.trim(), None)
+                        opt_synonym = opt_name.strip()
+                        self._add_raw(str if start_index == 0 else opt[0], opt_name.strip(), None)
         else:
             #-- Single option.
-            self._add_raw(str, opt.trim(), None)
+            self._add_raw(str, opt.strip(), None)
     
     
     def _parse_args(self):
@@ -106,12 +109,12 @@ class CmdArgs(object):
         
         #-- Empty all option values.
         for key in self._parsed:
-            self._parsed[key].value = None
+            self._parsed[key]["value"] = None
         
         #-- Fill option values.
         c_opt = ""
         for arg in sys.argv[1:]:
-            clean = arg.trim()
+            clean = arg.strip()
             if clean in self._parsed.keys():
                 #-- Select primary synonym instead.
                 c_opt = clean if self._parsed[c_opt]["link"] is None else self._parsed[c_opt]["link"]
@@ -138,24 +141,26 @@ class CmdArgs(object):
                     self._orphans.append(arg)
     
     
-    def _parse_options(self, *options):
+    def _parse_options(self, options):
         """ Parses the user-supplied option list.
         """
         #-- First get the options sorted...
         self._parsed = dict()
         for opt in options:
+            print "  >", opt
             self._add(opt)
         
         #-- ...and then, the command line arguments.
         self._parse_args()
     
     
-    def _get_root(self, option):
-        """ Returns the primary link for the option.
+    def _get_root(self, option, does_not_exist=None):
+        """ Returns the primary link for the option, or a dne's value if the option does not exist.
         """
-        root = option
-        if self._parsed[root]["link"] is not None:
-            root = self._parsed[root]["link"]
+        root = option if option in self._parsed.keys() else does_not_exist
+        if root == option:
+            if self._parsed[root]["link"] is not None:
+                root = self._parsed[root]["link"]
         return root
     
     
@@ -170,9 +175,9 @@ class CmdArgs(object):
     def value(self, option):
         """ Returns a value (or list of values if more than one was found) or None if it was not supplied.
         """
-        result = None
-        if option in self._parsed.keys():
-            result = self._parsed[self._get_root(option)]["value"]
+        result = self._get_root(option, None)
+        if result is not None:
+            result = self._parsed[result]["value"]
         return result
     
     
@@ -188,9 +193,9 @@ class CmdArgs(object):
 #====================================================================================================[ TEST METHODS ]==
 def test_cmdargs():
     """ Test run """
-    print [1,2,3,4,5][1:]
-    print sys.argv
-    print int.__name__
+    test = CmdArgs("-f", (int, "--fiddle", "--sticks"), (str, "--polly"), ("--wants", "-a", "--cracker"))
+    print test
+    print "Orphans:", test.orphans
 
 
 #============================================================================================================[ MAIN ]==
