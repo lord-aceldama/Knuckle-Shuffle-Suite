@@ -207,9 +207,12 @@ class CmdArgs(object):
 #====================================================================================================[ TEST METHODS ]==
 def test_cmdargs():
     """ Test run """
+    # > python cmdargs.py orphan --wants "a" --cracker --salty preferred ""
+    # > ARGS(5/8): [-f(str,-), --wants(str,1)->[-a, --cracker], --fiddle(int,-)->[--sticks], --polly(str,-), 
+    #   --salty(str,2)]
     test = CmdArgs("-f", (int, "--fiddle", "--sticks"), (str, "--polly"), ("--wants", "-a", "--cracker"), "--salty")
     print test
-    print test.value("-a")
+    print test.value("--salty")
     print "Orphans:", test.orphans
 
 
