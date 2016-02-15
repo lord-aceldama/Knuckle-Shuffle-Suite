@@ -33,17 +33,22 @@ class CmdArgs(object):
     def __str__(self):
         """ Returns a string representation of the parsed command-line arguments.
         """
+            
         result = "ARGS({0}/{1})".format(len(self), len(self._parsed.keys()))
         r_temp = []
         for key in self._parsed.keys():
             if self._parsed[key]["link"] is None:
+                #-- Primary option token
                 r_temp.append("{0}({1},{2})".format(key, self._parsed[key]["type"].__name__, "{0}"))
                 if self._parsed[key]["value"] is None:
-                    r_temp[-1] = r_temp[-1].format("-")
+                    r_temp[-1] = r_temp[-1].format("0" if self._parsed[key]["isset"] else "-")
                 else:
                     r_temp[-1] = r_temp[-1].format(len(list(self._parsed[key]["value"])))
-            else:
-                r_temp.append("{0} >> {1}".format(key, self._parsed[key]["link"]))
+                
+                #-- Option links
+                key_links = ", ".join(self.synonyms(key))
+                r_temp[-1] += "->[{0}]".format(key_links) if len(key_links) > 0 else ""
+                
         return result + (": [{0}]".format(", ".join(r_temp)) if len(r_temp) > 0 else "")
     
     
@@ -117,7 +122,7 @@ class CmdArgs(object):
             clean = arg.strip()
             if clean in self._parsed.keys():
                 #-- Select primary synonym instead.
-                c_opt = clean if self._parsed[c_opt]["link"] is None else self._parsed[c_opt]["link"]
+                c_opt = clean if self._parsed[clean]["link"] is None else self._parsed[clean]["link"]
                 self._parsed[c_opt]["isset"] = True
             else: 
                 if len(c_opt) > 0:
@@ -130,12 +135,12 @@ class CmdArgs(object):
                     if self._parsed[c_opt]["value"] is None:
                         #-- Set the value.
                         self._parsed[c_opt]["value"] = arg
-                    elif self._parsed[c_opt]["value"] is list:
+                    elif type(self._parsed[c_opt]["value"]) is list:
                         #-- Add to the value.
                         self._parsed[c_opt]["value"].append(arg)
                     else:
                         #-- Convert to list.
-                        self._parsed[c_opt]["value"] = list(self._parsed[c_opt]["value"], arg)
+                        self._parsed[c_opt]["value"] = [self._parsed[c_opt]["value"], arg]
                 else:
                     #-- Orphan
                     self._orphans.append(arg)
@@ -147,7 +152,6 @@ class CmdArgs(object):
         #-- First get the options sorted...
         self._parsed = dict()
         for opt in options:
-            print "  >", opt
             self._add(opt)
         
         #-- ...and then, the command line arguments.
@@ -188,13 +192,24 @@ class CmdArgs(object):
         if option in self._parsed.keys():
             flag = self._parsed[self._get_root(option)]["isset"]
         return flag
+    
+    
+    def synonyms(self, option):
+        """ Returns a list containing an option's links.
+        """
+        result = []
+        for key in self._parsed.keys():
+            if self._parsed[key]["link"] == option:
+                result.append(key)
+        return result
 
 
 #====================================================================================================[ TEST METHODS ]==
 def test_cmdargs():
     """ Test run """
-    test = CmdArgs("-f", (int, "--fiddle", "--sticks"), (str, "--polly"), ("--wants", "-a", "--cracker"))
+    test = CmdArgs("-f", (int, "--fiddle", "--sticks"), (str, "--polly"), ("--wants", "-a", "--cracker"), "--salty")
     print test
+    print test.value("-a")
     print "Orphans:", test.orphans
 
 
