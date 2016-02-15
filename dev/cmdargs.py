@@ -15,6 +15,17 @@ import sys
 #==================================================================================================[ CMD ARGS CLASS ]==
 class CmdArgs(object):
     """ A class that is supposed to simplifiy command-line argument retrieval.
+        
+        EXPOSES:
+            Methods:
+                [None] add(option)          - Adds an option and re-parses command-line arguments ["cmd args" herafter]
+                [list] value(option)        - Returns a list containing option and synonym value(s)
+                [type] type_of(option)      - Returns the user-defined type of an option
+                [bool] isset(option)        - Returns true if the option is present in the cmd args.
+                [list] synonyms(option)     - Returns a list containing option's synonyms.
+            
+            Properties:
+                [list] orphans (ro)         - Returns a list of orphan arguments (cmd args without a preceeding option) 
     """
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
@@ -182,6 +193,15 @@ class CmdArgs(object):
         result = self._get_root(option, None)
         if result is not None:
             result = self._parsed[result]["value"]
+        return result
+    
+    
+    def type_of(self, option):
+        """ Returns the type of a given option or none if the option does not exist.
+        """
+        result = None
+        if option in self._parsed.keys():
+            flag = self._parsed[self._get_root(option)]["type"]
         return result
     
     
