@@ -18,16 +18,16 @@ class CmdArgs(object):
         
         EXPOSES:
             Methods:
-                add(option)                 - Adds an option and re-parses command-line arguments ["cmd args" herafter]
+                add(option)             : Adds an option and re-parses command-line arguments ["cmd args" herafter]
             
             Functions:
-                [list] value(option)        - Returns a list containing option and synonym value(s)
-                [type] type_of(option)      - Returns the user-defined type of an option
-                [bool] isset(option)        - Returns true if the option is present in the cmd args.
-                [list] synonyms(option)     - Returns a list containing option's synonyms.
+                [list] value(option)    : Returns a list containing option and synonym value(s)
+                [type] type(option)     : Returns the user-defined type of an option
+                [bool] isset(*option)   : Returns true if the option is present in the cmd args.
+                [list] synonyms(option) : Returns a list containing option's synonyms.
             
             Properties:
-                (ro) [list] orphans         - Returns a list of orphan arguments (cmd args without a preceeding option) 
+                (ro) [list] orphans     : Returns a list of orphan arguments (cmd args without a preceeding option) 
     """
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
@@ -198,21 +198,23 @@ class CmdArgs(object):
         return result
     
     
-    def type_of(self, option):
+    def type(self, option):
         """ Returns the type of a given option or none if the option does not exist.
         """
         result = None
         if option in self._parsed.keys():
-            flag = self._parsed[self._get_root(option)]["type"]
+            result = self._parsed[self._get_root(option)]["type"]
         return result
     
     
-    def isset(self, option):
+    def isset(self, *option):
         """ Returns true if the option (or its synonym[s]) is present in the command-line.
         """
-        flag = False
-        if option in self._parsed.keys():
-            flag = self._parsed[self._get_root(option)]["isset"]
+        idx = 0
+        flag = len(option) > 0
+        while flag and (idx < len(option)):
+            flag = (option[idx] in self._parsed.keys()) and self._parsed[self._get_root(option[idx])]["isset"]
+            idx += 1
         return flag
     
     
