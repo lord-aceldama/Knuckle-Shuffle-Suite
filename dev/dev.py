@@ -16,27 +16,46 @@
 
 #-- Dependencies
 #import sys, math
-import cmdargs#, abacus, shuffle
+import cmdargs, version, shuffle#, abacus
 
 
 #-- Global Constants
-#[None]
+VERSION = version.Version("Knuckle-Shuffle", 0, 9, 0)
+
 
 #=========================================================================================================[ METHODS ]==
+def show_version():
+    """ Shows the script version. """
+    print "\033[1;32;40m{0}\n".format(str(VERSION))
+    
+
 def show_help():
     """ Shows the command-line help. """
-    print "hep!!"
+    print "\033[1;32;40mhep!!\n"
+
 
 def startup():
-    """ X """
-    args = cmdargs.CmdArgs(("-c", "--charset"), (int, "-l", "--length"), ("-s", "--start"), ("-h", "--help"))
-    if not args.isset("--help"):
-        if args.isset("--charset", "--length") and (len(args.value("-c")) * args.value("-l") > 0):
-            #-- Minimum Requirements
-            print args.isset("--charset", "--length"), args.type("-c"), args.type("-l")
-        else:
+    """ Interprets command-line options and executes script accordingly.
+    """
+    #-- Get command-line options.
+    arg = cmdargs.CmdArgs(("-c", "--charset"), (int, "-l", "--length"), ("-s", "--start"), ("-h", "--help"),
+                          ("-v", "--version"))
+    
+    #-- See what to do with them.
+    if arg.isset("--version"):
+        #-- Version requested
+        show_version()
+    elif arg.isset("--charset", "--length") and (len(arg.value("-c")) * arg.value("-l") > 0):
+        #-- Check for correct usage
+        fail = arg.isset("--help")
+        if fail:
+            #-- Incorrect/insuficient parameters given.
             show_help()
+        else:
+            #-- Minimum requirements met.
+            print arg.isset("--charset", "--length"), arg.type("-c"), arg.type("-l")
     else:
+        #-- Incorrect/insuficient parameters given.
         show_help()
 
 
