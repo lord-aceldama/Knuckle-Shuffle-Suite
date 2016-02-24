@@ -12,11 +12,12 @@
 #[None]
 
 
-#=====================================================================================================[ QUEUE CLASS ]==
+#===================================================================================================[ VERSION CLASS ]==
 class Version(object):
     """ Simple version control class. They don't get much simpler than this...
-        GUIDELINE: https://en.wikipedia.org/wiki/Software_versioning
-
+            RESEARCH:
+                - https://en.wikipedia.org/wiki/Software_versioning
+            
             EXPOSES:
                 Properties:
                     (ro) [str] name         : Returns the name of the applocation.
@@ -47,7 +48,7 @@ class Version(object):
     
     
     def __str__(self):
-        """ Initializes the object.
+        """ Returns a string representation ove the version.
         """
         result = "{0} v{1}.{2}-{3}{4}".format(self._name, self._version[0], self._version[1], 
                                               self.STAGE[self._version[2]][0],
@@ -63,21 +64,25 @@ class Version(object):
         return self._name
     
     
+    @property
     def major(self):
         """ Returns application's major version. """
         return self._version[0]
     
     
+    @property
     def minor(self):
         """ Returns application's minor version. """
         return self._version[1]
     
     
+    @property
     def stage(self):
         """ Returns application's development stage. """
         return self._version[2]
     
     
+    @property
     def revision(self):
         """ Returns current stage's revision. """
         return self._version[3]
