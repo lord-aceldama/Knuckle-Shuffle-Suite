@@ -44,9 +44,9 @@ class Console(object):
     """
     
     #-- Constants -----------------------------------------------------------------------------------------------------
-    _DEFAULTS = [7, 0, True, False]
+    _DEFAULTS = [0, 0, False, False]
     
-    COLOR = [ "black", "red", "green", "yellow", "blue", "magenta", "cyan", "white" ]
+    COLOR = [ "system", "red", "green", "yellow", "blue", "magenta", "cyan", "white", "black" ]
     STYLE = [ "none", "bright", "underline" ]
     
     
@@ -54,7 +54,6 @@ class Console(object):
     _output = sys.stdout
     _color  = { "f" : 0, "b" : 0 }
     _style  = { "b" : False, "u" : False }
-    _update = { "s" : False, "c" : False }
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
@@ -69,7 +68,7 @@ class Console(object):
         """ Returns a string representation of the the object.
         """
         result = "[CONSOLE FG:{0} BG:{1} STYLE:".format(self.COLOR[self._color["f"] - 30],
-                                                               self.COLOR[self._color["b"] - 40])
+                                                        self.COLOR[self._color["b"] - 40])
         if not (self._style["b"] or self._style["u"]):
             result += self.STYLE[0]
         else:
@@ -112,10 +111,8 @@ class Console(object):
         return self._style["b"]
     @bright.setter
     def bright(self, value):
-        """ X """
-        if (type(value) == bool) and (self._style["b"] != value):
-            self._update["s"] = True
-            self._style["b"] = value
+        """ Sets bright and style-update flags. """
+        self._setstyle("b", value)
     
     
     @property
@@ -124,23 +121,28 @@ class Console(object):
         return self._style["u"]
     @underline.setter
     def underline(self, value):
-        """ X """
-        if (type(value) == bool) and (self._style["u"] != value):
-            self._update["s"] = True
-            self._style["u"] = value
+        """ Sets underline and style-update flags """
+        self._setstyle("u", value)
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
     @staticmethod
     def _win_wh():
-        """ X """
+        """ Returns the console window height and width as a list of int. """
         return [int(x) for x in os.popen('stty size', 'r').read().split()]
     
     
+    
+    def _setstyle(self, key, value):
+        """ Clean up property setters. """
+        if (type(value) == bool) and (self._style[key] != value):
+            self._style[key] = value
+    
+    
     def _getcolor(self, color):
-        """ X """
+        """ Translates user defined color to usable color. """
         result = None
-        if (type(color) == int) and (color >= 0) and (color < 8):
+        if (type(color) == int) and (color >= 0) and (color < len(self.COLOR)):
             result = color
         elif type(color) == str:
             cleaned = color.strip().lower()
@@ -150,9 +152,19 @@ class Console(object):
         return result
     
     
+    def _format(self, text):
+        """ Returns a formatting string that sets the current console state. """
+        style  = "\\033[0"
+        style += (("m\\033[1" if self.bright else "") + 
+                  ("m\\033[4" if self.underline else ""))
+        color  = ((";{0}".format(self._color["f"]) if self.color != 0 else "") + 
+                  (";{0}".format(self._color["b"]) if self.backgroundcolor != 0 else ""))
+        return style + color + "m" + text + "\\033[0m"
+        feck(x
+    
     #-- Public Methods ------------------------------------------------------------------------------------------------
     def reset(self):
-        """ X """
+        """ Resets colours and styles to their default values without clearing the console. """
         self.setcolor(self._DEFAULTS[0])
         self.setbackgroundcolor(self._DEFAULTS[1])
         self.bright = self._DEFAULTS[2]
@@ -160,62 +172,57 @@ class Console(object):
         self.write("")
     
     
-    def cls(self):
-        """ X """
+    @staticmethod
+    def cls():
+        """ Clears the console but does not alter colors and styles. """
         os.system('cls' if os.name=='nt' else 'clear')
-        self.write("")
     
     
     def gotoxy(self, pos_x, pos_y):
-        """ X
-        """
-        self.write("\033[{1};{0}H".format(max(0, min(self.width - 1, int(pos_x))), 
-                                          max(0, min(self.height - 1, int(pos_y)))))
+        """ Moves the cursor to console X and Y. """
+        pos = [max(0, min(self.width - 1, int(pos_x))), max(0, min(self.height - 1, int(pos_y)))]
+        self.write("\033[{1};{0}H".format(pos[0], pos[1]))
     
     
     def setcolor(self, color):
-        """ X """
-        col = self._getcolor(color)
-        if self._color["f"] != 30 + col:
-            self._update["c"] = True
-            self._color["f"] = 30 + col
+        """ Sets the console forecolor. """
+        self._color["f"] = 30 + self._getcolor(color)
             
     
-    
     def setbackgroundcolor(self, color):
-        """ X """
-        col = self._getcolor(color)
-        if self._color["b"] != 40 + col:
-            self._update["c"] = True
-            self._color["b"] = 40 + col
+        """ Sets the console's background color. """
+        self._color["b"] = 40 + self._getcolor(color)
     
     
     def write(self, text):
-        """ X """
-        prefix = ""
-        if self._update["c"] or self._update["s"]:
-            self._update["c"] = False
-            self._update["s"] = False
-            prefix += "\033[0;{0};{1}m".format(self._color["f"], self._color["b"])
-            if self.bright:
-                prefix += "\033[1;{0};{1}m".format(self._color["f"], self._color["b"])
-            if self.underline:
-                prefix += "\033[4;{0};{1}m".format(self._color["f"], self._color["b"])
-        self._output.write(prefix + text)
+        """ Writes text to the console. """
+        self._output.write(self._format(text))
         
     
     def writeln(self, text):
-        """ X """
-        self.write("{0}\n".format(text))
+        """ Writes text to the console and adds a newline. """
+        self._output.write(self._format(text) + "\n")
+
+
+#===========================================================================================================[ DEBUG ]==
+def debug():
+    """ Test method. """
+    test = Console()
+    test.cls()
+    test.write("xxx")
+    test.underline = True
+    test.write("xxx")
+    test.underline = False
+    test.writeln("xxx")
+    test.write("xxx")
+    test.underline = True
+    test.write("xxx")
+    test.underline = False
+    test.writeln("xxx")
 
 
 #============================================================================================================[ MAIN ]==
-#[None]
-test = Console()
-print test
-test.write("xxx")
-test.underline = True
-test.write("xxx")
-test.underline = False
-test.writeln("xxx")
+if __name__ == "__main__":
+    DEBUG_MODE = True
+    debug()
 

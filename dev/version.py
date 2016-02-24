@@ -48,7 +48,7 @@ class Version(object):
     
     
     def __str__(self):
-        """ Returns a string representation ove the version.
+        """ Returns a string representation of the version.
         """
         result = "{0} v{1}.{2}-{3}{4}".format(self._name, self._version[0], self._version[1], 
                                               self.STAGE[self._version[2]][0],
