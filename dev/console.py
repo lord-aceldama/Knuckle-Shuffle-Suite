@@ -9,7 +9,7 @@
 """
 
 #-- Import Dependencies
-import os, sys
+import os, sys, time, random
 
 
 #===================================================================================================[ CONSOLE CLASS ]==
@@ -38,22 +38,28 @@ class Console(object):
                     cls()                       : Clears the screen.
                     gotoxy(pos_x, pos_y)        : Moves the cursor to position XY.
                     setcolor()                  : Sets the foreground color.
-                    setbackgroundcolor()        : sets the background color.
+                    setbackgroundcolor()        : Sets the background color.
+                    check_size()                : Forces a re-check of the window width and height.
                     write(text)                 : Writes the text to the console.
                     writeln(text)               : Same as write() with a newline.
     """
     
     #-- Constants -----------------------------------------------------------------------------------------------------
-    _DEFAULTS = [0, 0, False, False]
+    _DEFAULTS   = [0, 0, False, False]
+    _WH_RECHECK = 5 #-- Recheck width/height every N seconds.
     
     COLOR = [ "system", "red", "green", "yellow", "blue", "magenta", "cyan", "white", "black" ]
     STYLE = [ "none", "bright", "underline" ]
+    
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
     _output = sys.stdout
     _color  = { "f" : 0, "b" : 0 }
     _style  = { "b" : False, "u" : False }
+    
+    _wht = 0
+    _wh  = 0
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
@@ -62,6 +68,7 @@ class Console(object):
         """
         self._output = output
         self.reset()
+        self._win_wh()
     
     
     def __str__(self):
@@ -84,25 +91,25 @@ class Console(object):
     @property
     def width(self):
         """ Returns the console width. """
-        return self._win_wh[0]
+        return self._win_wh()[0]
     
     
     @property
     def height(self):
         """ Returns the console height. """
-        return self._win_wh[1]
+        return self._win_wh()[1]
     
     
     @property
     def color(self):
         """ Returns the current text color. """
-        return self.COLOR[self._color["f"] - 30]
+        return self._getcolorname(self._color["f"])
     
     
     @property
     def backgroundcolor(self):
         """ Returns the current text background color. """
-        return self._color["b"] - 40
+        return self._getcolorname(self._color["b"])
     
     
     @property
@@ -127,10 +134,17 @@ class Console(object):
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
     @staticmethod
-    def _win_wh():
-        """ Returns the console window height and width as a list of int. """
-        return [int(x) for x in os.popen('stty size', 'r').read().split()]
+    def _restrain(value, vmin, vmax):
+        """ Restrains a number to a certain range. """
+        return max(vmin, min(vmax, value))
     
+    
+    def _win_wh(self):
+        """ Returns the console window height and width as a list of int. """
+        if self._wht < time.time():
+            self._wht = time.time() + self._WH_RECHECK
+            self._wh = [int(x) for x in os.popen('stty size', 'r').read().split()]
+        return self._wh
     
     
     def _setstyle(self, key, value):
@@ -152,15 +166,20 @@ class Console(object):
         return result
     
     
+    def _getcolorname(self, color_code):
+        """ Translates a color to color name"""
+        result = color_code % 10
+        return self.COLOR[result]
+    
+    
     def _format(self, text):
         """ Returns a formatting string that sets the current console state. """
-        style  = "\\033[0"
-        style += (("m\\033[1" if self.bright else "") + 
-                  ("m\\033[4" if self.underline else ""))
-        color  = ((";{0}".format(self._color["f"]) if self.color != 0 else "") + 
-                  (";{0}".format(self._color["b"]) if self.backgroundcolor != 0 else ""))
-        return style + color + "m" + text + "\\033[0m"
-        feck(x
+        style = (("m\033[1" if self.bright else "") + 
+                 ("m\033[4" if self.underline else ""))
+        color = ((";{0}".format(self._color["f"]) if self.color != "system" else "") + 
+                 (";{0}".format(self._color["b"]) if self.backgroundcolor != "system" else ""))
+        return "\033[0{0}{1}m{2}\033[0m".format(style, color, text)
+    
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
     def reset(self):
@@ -180,8 +199,8 @@ class Console(object):
     
     def gotoxy(self, pos_x, pos_y):
         """ Moves the cursor to console X and Y. """
-        pos = [max(0, min(self.width - 1, int(pos_x))), max(0, min(self.height - 1, int(pos_y)))]
-        self.write("\033[{1};{0}H".format(pos[0], pos[1]))
+        win_wh = self._win_wh()
+        self.write("\033[{0};{1}H".format(self._restrain(pos_x, 0, win_wh[0]), self._restrain(pos_y, 0, win_wh[1])))
     
     
     def setcolor(self, color):
@@ -194,9 +213,16 @@ class Console(object):
         self._color["b"] = 40 + self._getcolor(color)
     
     
+    def check_size(self):
+        """ Forces a re-check of the console width and height. """
+        self._wht = 0
+        self._win_wh()
+    
+    
     def write(self, text):
         """ Writes text to the console. """
         self._output.write(self._format(text))
+        self._output.flush()
         
     
     def writeln(self, text):
@@ -209,16 +235,11 @@ def debug():
     """ Test method. """
     test = Console()
     test.cls()
-    test.write("xxx")
-    test.underline = True
-    test.write("xxx")
-    test.underline = False
-    test.writeln("xxx")
-    test.write("xxx")
-    test.underline = True
-    test.write("xxx")
-    test.underline = False
-    test.writeln("xxx")
+    for _ in xrange(500):
+        test.gotoxy(random.randrange(test.width + 1), random.randrange(test.height + 1))
+        test.setcolor(random.randrange(len(test.COLOR)))
+        test.write(random.choice(sorted("abcdefghijklmnopqrstuvwxyz")))
+    test.gotoxy(0, 0)
 
 
 #============================================================================================================[ MAIN ]==
