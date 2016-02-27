@@ -16,26 +16,27 @@
 
 #-- Dependencies
 #import sys, math
-import cmdargs, version, shuffle, console#, abacus
+import sys, cmdargs, version, console#, shuffle, abacus
 
 
 #-- Global Constants
 VERSION = version.Version("Knuckle-Shuffle", 0, 9, 0)
+PRN     = console.Console(sys.stderr)
 
 
 #=========================================================================================================[ METHODS ]==
 def show_version():
-    """ Shows the script version.
-            ESCAPE SEQ (\033[):
-             - ^y;xH moves cursor to row;col (rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python)
-             - ^Style;FG;BGm (ozzmaker.com/add-colour-to-text-in-python/)
-    """
-    print "\033[1;32;40m{0}\n".format(VERSION)
+    """ Shows the script version. """
+    PRN.bright = True
+    PRN.setcolor("green")
+    PRN.writeln(VERSION)
     
 
 def show_help():
     """ Shows the command-line help. """
-    print "\033[1;32;40mhep!!\n"
+    PRN.bright = True
+    PRN.setcolor("red")
+    PRN.writeln("HEP!!")
 
 
 def startup():

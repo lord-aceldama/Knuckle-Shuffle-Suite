@@ -15,11 +15,6 @@ import os, sys, time, random
 #===================================================================================================[ CONSOLE CLASS ]==
 class Console(object):
     """ Class to extend and simplify common console output like colour and font settings or dimension retrieval.
-            RESEARCH:
-                - https://en.wikipedia.org/wiki/ANSI_escape_code
-                - http://ozzmaker.com/add-colour-to-text-in-python/
-                - https://rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python
-            
             EXPOSES:
                 Constants:
                     COLOR
@@ -34,14 +29,19 @@ class Console(object):
                     (rw) [bool] underline       : Gets or sets the current underline style setting.
                     
                 Methods:
-                    reset()                     : Resets color and style to the default without clearing screen.
                     cls()                       : Clears the screen.
+                    reset()                     : Resets color and style to the default without clearing screen.
                     gotoxy(pos_x, pos_y)        : Moves the cursor to position XY.
-                    setcolor()                  : Sets the foreground color.
-                    setbackgroundcolor()        : Sets the background color.
+                    setcolor(color)             : Sets the foreground color. Color can be either a string or a number.
+                    setbackgroundcolor(color)   : Sets the background color. Color can be either a string or a number.
                     check_size()                : Forces a re-check of the window width and height.
                     write(text)                 : Writes the text to the console.
                     writeln(text)               : Same as write() with a newline.
+            
+            RESEARCH:
+                - https://en.wikipedia.org/wiki/ANSI_escape_code
+                - http://ozzmaker.com/add-colour-to-text-in-python/
+                - https://rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python
     """
     
     #-- Constants -----------------------------------------------------------------------------------------------------
@@ -182,6 +182,12 @@ class Console(object):
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
+    @staticmethod
+    def cls():
+        """ Clears the console but does not alter colors and styles. """
+        os.system('cls' if os.name=='nt' else 'clear')
+    
+    
     def reset(self):
         """ Resets colours and styles to their default values without clearing the console. """
         self.setcolor(self._DEFAULTS[0])
@@ -189,12 +195,6 @@ class Console(object):
         self.bright = self._DEFAULTS[2]
         self.underline = self._DEFAULTS[3]
         self.write("")
-    
-    
-    @staticmethod
-    def cls():
-        """ Clears the console but does not alter colors and styles. """
-        os.system('cls' if os.name=='nt' else 'clear')
     
     
     def gotoxy(self, pos_x, pos_y):
