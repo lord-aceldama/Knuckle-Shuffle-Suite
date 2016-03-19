@@ -12,8 +12,166 @@
 import os, sys, time, random
 
 
+#=============================================================================================[ BASIC CONSOLE CLASS ]==
+class Basic(object):
+    """ A basic console control class. Includes caret positioning and output manipulation.
+            EXPOSES:
+                Constants:
+                    [None]
+                
+                Properties:
+                    (ro) [bool] is_linux        : Returns True if os platform is Linux.
+                    (ro) [bool] is_windows      : Returns True if os platform is Windows.
+                    (ro) [bool] ansi_support    : Returns True if stdout supports ansi.
+                
+                Functions:
+                    [None]
+                
+                Methods:
+                    cls()           : 
+                    clreol()        : 
+                    home()          : 
+                    gotoxy(x, y)    : 
+                    write(*arg)     : 
+                    writeln(*arg)   : 
+            
+            RESEARCH:
+                - https://docs.python.org/2/library/os.html#os.isatty
+                - https://docs.python.org/2/library/sys.html#sys.platform
+                - https://en.wikipedia.org/wiki/ANSI_escape_code
+                - https://rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python
+    """
+    #-- Constants -----------------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Global Vars ---------------------------------------------------------------------------------------------------
+    _stdout = None
+    _stderr = None
+    _stdtty = False
+    
+    
+    #-- Special Class Methods -----------------------------------------------------------------------------------------
+    def __init__(self, stdout=sys.stdout, stderr=sys.stderr):
+        """ Initialises the class.
+        """
+        #-- Set output vectors
+        self._stderr = stderr if type(stderr) == file else None
+        self._stdout = stdout if type(stdout) == file else None
+        assert self._stdout is not None, "FATAL: Primary output must be a valid file handle or pipe."
+        self._stdtty = os.isatty(self._stdout.fileno())
+    
+    
+    #-- Properties ----------------------------------------------------------------------------------------------------
+    @staticmethod
+    @property
+    def is_linux():
+        """ Returns True if python is running on Linux. """
+        return sys.platform.startswith('linux')
+    
+    
+    @staticmethod
+    @property
+    def is_windows():
+        """ Returns True if python is running on Windows. """
+        return sys.platform.startswith('win')
+    
+    
+    @property
+    def ansi_support(self):
+        """ Returns True if primary output is a TTY and os is not windows. """
+        return self._stdtty and not self.is_windows
+    
+    
+    #-- Private Methods -----------------------------------------------------------------------------------------------
+    def _write(self, arg_list, linefeed):
+        """ Tries to write to primary output. If an error occurs, it writes the error to the secondary output. 
+        """
+        if self._stdout is not None:
+            parsed = " ".join([str(item) for item in arg_list])
+            try:
+                self._stdout.write(parsed + ("\n" if linefeed else ""))
+                self._stdout.flush()
+            except Exception as err:
+                self._error(str(err))
+        else:
+            self._error("Output not set or invalid")
+    
+    
+    def _error(self, message):
+        """ Tries to write to secondary output. If _stderr is None, no output gets written. If an error occurs and 
+            _stderr is not None, a fatal exception is raised and the program terminates.
+        """
+        if self._stderr is not None:
+            try:
+                self._stderr.write("ERROR: {0}.\n".format(message))
+                self._stderr.flush()
+            except Exception as err:
+                raise Exception("FATAL: {0}.".format(str(err)))
+    
+    
+    def _ansi(self, code, *args):
+        """ Returns the ansi escape sequence if the console supports it, or raises an error and returns an empty string
+            if it doesn't.
+        """
+        result = ""
+        if self.ansi_support:
+            result = "\x1b[{0}{1}".format(";".join([str(arg) for arg in args]) if type(args) == list else "", code)
+        else:
+            self._error("Primary output does not support ansi")
+        return result
+        
+    
+    
+    #-- Public Methods ------------------------------------------------------------------------------------------------
+    def cls(self):
+        """ Clears the screen and resets the cursor to position (0; 0).
+        """
+        self.write(self._ansi("J", 2))
+        self.gotoxy(0, 0)
+    
+    
+    def clreol(self):
+        """ Attempts to write the clreol ansi escape sequence to the console.
+        """
+        self.write(self._ansi("K"))
+    
+    
+    def home(self):
+        """ Writes the carriage return string literal to the primary output if it is a tty or raises an error and does
+            nothing if it doesn't.
+        """
+        if self._stdtty:
+            self.write("\r")
+        else:
+            self._error("Primary output is not a tty")
+    
+    
+    def gotoxy(self, x, y):
+        """ Moves the carriage to position (x; y).
+        """
+        self.write(self._ansi("H", y, x))
+    
+    
+    def write(self, *args):
+        """ Writes to the primary output.
+        """
+        self._write(list(args), False)
+    
+    
+    def writeln(self, *args):
+        """ Like writeln, but adds an line-feed character to the end.
+        """
+        self._write(list(args), True)
+
+
+#=============================================================================================[ COLOR CONSOLE CLASS ]==
+class Color(Basic):
+    """ An expansion on the basic console class. Includes color ansi escape sequences. """
+
+
 #===================================================================================================[ CONSOLE CLASS ]==
-class Console(object):
+class ConsoleX(object):
     """ Class to extend and simplify common console output like colour and font settings or dimension retrieval.
             EXPOSES:
                 Constants:
@@ -42,6 +200,7 @@ class Console(object):
                 - https://en.wikipedia.org/wiki/ANSI_escape_code
                 - http://ozzmaker.com/add-colour-to-text-in-python/
                 - https://rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python
+                - http://coolmaxhot.com/graphics/hex-color-palette.htm
     """
     
     #-- Constants -----------------------------------------------------------------------------------------------------
@@ -233,7 +392,15 @@ class Console(object):
 #===========================================================================================================[ DEBUG ]==
 def debug():
     """ Test method. """
-    test = Console()
+    print "1234\rabc\x1b[Kz"
+    with open('setup.txt', "w+") as fobj:
+        print type(fobj)
+    print type(sys.stdout), os.isatty(sys.stdout.fileno())
+    print type(sys.stderr), os.isatty(sys.stderr.fileno())
+    print "os:", sys.platform
+    exit()
+    
+    test = ConsoleX()
     test.cls()
     for _ in xrange(500):
         test.gotoxy(random.randrange(test.width + 1), random.randrange(test.height + 1))
