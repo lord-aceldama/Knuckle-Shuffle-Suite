@@ -390,13 +390,96 @@ class ConsoleX(object):
 
 
 #===========================================================================================================[ DEBUG ]==
+def show_picker():
+    """ Show color picker. """
+    def rgb(red, green, blue):
+        """ Calculate the palette index of a color. The red, green and blue arguments may range from 0 to 5.
+        """
+        return 16 + (red * 36) + (green * 6) + blue
+    
+    def gray(value):
+        """ Calculate the palette index of a color in the grayscale ramp. The value argument may range from 0 to 23.
+        """
+        return 232 + value
+
+    def sqr(red, green, blue, x, y):
+        """ Draws a 4x2 square of a specified color with a 3 char label.
+        """
+        color = rgb(red, green, blue)
+        sys.stdout.write("\x1b[{5};{4}H\x1b[48;5;{0}m{1}{2}{3} \x1b[0m".format(color, red, green, blue, x, y))
+        sys.stdout.write("\x1b[{2};{1}H\x1b[48;5;{0}m    \x1b[0m\n".format(color, x, y + 1))
+        sys.stdout.flush()
+    
+    def line_a(x, y, length, minmax, offset):
+        """ Draws a vertical hexagon line. (light) """
+        for i in range(length):
+            red = min(minmax[1][0], max(minmax[0][0], offset[0] + length - (i + 1)))
+            grn = min(minmax[1][1], max(minmax[0][1], offset[1] + i))
+            blu = min(minmax[1][2], max(minmax[0][2], offset[2] + i))
+            sqr(red, grn, blu, 4 * x + 1, 2 * (y + i) + (length % 2))
+    
+    def line_b(x, y, length, minmax, offset):
+        """ Draws a vertical hexagon line. (dark) """
+        for i in range(length):
+            red = min(minmax[1][0], max(minmax[0][0], length - (offset[0] + i + 1)))
+            grn = min(minmax[1][1], max(minmax[0][1], i - offset[1]))
+            blu = min(minmax[1][2], max(minmax[0][2], i - offset[2]))
+            sqr(red, grn, blu, 4 * x + 1, 2 * (y + i) + (length % 2))
+    
+    #-- Clear screen
+    sys.stdout.write("\x1b[2J\x1b[0;0H")
+    sys.stdout.flush()
+    
+    #-- RGB Hexagon: http://coolmaxhot.com/graphics/hex-colorsA.gif
+    line_a( 0, 3,  6, [[0, 0, 5], [5, 0, 5]], [0, 0, 5]) #-- Start
+    line_a( 1, 2,  7, [[0, 0, 4], [5, 1, 5]], [0, 0, 4])
+    line_a( 2, 2,  8, [[0, 0, 3], [5, 2, 5]], [0, 0, 3])
+    line_a( 3, 1,  9, [[0, 0, 2], [5, 3, 5]], [0, 0, 2])
+    line_a( 4, 1, 10, [[0, 0, 1], [5, 4, 5]], [0, 0, 1])
+    line_a( 5, 0, 11, [[0, 0, 0], [5, 5, 5]], [0, 0, 0]) #-- Middle
+    line_a( 6, 1, 10, [[0, 1, 0], [5, 5, 4]], [0, 1, 0])
+    line_a( 7, 1,  9, [[0, 2, 0], [5, 5, 3]], [0, 2, 0])
+    line_a( 8, 2,  8, [[0, 3, 0], [5, 5, 2]], [0, 3, 0])
+    line_a( 9, 2,  7, [[0, 4, 0], [5, 5, 1]], [0, 4, 0])
+    line_a(10, 3,  6, [[0, 5, 0], [5, 5, 0]], [0, 5, 0]) #-- Mirror
+    line_b(11, 2,  7, [[0, 4, 0], [5, 5, 1]], [1, 1, 5])
+    line_b(12, 2,  8, [[0, 3, 0], [5, 5, 2]], [2, 2, 5])
+    line_b(13, 1,  9, [[0, 2, 0], [5, 5, 3]], [3, 3, 5])
+    line_b(14, 1, 10, [[0, 1, 0], [5, 5, 4]], [4, 4, 5])
+    line_b(15, 0, 11, [[0, 0, 0], [5, 5, 5]], [5, 5, 5]) #-- Middle
+    line_b(16, 1, 10, [[0, 0, 1], [5, 4, 5]], [4, 5, 4])
+    line_b(17, 1,  9, [[0, 0, 2], [5, 3, 5]], [3, 5, 3])
+    line_b(18, 2,  8, [[0, 0, 3], [5, 2, 5]], [2, 5, 2])
+    line_b(19, 2,  7, [[0, 0, 4], [5, 1, 5]], [1, 5, 1])
+    line_b(20, 3,  6, [[0, 0, 5], [5, 0, 5]], [0, 5, 0]) #-- End
+    
+    #-- Grayscale
+    for i in range(24):
+        x = 1 + (i % 12) * 4
+        y = 24 + (0 if i < 12 else 2)
+        sys.stdout.write("\x1b[{3};{2}H\x1b[48;5;{0}mG{1:02d} \x1b[0m".format(gray(i), i, x, y))
+        sys.stdout.write("\x1b[{2};{1}H\x1b[48;5;{0}m    \x1b[0m\n".format(gray(i), x, y + 1))
+    
+    #-- System Colors
+    for i in range(16):
+        x = 1 + (13 + (i % 8)) * 4
+        y = 24 + (0 if i < 8 else 2)
+        sys.stdout.write("\x1b[{3};{2}H\x1b[48;5;{0}mS{1:02d} \x1b[0m".format(i, i, x, y))
+        sys.stdout.write("\x1b[{2};{1}H\x1b[48;5;{0}m    \x1b[0m\n".format(i, x, y + 1))
+    
+    #-- Line feed
+    sys.stdout.write("\x1b[29;0H")
+    
+
 def debug():
     """ Test method. """
+    show_picker()
+    
     print "1234\rabc\x1b[Kz"
     with open('setup.txt', "w+") as fobj:
-        print type(fobj)
-    print type(sys.stdout), os.isatty(sys.stdout.fileno())
-    print type(sys.stderr), os.isatty(sys.stderr.fileno())
+        print "file:  ", type(fobj).__name__, os.isatty(fobj.fileno())
+    print "stdout:", type(sys.stdout).__name__, os.isatty(sys.stdout.fileno())
+    print "stderr:", type(sys.stderr).__name__, os.isatty(sys.stderr.fileno())
     print "os:", sys.platform
     exit()
     
