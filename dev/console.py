@@ -392,11 +392,17 @@ class ConsoleX(object):
 #===========================================================================================================[ DEBUG ]==
 def show_picker():
     """ Let's loopify this thing. """
-    def block(x, y, color, label=""):
-        """ Draws a block at position (x, y) on screen. """
-        sys.stdout.write("\x1b[{1};{0}H\x1b[48;5;{2}m{3} \x1b[0m".format(1 + x, 1 + y, color, (label + "    ")[0:3]))
-        sys.stdout.write("\x1b[{1};{0}H\x1b[48;5;{2}m    \x1b[0m".format(1 + x, 2 + y, color))
+    def write_color(x, y, fg, bg, text):
+        sys.stdout.write("\x1b[{1};{0}H".format(x + 1, y + 1))  #-- GotoXY
+        sys.stdout.write("\x1b[38;5;{0:d}m".format(fg))         #-- Set FG
+        sys.stdout.write("\x1b[48;5;{0:d}m".format(bg))         #-- Set BG
+        sys.stdout.write("{0}\x1b[0m".format(text))             #-- Write Text to screen
         sys.stdout.flush()
+        
+    def block(x, y, bg, label="", fg=15):
+        """ Draws a block at position (x, y) on screen. """
+        write_color(x, y,     fg, bg, (label + "    ")[0:4])
+        write_color(x, y + 1, fg, bg, "    ")
     
     #-- Cls
     sys.stdout.write("\x1b[2J\x1b[0;0H")
@@ -414,7 +420,7 @@ def show_picker():
             red = min(5, inv_y)
             grn = min(5, x) + min(0, 5 - inv_y)
             blu = min(5, inv_x) + min(0, 5 - inv_y)
-            block(x * 4, offset + y * 2, 16 + (red * 36) + (grn * 6) + blu, "{0}{1}{2}".format(red, grn, blu))
+            block(x * 4, offset + y * 2, 16 + (red * 36) + (grn * 6) + blu, "{0}{1}{2}".format(red, grn, blu), 0)
             
             #-- Dark
             red = 5 - (min(5, y))
@@ -426,13 +432,13 @@ def show_picker():
     for i in range(24):
         x = (i % 12) * 4
         y = 23 + (0 if i < 12 else 2)
-        block(x, y, 232 + i, "G{0:02d}".format(i))
+        block(x, y, 232 + i, "G{0:02d}".format(i), (15 if i < 12 else 0))
     
     #-- System Color Bar
     for i in range(16):
         x = (13 + (i % 8)) * 4
         y = 23 + (0 if i < 8 else 2)
-        block(x, y, i, "S{0:02d}".format(i))
+        block(x, y, i, "S{0:02d}".format(i), (15 if i < 8 else 0))
     
     #-- Position cursor
     sys.stdout.write("\x1b[29;0H")
