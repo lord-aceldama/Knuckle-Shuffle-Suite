@@ -9,7 +9,7 @@
 """
 
 #-- Import Dependencies
-import os, sys, time, random
+import os, sys, time#, random
 
 
 #=============================================================================================[ BASIC CONSOLE CLASS ]==
@@ -28,12 +28,12 @@ class Basic(object):
                     [None]
                 
                 Methods:
-                    cls()           : 
-                    clreol()        : 
-                    home()          : 
-                    gotoxy(x, y)    : 
-                    write(*arg)     : 
-                    writeln(*arg)   : 
+                    cls()                       : Clears the console screen.
+                    clreol()                    : Clears the content of the line right of the caret.
+                    home()                      : Moves the caret to the beginning of the line.
+                    gotoxy(x, y)                : Moves the caret to position (x, y)
+                    write(*arg)                 : Writes the arguments to the console.
+                    writeln(*arg)               : Like write(), but scrolls the caret to a new line.
             
             RESEARCH:
                 - https://docs.python.org/2/library/os.html#os.isatty
@@ -92,6 +92,7 @@ class Basic(object):
             try:
                 self._stdout.write(parsed + ("\n" if linefeed else ""))
                 self._stdout.flush()
+            
             except Exception as err:
                 self._error(str(err))
         else:
@@ -167,7 +168,272 @@ class Basic(object):
 
 #=============================================================================================[ COLOR CONSOLE CLASS ]==
 class Color(Basic):
-    """ An expansion on the basic console class. Includes color ansi escape sequences. """
+    """ An expansion on the basic console class. Includes color ansi escape sequences. These can be incorporated in the
+        text sent to write() and writeln().
+        
+            EXPOSES:
+                Constants:
+                    [None]
+                
+                Properties:
+                    (ro) [bool] is_linux        : Returns True if os platform is Linux.
+                    (ro) [bool] is_windows      : Returns True if os platform is Windows.
+                    (ro) [bool] ansi_support    : Returns True if stdout supports ansi.
+                
+                Functions:
+                    [None]
+                
+                Methods:
+                    demo()                      : To Do...
+                    cls()                       : Clears the console screen.
+                    clreol()                    : Clears the content of the line right of the caret.
+                    home()                      : Moves the caret to the beginning of the line.
+                    gotoxy(x, y)                : Moves the caret to position (x, y)
+                    write(*arg)                 : Writes the arguments to the console. Any embedded color codes
+                                                  are processed and the appropriate ANSI codes substitued.
+                    writeln(*arg)               : Like write(), but scrolls the caret to a new line.
+        
+            USAGE:
+                The syntax of an in-text escape sequence is as follows:
+                    [c:([clr]|(fg|bg):(sys|rgb|gray):code)]
+            
+                A full colour picker can be printed to the console by using the demo() method.
+            
+            EXAMPLES:
+                If you wanted to write "Hello world!" where the word "world" was displayed in a
+                system yellow on a blue background, you would write it as follows: 
+                    > Color.writeln("[c:bg:rgb:001]Hello [c:fg:sys:4]world[c:clr][c:bg:rgb:001]![c:clr]")
+                
+                Or if you were to write out an escape code, you would write it as:
+                    > Color.writeln("To print a word in a system yellow foreground color use [c:]fg:sys:4]")
+                
+            RESEARCH:
+                - https://docs.python.org/2/library/os.html#os.isatty
+                - https://docs.python.org/2/library/sys.html#sys.platform
+                - https://en.wikipedia.org/wiki/ANSI_escape_code
+                - https://rosettacode.org/wiki/Terminal_control/Cursor_positioning#Python
+    """
+    #-- Constants -----------------------------------------------------------------------------------------------------
+    (   BLACK,
+        RED,
+        GREEN,
+        YELLOW,
+        BLUE,
+        MAGENTA,
+        CYAN,
+        LIGHT_GRAY,
+        DARK_GRAY,
+        LIGHT_RED,
+        LIGHT_GREEN,
+        LIGHT_YELLOW,
+        LIGHT_BLUE,
+        LIGHT_MAGENTA,
+        LIGHT_CYAN,
+        WHITE           ) = range(16)
+    
+    
+    #-- Global Vars ---------------------------------------------------------------------------------------------------
+    _stdout = None
+    _stderr = None
+    _stdtty = False
+        
+    
+    #-- Special Class Methods -----------------------------------------------------------------------------------------
+    def __init__(self, stdout=sys.stdout, stderr=sys.stderr):
+        """ Initialises the class. """
+        #-- [Inherited]
+        Basic.__init__(self, stdout, stderr)
+    
+    
+    #-- Properties ----------------------------------------------------------------------------------------------------
+    @staticmethod
+    @property
+    def is_linux():
+        """ Returns True if python is running on Linux. """
+        #-- [Inherited]
+        return Basic.is_linux
+    
+    
+    @staticmethod
+    @property
+    def is_windows():
+        """ Returns True if python is running on Windows. """
+        #-- [Inherited]
+        return Basic.is_windows
+    
+    
+    @property
+    def ansi_support(self):
+        """ Returns True if primary output is a TTY and os is not windows. """
+        #-- [Inherited]
+        return Basic.ansi_support(self)
+    
+    
+    #-- Private Methods -----------------------------------------------------------------------------------------------
+    @staticmethod
+    def _choke(number, vmax, vmin = 0):
+        """ Restrains an integer within the vmin and vmax parameters (inclusive).
+        """
+        return max(vmin, min(vmax, int(number)))
+    
+    
+    def _esc_color(self, is_fg, code):
+        """ Returns an escape colour sequence if ANSI is supported. Otherwise it returns an empty string.
+        """
+        code = ""
+        if self.ansi_support:
+            code = "\x1b[{0:d};5;{1:d}m".format(38 if is_fg else 48, code)
+        return code
+    
+
+    def _esc_rgb(self, is_fg, red, green, blue):
+        """ Calculates and returns the RGB colour escape string if ANSI is supported in the console window. RGB values
+            can be 0 to 6.
+        """
+        code = 16 + (((self._choke(red, 6) * 6) + self._choke(green, 6)) * 6) + self._choke(blue, 6)
+        return self._esc_color(is_fg, code)
+    
+    
+    def _esc_sys(self, is_fg, color_code):
+        """ Calculates and returns the system colour escape string if ANSI is supported in the console window. See also
+            the system constants.
+        """
+        return self._esc_color(is_fg, self._choke(color_code, 15))
+    
+    
+    def _esc_gray(self, is_fg, color_code):
+        """ Calculates and returns the grayscale colour escape string if ANSI is supported in the console window.
+            Grayscale values can be 0 to 23.
+        """
+        return self._esc_color(is_fg, 232 + self._choke(color_code, 23))
+    
+    
+    def _esc_reset(self):
+        """ Returns an reset escape sequence if ANSI is supported. Otherwise it returns just an empty string.
+        """
+        code = ""
+        if self.ansi_support:
+            code = "\x1b[0m"
+        return code
+    
+
+    def _parse_colours(self, arg_list):
+        """ Taste the rainbow! :D
+            [c:([clr]|(fg|bg):(sys|rgb|gray):code)]
+        """
+        new_args = []
+        for arg in arg_list:
+            if type(arg) is str:
+                if arg.count("[c:") == 0:
+                    #-- No tokens found
+                    new_args.append(arg)
+                else:
+                    #-- Parse tokens
+                    splode = arg.split("[c:")
+                    temp = splode[0]
+                    for sploded in splode[1:]:
+                        flag = len(temp)
+                        if sploded.count("]") > 0:
+                            s_end = sploded[sploded.index("]") + 1:]
+                            if sploded.startswith("]"):
+                                #-- Add the "[c:" token escape code.
+                                temp += "[c:" + s_end
+                            elif sploded.startswith("clr]"):
+                                #-- Add reset escape sequence
+                                temp += self._esc_reset() + s_end
+                            elif (sploded.count(":", 0, sploded.index("]")) == 2) and (sploded[0:4] in ["fg:", "bg:"]):
+                                #-- Add colour escape sequence
+                                is_fg = sploded.startswith("fg:")
+                                c_code = sploded[sploded.index(":", 4) + 1:sploded.index("]")]
+                                c_opt = sploded[3:sploded.index(":", 4)]
+                                if (len(c_code) > 0) and (c_opt in ["sys", "gray", "rgb"]):
+                                    if c_opt == "sys":
+                                        #-- System colour
+                                        temp += self._esc_sys(is_fg, c_code) + s_end
+                                    elif (c_opt == "rgb") and (len(c_code) == 3):
+                                        #-- RGB colour
+                                        temp += self._esc_rgb(is_fg, c_code[0], c_code[1], c_code[2]) + s_end
+                                    else:
+                                        #-- Grayscale colour
+                                        temp += self._esc_gray(is_fg, c_code) + s_end
+                        
+                        if flag == len(temp):
+                            #-- Token was invalid and will be ignored. 
+                            temp += "[c:" + sploded
+                    new_args.append(temp)
+            else:
+                #-- Ignore
+                new_args.append(arg)
+        return new_args
+    
+    
+    def _write(self, arg_list, linefeed):
+        """ Tries to write to primary output. If an error occurs, it writes the error to the secondary output. The main
+            difference between this and the inherited _write() method is the parsing of colour escape sequences.
+        """
+        #-- [Inherited]
+        Basic._write(self, self._parse_colours(arg_list), linefeed)
+    
+    
+    def _error(self, message):
+        """ Tries to write to secondary output. If _stderr is None, no output gets written. If an error occurs and 
+            _stderr is not None, a fatal exception is raised and the program terminates.
+        """
+        #-- [Inherited]
+        Basic._error(self, message)
+    
+    
+    def _ansi(self, code, *args):
+        """ Returns the ansi escape sequence if the console supports it, or raises an error and returns an empty string
+            if it doesn't.
+        """
+        #-- [Inherited]
+        return Basic._ansi(self, code, *args)
+    
+    
+    #-- Public Methods ------------------------------------------------------------------------------------------------
+    def cls(self):
+        """ Clears the screen and resets the cursor to position (0; 0).
+        """
+        #-- [Inherited]
+        Basic.cls(self)
+    
+    
+    def clreol(self):
+        """ Attempts to write the clreol ansi escape sequence to the console.
+        """
+        #-- [Inherited]
+        Basic.clreol(self)
+    
+    
+    def home(self):
+        """ Writes the carriage return string literal to the primary output if it is a tty or raises an error and does
+            nothing if it doesn't.
+        """
+        #-- [Inherited]
+        Basic.home(self)
+    
+    
+    def gotoxy(self, x, y):
+        """ Moves the carriage to position (x; y).
+        """
+        #-- [Inherited]
+        Basic.gotoxy(self, x, y)
+    
+    
+    def write(self, *args):
+        """ Writes to the primary output.
+        """
+        #-- [Inherited]
+        Basic.write(self, *args)
+    
+    
+    def writeln(self, *args):
+        """ Like writeln, but adds an line-feed character to the end.
+        """
+        #-- [Inherited]
+        Basic.writeln(self, *args)
+
 
 
 #===================================================================================================[ CONSOLE CLASS ]==
@@ -179,10 +445,10 @@ class ConsoleX(object):
                     STYLE
                 
                 Properties:
-                    (ro) [int] width            : Returns application's major version.
-                    (ro) [int] height           : Returns application's minor version.
-                    (ro) [int] color            : Returns application's minor version.
-                    (ro) [int] backgroundcolor  : Returns application's minor version.
+                    (ro) [int] width            : Returns the console window width.
+                    (ro) [int] height           : Returns the console window height.
+                    (ro) [int] color            : Returns the current color.
+                    (ro) [int] backgroundcolor  : Returns the current background color.
                     (rw) [bool] bright          : Gets or sets the current bright style setting.
                     (rw) [bool] underline       : Gets or sets the current underline style setting.
                     
@@ -392,17 +658,20 @@ class ConsoleX(object):
 #===========================================================================================================[ DEBUG ]==
 def show_picker():
     """ Let's loopify this thing. """
-    def write_color(x, y, fg, bg, text):
+    def write_color(x, y, fgc, bgc, text):
+        """ Writes in color to stdout at position (x, y) and resets the format afterward.
+        """
         sys.stdout.write("\x1b[{1};{0}H".format(x + 1, y + 1))  #-- GotoXY
-        sys.stdout.write("\x1b[38;5;{0:d}m".format(fg))         #-- Set FG
-        sys.stdout.write("\x1b[48;5;{0:d}m".format(bg))         #-- Set BG
+        sys.stdout.write("\x1b[38;5;{0:d}m".format(fgc))        #-- Set FG
+        sys.stdout.write("\x1b[48;5;{0:d}m".format(bgc))        #-- Set BG
         sys.stdout.write("{0}\x1b[0m".format(text))             #-- Write Text to screen
         sys.stdout.flush()
         
-    def block(x, y, bg, label="", fg=15):
-        """ Draws a block at position (x, y) on screen. """
-        write_color(x, y,     fg, bg, (label + "    ")[0:4])
-        write_color(x, y + 1, fg, bg, "    ")
+    def block(x, y, bgc, label="", fgc=15):
+        """ Draws a block at position (x, y) on screen.
+        """
+        write_color(x, y,     fgc, bgc, (label + "    ")[0:4])
+        write_color(x, y + 1, fgc, bgc, "    ")
     
     #-- Cls
     sys.stdout.write("\x1b[2J\x1b[0;0H")
@@ -428,6 +697,10 @@ def show_picker():
             blu = 5 - (min(5, inv_x) + min(0, 5 - y))
             block((10 + x) * 4, offset + y * 2, 16 + (red * 36) + (grn * 6) + blu, "{0}{1}{2}".format(red, grn, blu))
     
+    #-- RGB Grayscale
+    for i in range(1, 5):
+        block(2 + (7 + i) * 4,  0, 16 + (i * 36) + (i * 6) + i, "{0}{1}{2}".format(i, i, i))
+    
     #-- Grayscale Bar
     for i in range(24):
         x = (i % 12) * 4
@@ -448,21 +721,36 @@ def debug():
     """ Test method. """
     show_picker()
     
-    print "1234\rabc\x1b[Kz"
-    with open('setup.txt', "w+") as fobj:
-        print "file:  ", type(fobj).__name__, os.isatty(fobj.fileno())
-    print "stdout:", type(sys.stdout).__name__, os.isatty(sys.stdout.fileno())
-    print "stderr:", type(sys.stderr).__name__, os.isatty(sys.stderr.fileno())
-    print "os:", sys.platform
-    exit()
+    #sploded = "fg:sys:24]abc"
+    #is_fg = sploded.startswith("fg:")
+    #code = sploded[sploded.index(":", 4) + 1:sploded.index("]")]
+    #opt = sploded[3:sploded.index(":", 4)]
+    #print is_fg, opt, code
     
-    test = ConsoleX()
-    test.cls()
-    for _ in xrange(500):
-        test.gotoxy(random.randrange(test.width + 1), random.randrange(test.height + 1))
-        test.setcolor(random.randrange(len(test.COLOR)))
-        test.write(random.choice(sorted("abcdefghijklmnopqrstuvwxyz")))
-    test.gotoxy(0, 0)
+    #-- Pipe type test
+    #print "system:", sys.platform
+    #with open('setup.txt', "w+") as fobj:
+    #    print "file:  ", type(fobj).__name__, os.isatty(fobj.fileno())
+    #print "stdout:", type(sys.stdout).__name__, os.isatty(sys.stdout.fileno())
+    #print "stderr:", type(sys.stderr).__name__, os.isatty(sys.stderr.fileno())
+    #print
+    
+    #-- Magic stars test
+    #def print_test(*args):
+    #    """ Troll or not a troll... """
+    #    print args
+    #test_tuple = (1,2,3,4,5,6)
+    #print_test(test_tuple)
+    #print_test(*test_tuple)
+    
+    #-- ConsoleX test
+    #test = ConsoleX()
+    #test.cls()
+    #for _ in xrange(500):
+    #    test.gotoxy(random.randrange(test.width + 1), random.randrange(test.height + 1))
+    #    test.setcolor(random.randrange(len(test.COLOR)))
+    #    test.write(random.choice(sorted("abcdefghijklmnopqrstuvwxyz")))
+    #test.gotoxy(0, 0)
 
 
 #============================================================================================================[ MAIN ]==
