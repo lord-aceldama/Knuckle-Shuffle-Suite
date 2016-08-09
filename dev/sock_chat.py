@@ -12,9 +12,9 @@
 import socket, select
 
 
-#==========================================================================================[ SOCK CHAT SERVER CLASS ]==
-class Sock_Chat_Server(object):
-    """ An empty class. They don't get much simpler than this...
+#====================================================================================================[ SERVER CLASS ]==
+class Server(object):
+    """ A very basic TCP chat server.
         
             RESEARCH:
                 - http://www.binarytides.com/code-chat-application-server-client-sockets-python/
@@ -34,13 +34,12 @@ class Sock_Chat_Server(object):
     """
     
     #-- Constants -----------------------------------------------------------------------------------------------------
-    CONNECTION_LIST = []
     RECV_BUFFER = 4096 # Advisable to keep it as an exponent of 2
     PORT = 5000
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
-    #[None]
+    _clients = []
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
@@ -72,7 +71,16 @@ class Sock_Chat_Server(object):
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
-    #[None]
+    def send(self, client_id, data):
+        """ X
+        """
+        return False
+    
+    
+    def send_all(self, data):
+        """ X
+        """
+        return False
 
 
 #===========================================================================================================[ DEBUG ]==
