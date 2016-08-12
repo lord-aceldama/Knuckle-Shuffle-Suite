@@ -38,31 +38,30 @@ class Server(object):
     """
     
     #-- Constants -----------------------------------------------------------------------------------------------------
-    BUFFER_LEN   = 2**12            #-- 4096: Advisable to keep it as an exponent of 2
-    DEFAULT_PORT = 61616
-    TOKEN_STRING = ["CONNECT", "DISCONNECT"]
-    CONNECT, DISCONNECT = range(len(TOKEN_STRING))
+    DEFAULT_BUFFER  = 2**12         #-- 4096: Advisable to keep it as an exponent of 2
+    DEFAULT_PORT    = 61616
+    DEFAULT_BACKLOG = 5
+    
+    TOKEN_STRING    = ["CONNECT", "READY", "MESSAGE", "DISCONNECT"]
+    CONNECT, READY, MESSAGE, DISCONNECT = range(len(TOKEN_STRING))
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
-    _client = []
-    _client_data = [[], [], []]     #-- [[indexes], [ttl], [available indexes]]
-    _server = None
-    _thread = None
+    _server_data    = { "port"      : DEFAULT_PORT,
+                        "backlog"   : DEFAULT_BACKLOG,
+                        "buffer"    : DEFAULT_BUFFER }
+    _server_thread = None
     _callback = None
+    _running = False
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
-    def __init__(self, port=DEFAULT_PORT, callback=None):
+    def __init__(self, port=None, callback=None):
         """ Initializes the object.
         """
-        #-- Initialize the server socket
-        self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._server.bind(("0.0.0.0", port))
-     
-        # Add server socket to the list of readable connections
-        self._client.append(self._server)
+        #-- Check if a valid port is supplied
+        if (port is not None) and (type(port) is int) and (port > 0) and (port < 65536):
+            self._server_data["port"] = port
         
         #-- Check if a callback function is supplied
         if (callback is not None) and hasattr(callback, "__call__"):
@@ -88,17 +87,54 @@ class Server(object):
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
-    def _broadcast(self, message):
-        """ Sends a message to all connected clients.
+    def _run_server(self):
+        """ Thread runs this to keep server alert or terminate it.
         """
-        for socket in self._client:
-            if socket != server_socket and socket != sock :
-                try :
-                    socket.send(message)
-                except :
-                    # broken socket connection may be, chat client pressed ctrl+c for example
-                    socket.close()
-                    CONNECTION_LIST.remove(socket)    
+        #-- Initialize the server socket
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print " > Socket created"
+         
+        #-- Bind socket to local host and port
+        try:
+            server.bind(("0.0.0.0", self._server_data["port"]))
+            print ' > Socket bind complete'
+        except socket.error as msg:
+            print ' > Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+            flag = False
+         
+        if flag:
+            #-- Start listening on socket
+            server.listen(self._server_data["backlog"])
+            print ' > Server now listening for active connections.'
+            
+            self._running = True
+            while self._running:
+                conn, addr = server.accept()
+                print '   - Connected with ' + addr[0] + ':' + str(addr[1])
+                 
+                #start new thread for client.
+                #start_new_thread(clientthread ,(conn,))
+                
+                #self._thread = Thread(target=self._run, args=(self,))
+                #print " > Thread started."
+                time.sleep(50.0/1000.0) #-- 50ms
+            
+        
+        print " > Server stopped."
+        self._server.close()
+    
+        
+    #def _broadcast(self, message):
+    #    """ Sends a message to all connected clients.
+    #    """
+    #    for socket in self._client:
+    #        if socket != server_socket and socket != sock :
+    #            try :
+    #                socket.send(message)
+    #            except :
+    #                # broken socket connection may be, chat client pressed ctrl+c for example
+    #                socket.close()
+    #                CONNECTION_LIST.remove(socket)    
     
     
     @staticmethod
@@ -112,14 +148,15 @@ class Server(object):
     def start(self):
         """ Starts the server
         """
-        print "Server started on port {0}".format(port)
-        self._server.listen(10)
+        flag = True
     
     
     def stop(self):
-        """ Stops the server and tries to let all connected clients know.
+        """ Simply stops the server.
         """
-        self._server.close()    
+        if self._running:
+            print " > Terminating thread..."
+            self._running = False
     
     
     def send(self, client_id, data):
@@ -142,7 +179,6 @@ def debug():
     PORT = 5000
          
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # this has no effect, why ?
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind(("0.0.0.0", PORT))
     server_socket.listen(10)
@@ -152,39 +188,42 @@ def debug():
  
     print "Chat server started on port " + str(PORT)
  
-    while 1:
-        # Get the list sockets which are ready to be read through select
-        read_sockets,write_sockets,error_sockets = select.select(CONNECTION_LIST,[],[])
- 
-        for sock in read_sockets:
-             
-            #New connection
-            if sock == server_socket:
-                # Handle the case in which there is a new connection recieved through server_socket
-                sockfd, addr = server_socket.accept()
-                CONNECTION_LIST.append(sockfd)
-                print "Client (%s, %s) connected" % addr
-                 
-            #Some incoming message from a client
-            else:
-                # Data recieved from client, process it
-                try:
-                    #In Windows, sometimes when a TCP program closes abruptly,
-                    # a "Connection reset by peer" exception will be thrown
-                    data = sock.recv(RECV_BUFFER)
-                    # echo back the client message
-                    if data:
-                        sock.send('OK ... ' + data)
-                 
-                # client disconnected, so remove from socket list
-                except:
-                    broadcast_data(sock, "Client (%s, %s) is offline" % addr)
-                    print "Client (%s, %s) is offline" % addr
-                    sock.close()
-                    CONNECTION_LIST.remove(sock)
-                    continue
-         
-    server_socket.close() 
+    try:
+        while 1:
+            #-- Get the list sockets which are ready to be read through select
+            read_sockets, write_sockets, error_sockets = select.select(CONNECTION_LIST, [], [])
+            for sock in read_sockets:
+                #-- New connection
+                if sock == server_socket:
+                    # Handle the case in which there is a new connection recieved through server_socket
+                    sockfd, addr = server_socket.accept()
+                    CONNECTION_LIST.append(sockfd)
+                    print "Client (%s, %s) connected" % addr
+                     
+                #Some incoming message from a client
+                else:
+                    # Data recieved from client, process it
+                    try:
+                        #In Windows, sometimes when a TCP program closes abruptly,
+                        # a "Connection reset by peer" exception will be thrown
+                        data = sock.recv(RECV_BUFFER)
+                        # echo back the client message
+                        if data:
+                            sock.send('OK ... ' + data)
+                     
+                    # client disconnected, so remove from socket list
+                    except:
+                        broadcast_data(sock, "Client (%s, %s) is offline" % addr)
+                        print "Client (%s, %s) is offline" % addr
+                        sock.close()
+                        CONNECTION_LIST.remove(sock)
+                        continue
+    
+    except KeyboardInterrupt:
+        print "\n\nUser had enough. Exiting..."
+    
+    server_socket.close()
+
 
 #============================================================================================================[ MAIN ]==
 if __name__ == "__main__":
