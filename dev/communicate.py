@@ -16,7 +16,7 @@ from xifo import Queue
 
 #====================================================================================================[ SERVER CLASS ]==
 class Server(Thread):
-    """ A very basic TCP chat server.
+    """ A very basic asynchronous TCP server.
         
             RESEARCH:
                 - https://docs.python.org/2/library/socket.html
@@ -27,7 +27,9 @@ class Server(Thread):
             
             EXPOSES:
                 Constants:
-                    NAME
+                    DEFAULT['buffer']       : (int) Default buffer rx/tx size.
+                    DEFAULT['port']         : (int) Default port the server runs on.
+                    DEFAULT['backlog']      : (int) Default maximum number of pending connections.
                 
                 Methods:
                     name                    : ?
@@ -38,12 +40,33 @@ class Server(Thread):
                 Properties:
                     (rw) [str] name         : ?
     """
+    #-- Constants -----------------------------------------------------------------------------------------------------
+    DEFAULT     = { "buffer"    : 2**12,    #-- 4096: Advisable to keep it as an exponent of 2
+                    "port"      : 61616,
+                    "backlog"   : 5         }
+    
+    
+    
     #-- Sub Classes ---------------------------------------------------------------------------------------------------
     class _Client(Thread):
-        """ X
+        """ A class to be used by the server to create and handle asynchronous client interactions.
+                
+                EXPOSES:
+                    Constants:
+                        BUFFER_SIZE             : (int) Inherited from Server.DEFAULT['buffer'].
+                    
+                    Methods:
+                        run()                   : ?
+                        send(data)              : ?
+                        kill([finish_jobs])     : ?
+                    
+                    Properties:
+                        (ro) [str] id           : ?
+                        (ro) [tuple] addr       : ?
+                        (ro) [bool] running     : ?
         """
         #-- Constants ---------------------------------------------------------------------------------------------
-        BUFFER_SIZE = 2**12     #-- 4096 bytes
+        BUFFER_SIZE = Server.DEFAULT["buffer"]
         
         
         #-- Global Vars -------------------------------------------------------------------------------------------
@@ -52,12 +75,22 @@ class Server(Thread):
         _socket     = None
         _handler    = None
         _running    = True
+        _transmit   = None
         _queue      = Queue()
         
         
         #-- Special Class Methods ---------------------------------------------------------------------------------
         def __init__(self, client_socket, client_id, client_handler, client_address):
             """ Starts up and manages the client socket as an individual thread.
+                
+                    SYNTAX
+                        x = _Client(client_socket, client_id, client_handler, client_address)
+
+                    VARIABLES:
+                        client_socket:  [obj] The socket the client is connected to.
+                        client_id:      [str] A unique identifier for the client.
+                        client_handler: [function] Event handler. Passes event_handler(id, token, data).
+                        client_address: [tuple] The client ip and port.
             """
             #-- Inherit from Base Class
             Thread.__init__(self)
@@ -70,6 +103,12 @@ class Server(Thread):
             
             #-- Start monitoring the socket
             self.start()
+            
+            #-- Start the transmitter thread
+            self._transmit = Thread(target=self._check_queue)
+            self._transmit.daemon = True
+            
+            self._event("CONNECT", None)
     
         
         #-- Properties --------------------------------------------------------------------------------------------
@@ -89,7 +128,7 @@ class Server(Thread):
         
         @property
         def running(self):
-            """ Returns True if the client is alive.
+            """ Returns True if the client is alive (running).
             """
             return self._running
         
@@ -104,57 +143,79 @@ class Server(Thread):
                 self._handler(self.id, token.upper(), data)
         
         
+        def _check_queue(self):
+            """ Checks if there's any data in the queue to be transmitted to the socket.
+            """
+            while self._running:
+                if len(self._queue):
+                    #-- Transmit the dtata that's waiting to be sent.
+                    _tx = self._queue.pop()
+                    self._event("TX", _tx)
+                    self._socket.send(_tx)
+                else:
+                    #-- For efficiency, just check 4 times a second.
+                    time.sleep(0.25)
+        
+        
         #-- Public Methods ----------------------------------------------------------------------------------------
         def run(self):
             """ Waits for data from the socket and raises an event if it arrives.
             """
-            self._running = True
-            while self._running:
-                #-- Wait for data from client.
-                data = self._socket.recv(self.BUFFER_SIZE)
-                if data:
-                    #-- Trigger event handler.
-                    self._event("RX", data)
-                else:
-                    #-- Socket closed.
-                    print "KILL KILL KILL!!"
-                    self.kill()
+            if not self._running:
+                #-- Start client automation.
+                self._running = True
+                self._transmit.start()
+                while self._running:
+                    #-- Wait for data from client.
+                    data = self._socket.recv(self.BUFFER_SIZE)
+                    if data:
+                        #-- Trigger event handler.
+                        self._event("RX", data)
+                    else:
+                        #-- Socket closed.
+                        self.kill()
+            else:
+                #-- Client already running. Do nothing.
+                pass
         
         
         def send(self, data):
-            """ Sends data to client.If data is too big, it sends it in chunks.
+            """ Queues data to be sent to the client. If the data to be sent is too big, it breaks it up into 
+                chunks and queues them as separate transmissions.
             """
-            chunk = data
-            while len(chunk):
-                _tx = ""
-                if len(chunk) > self.BUFFER_SIZE:
-                    #-- Chop it up.
-                    _tx = chunk[0:self.BUFFER_SIZE]
-                    chunk = chunk[self.BUFFER_SIZE:]
-                else:
-                    #-- It's small enough. 
-                    _tx = chunk
-                    chunk = ""
+            idx = 0
+            while (idx < len(data)) and self._running:
+                #-- Queue the data chunk(s) for transmission.
+                self._queue.push(data[idx : min(len(data) - idx, self.BUFFER_SIZE)])
+                idx += self.BUFFER_SIZE
+        
+        
+        def kill(self, finish_jobs=False):
+            """ Ends the thread and kills the socket. If finish_jobs is set to True, kill will
+                wait until all jobs are finished regardless of how long it takes. If it is an 
+                integer, it will give the thread up to the amount of seconds specified.
+            """
+            if len(self._queue) and finish_jobs:
+                #-- Give the queue some time to get empty.
+                self._event("INFO", "Waiting for client to catch up. ({0} tasks)".format(len(self._queue)))
+                tfj = type(finish_jobs)
+                now = time.time
+                tstart = now()
+                while len(self._queue) and ((tfj is bool) or ((tfj is int) and ((now() - tstart) > finish_jobs))):
+                    #-- Just wait a bit...
+                    time.sleep(0.2)
                 
-                #-- Send the data chunk.
-                self._event("TX", _tx)
-                self._socket.send(_tx)
-        
-        
-        def kill(self):
-            """ Ends the thread and kills the socket.
-            """
+                if self._queue.empty:
+                    self._event("INFO", "All tasks caught up successfully.")
+                
+            if len(self._queue):
+                #-- Let the user know about aborted tasks.
+                self._event("WARN", "Aborted {0} pending tasks".format(len(self._queue)))
+            
+            #-- Kill the thread
             self._running = False
             self._socket.close()
-    
-    
-    #-- Constants -----------------------------------------------------------------------------------------------------
-    DEFAULT     = { "buffer"    : 2**12,    #-- 4096: Advisable to keep it as an exponent of 2
-                    "port"      : 61616,
-                    "backlog"   : 5 }
-    
-    #TOKEN_STRING    = ["CONNECT", "READY", "MESSAGE", "DISCONNECT"]
-    #CONNECT, READY, MESSAGE, DISCONNECT = range(len(TOKEN_STRING))
+            self._event("KILL", None)
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
