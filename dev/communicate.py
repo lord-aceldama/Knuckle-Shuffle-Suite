@@ -32,19 +32,22 @@ class Server(Thread):
                     DEFAULT['backlog']      : (int) Default maximum number of pending connections.
                 
                 Methods:
-                    name                    : ?
-                
-                Functions:
-                    [type] name             : ?
+                    start()                 : Starts the server and sets up socket.
+                    send(data, [client_id]) : Sends data. If client_id was supplied, it will send the data only to that
+                                              client, otherwise it broadcasts the data to all connected clients.
+                    stop([finish_jobs])     : Stops the server and kills all connected clients. If finish_jobs was
+                                              supplied, it will either wait until all client send queues are empty if 
+                                              the value was True, or wait a maximum of N seconds if it was an integer.
                 
                 Properties:
-                    (rw) [str] name         : ?
+                    (rw) [int] port         : ?
+                    (rw) [function] handler : ?
+                    (ro) [bool] running     : ?
     """
     #-- Constants -----------------------------------------------------------------------------------------------------
     DEFAULT     = { "buffer"    : 2**12,    #-- 4096: Advisable to keep it as an exponent of 2
                     "port"      : 61616,
                     "backlog"   : 5         }
-    
     
     
     #-- Sub Classes ---------------------------------------------------------------------------------------------------
@@ -56,20 +59,22 @@ class Server(Thread):
                         BUFFER_SIZE             : (int) Inherited from Server.DEFAULT['buffer'].
                     
                     Methods:
-                        run()                   : ?
-                        send(data)              : ?
-                        kill([finish_jobs])     : ?
+                        send(data)              : Queues data to be sent to the client. The queue is handled by 
+                                                  self._check_queue which is run in a thread.
+                        kill([finish_jobs])     : Kills the socket. If finish_jobs was supplied, it will either 
+                                                  wait until all client send queues are empty if the value was 
+                                                  True, or wait a maximum of N seconds if it was an integer.
                     
                     Properties:
-                        (ro) [str] id           : ?
-                        (ro) [tuple] addr       : ?
-                        (ro) [bool] running     : ?
+                        (ro) [str] id           : Returns the unique id supplied at initialization.
+                        (ro) (str, int) addr    : Returns a tuple containing the ip and port of the client.
+                        (ro) [bool] running     : Returns True if the client is still alive and running.
         """
-        #-- Constants ---------------------------------------------------------------------------------------------
+        #-- Constants - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
         BUFFER_SIZE = Server.DEFAULT["buffer"]
         
         
-        #-- Global Vars -------------------------------------------------------------------------------------------
+        #-- Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
         _id         = ""
         _addr       = ("0.0.0.0", 0)
         _socket     = None
@@ -79,7 +84,7 @@ class Server(Thread):
         _queue      = Queue()
         
         
-        #-- Special Class Methods ---------------------------------------------------------------------------------
+        #-- Special Class Methods - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
         def __init__(self, client_socket, client_id, client_handler, client_address):
             """ Starts up and manages the client socket as an individual thread.
                 
@@ -89,7 +94,7 @@ class Server(Thread):
                     VARIABLES:
                         client_socket:  [obj] The socket the client is connected to.
                         client_id:      [str] A unique identifier for the client.
-                        client_handler: [function] Event handler. Passes event_handler(id, token, data).
+                        client_handler: [function] Event handler. Passes event(id, token, data).
                         client_address: [tuple] The client ip and port.
             """
             #-- Inherit from Base Class
@@ -111,7 +116,7 @@ class Server(Thread):
             self._event("CONNECT", None)
     
         
-        #-- Properties --------------------------------------------------------------------------------------------
+        #-- Properties --- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
         @property
         def id(self):
             """ Returns the client's id string.
@@ -133,7 +138,7 @@ class Server(Thread):
             return self._running
         
         
-        #-- Private Methods ---------------------------------------------------------------------------------------
+        #-- Private Methods - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
         def _event(self, token, data):
             """ Raises an event or if no event handler was set it prints to stdout.
             """
@@ -157,7 +162,6 @@ class Server(Thread):
                     time.sleep(0.25)
         
         
-        #-- Public Methods ----------------------------------------------------------------------------------------
         def run(self):
             """ Waits for data from the socket and raises an event if it arrives.
             """
@@ -179,9 +183,10 @@ class Server(Thread):
                 pass
         
         
+        #-- Public Methods -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
         def send(self, data):
-            """ Queues data to be sent to the client. If the data to be sent is too big, it breaks it up into 
-                chunks and queues them as separate transmissions.
+            """ Queues data to be sent to the client. If the data to be sent is too big, it breaks it up into chunks 
+                and queues them as separate transmissions.
             """
             idx = 0
             while (idx < len(data)) and self._running:
@@ -341,13 +346,6 @@ class Server(Thread):
         self._server.close()
         print " > Server stopped."
         print " > Server thread terminated."
-    
-    
-    @staticmethod
-    def _spit(text):
-        """ Just prints a message to stdout.
-        """
-        print text
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
