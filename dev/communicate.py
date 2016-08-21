@@ -1,4 +1,4 @@
-""" EMPTY TEMPLATE
+""" COMMUNICATE:  A TCP SERVER/CLIENT
     
     author: aceldama.v1.0 at gmail
     
@@ -6,6 +6,9 @@
         available at: http://www.gnu.org/licenses/gpl-2.0.txt
     
     (C) 2016 David A Swanepoel
+    
+    
+    aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
 """
 
 #-- Import Dependencies
@@ -40,9 +43,11 @@ class Server(Thread):
                                               the value was True, or wait a maximum of N seconds if it was an integer.
                 
                 Properties:
-                    (rw) [int] port         : ?
-                    (rw) [function] handler : ?
-                    (ro) [bool] running     : ?
+                    (rw) [int] port         : Gets or sets the port the server will be listening on. If the server is 
+                                              running, the port number becomes read-only.
+                    (rw) [function] handler : The main async event handler function. Parameters that are passed are as
+                                              follows: event(token, data)
+                    (ro) [bool] running     : Returns True if the server is online and listening. False otherwise.
     """
     #-- Constants -----------------------------------------------------------------------------------------------------
     DEFAULT     = { "buffer"    : 2**12,    #-- 4096: Advisable to keep it as an exponent of 2
@@ -50,7 +55,7 @@ class Server(Thread):
                     "backlog"   : 5         }
     
     
-    #-- Sub Classes ---------------------------------------------------------------------------------------------------
+    #-- Sub-Classes ---------------------------------------------------------------------------------------------------
     class _Client(Thread):
         """ A class to be used by the server to create and handle asynchronous client interactions.
                 
@@ -88,7 +93,7 @@ class Server(Thread):
         def __init__(self, client_socket, client_id, client_handler, client_address):
             """ Starts up and manages the client socket as an individual thread.
                 
-                    SYNTAX
+                    SYNTAX:
                         x = _Client(client_socket, client_id, client_handler, client_address)
 
                     VARIABLES:
@@ -239,6 +244,16 @@ class Server(Thread):
     #-- Special Class Methods -----------------------------------------------------------------------------------------
     def __init__(self, port=None, custom_handler=None):
         """ Initializes the object.
+            
+                SYNTAX:
+                    x = Server()
+                    x = Server([port])
+                    x = Server([port, [custom_handler]])
+                    x = Server(custom_handler=function)
+                    
+                VARIABLES:
+                    port:           [int] The port the server will be listening on.
+                    custom_handler: [function] Event handler. Passes event(token, data).
         """
         #-- Inherit Base Class
         Thread.__init__(self)
