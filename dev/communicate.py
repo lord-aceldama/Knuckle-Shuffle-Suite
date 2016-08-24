@@ -6,13 +6,11 @@
         available at: http://www.gnu.org/licenses/gpl-2.0.txt
     
     (C) 2016 David A Swanepoel
-    
-    
-    aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
 """
+# aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
 
 #-- Import Dependencies
-import socket, time
+import socket, time, sys
 from threading import Thread
 from xifo import Queue
 
@@ -76,7 +74,7 @@ class Server(Thread):
                         (ro) [bool] running     : Returns True if the client is still alive and running.
         """
         #-- Constants - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-        BUFFER_SIZE = Server.DEFAULT["buffer"]
+        BUFFER_SIZE = 4096#Server.DEFAULT["buffer"]
         
         
         #-- Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -239,6 +237,7 @@ class Server(Thread):
     _running = False
     
     _monitor = None
+    _last_gc = 0
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
@@ -253,7 +252,8 @@ class Server(Thread):
                     
                 VARIABLES:
                     port:           [int] The port the server will be listening on.
-                    custom_handler: [function] Event handler. Passes event(token, data).
+                    custom_handler: [function] Event handler. Passes event(token, id, data). In the case of the server
+                                    calling the handler, the id is 0. Client ids are always 1 or greater.
         """
         #-- Inherit Base Class
         Thread.__init__(self)
@@ -310,6 +310,20 @@ class Server(Thread):
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
+    def _event(self, sender_id, token, data):
+        """ Calls the custom event handler or dumps it to stdout.
+        """
+        if self._handler is None:
+            if sender_id is 0:
+                #-- It's the server
+                print " [{0}] > {1}".format(token.upper(), data.strip())
+            else:
+                #-- It's a client
+                print "  - ID({3})::{0}({2})> {1}".format(token.upper(), data.strip(), len(data), sender_id)
+        else:
+            self._handler(token.upper(), sender_id, data)
+    
+    
     def _monitor_clients(self):
         """ Thread that monitors for disconnected clients and cleans them up accordingly.
         """
@@ -322,10 +336,12 @@ class Server(Thread):
             
             #-- Remove them
             while len(lst_pop):
-                print "DEAD:", self._clients.pop(lst_pop.pop()).id
+                self._event(0, "INFO", "GC Disposed of client. (ID:{0})".format(self._clients.pop(lst_pop.pop()).id))
             
             #-- Wait a few seconds before scanning again
-            time.sleep(3)
+            self._last_gc = time.time()
+            while time.time() - self._last_gc < 5:
+                time.sleep(0.1)
     
     
     def _reset(self):
@@ -341,89 +357,193 @@ class Server(Thread):
         
     
     
-    def _event(self, sender_id, token, data):
-        """ X
-        """
-    
-    
     def run(self):
         """ Thread runs this to keep server alert or terminate it.
         """
         #-- Start listening on socket
         self._server.listen(self._server_data["backlog"])
-        print ' > Server now listening for active connections.'
+        self._event(0, "STATUS", "Online and listening for new connections.")
         
         while self._running:
             (client_socket, address) = self._server.accept()
-            self._clients.append(Server._Client(client_socket, self._client_id, None, tuple(address)))
+            self._clients.append(Server._Client(client_socket, self._client_id, self._event, tuple(address)))
             self._client_id += 1
         
         self._server.close()
-        print " > Server stopped."
-        print " > Server thread terminated."
+        self._event(0, "INFO", "Server thread terminated.")
+        self._event(0, "STATUS", "Server stopped.")
+    
+    def _force_gc(self):
+        """ Forces a garbage collection.
+        """
+        if len(self._clients) > 0:
+            self._event(0, "INFO" ,"Forcing garbage collection.")
+            self._last_gc = 0
+            while self._last_gc == 0:
+                time.sleep(0.1)
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
     def start(self):
-        """ X
+        """ Extension of the Thread start method.
         """
-        print " > Server thread started."
+        self._event(0, "INFO", "Server thread started.")
 
         #-- Initialize the server socket
         self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print " > Socket created"
+        self._event(0, "INFO", "Socket created.")
          
         #-- Bind socket to local host and port
         try:
-            print " > Attempting to bind to port..."
+            self._event(0, "INFO", "Attempting to bind to port...")
             self._server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self._server.bind(("0.0.0.0", self._server_data["port"]))
-            print ' > Bind successful.'
+            self._event(0, "INFO", "Bind successful.")
             self._running = True
             
             #-- Inherit
             Thread.start(self)
         
         except socket.error as msg:
-            print " > Bind failed.\n    - Code:    {0}\n    - Message: {1}".format(str(msg[0]), msg[1])
+            self._event(0, "ERROR", "Bind failed. Code [{0}]: {1}".format(msg[0], msg[1]))
             
             #-- Clean up mess
             self._server.close()
         
         
     def send(self, data, client_id=None):
-        """ X
+        """ Sends data to a specific client if a client id is supplied. Otherwise broadcasts data to all clients.
         """
-        return self, data, client_id
+        flag = 0
+        self._force_gc()
+        if len(self._clients) == 0:
+            self._event(0, "WARN", "No connected clients to receive data.")
+        else:
+            for cli in self._clients:
+                if (client_id is None) or (cli.id == client_id):
+                    flag += 1
+                    cli.send(data)
+            
+            if flag > 0:
+                self._event(0, "INFO", "Data sent to {0} clients.".format(flag))
+            else:
+                self._event(0, "WARN", "Client not found. Data not sent. (ID:{0})".format(client_id))
+        
+        return flag > 0
         
     
     def stop(self):
         """ Try to clean up all the threads. It shouldn't matter too much though as threads are daemonized.
         """
         if self.running:
-            print " > Shutting down clients..."
-            
-            print " > Shutting down server..."
+            self._event(0, "INFO", "Shutting down clients...")
+
+            self._event(0, "INFO", "Shutting down server...")
             self._server.shutdown(1)
             self._server.close()
             self._running = False
-            print " > Server is now dead."
-        
+
+        self._event(0, "STATUS", "Offline")
         self._Thread__stop() # pylint: disable=no-member
 
 
 
+#====================================================================================================[ CLIENT CLASS ]==
+class Client(Thread):
+    """ A very basic asynchronous TCP client.
+        
+            EXPOSES:
+                Constants:
+                    DEFAULT['buffer']       : (int) Default buffer rx/tx size.
+                    DEFAULT['port']         : (int) Default port the server runs on.
+                    DEFAULT['backlog']      : (int) Default maximum number of pending connections.
+                
+                Methods:
+                    start()                 : Starts the server and sets up socket.
+                    send(data, [client_id]) : Sends data. If client_id was supplied, it will send the data only to that
+                                              client, otherwise it broadcasts the data to all connected clients.
+                    stop([finish_jobs])     : Stops the server and kills all connected clients. If finish_jobs was
+                                              supplied, it will either wait until all client send queues are empty if 
+                                              the value was True, or wait a maximum of N seconds if it was an integer.
+                
+                Properties:
+                    (rw) [int] port         : Gets or sets the port the server will be listening on. If the server is 
+                                              running, the port number becomes read-only.
+                    (rw) [function] handler : The main async event handler function. Parameters that are passed are as
+                                              follows: event(token, data)
+                    (ro) [bool] running     : Returns True if the server is online and listening. False otherwise.
+    """
+    
+    #-- Constants -----------------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Global Vars ---------------------------------------------------------------------------------------------------
+    _server_name = None
+    _server_port = None
+    _handler = None
+    
+    
+    #-- Special Class Methods -----------------------------------------------------------------------------------------
+    def __init__(self, server_name, server_port=None, custom_handler=None):
+        """ Initializes the object.
+            
+                SYNTAX:
+                    x = Client("127.0.0.1")
+                    x = Client("server.example.com", 51617)
+                    x = Client("127.0.0.1", 51617, custom_handler)
+                    x = Client("127.0.0.1", custom_handler=handler_function)
+                    
+                VARIABLES:
+                    server_name:    [str] The IP or FQDN of the server.
+                    server_port:    [int] The port the remote server is listening on.
+                    custom_handler: [function] Event handler. Passes event(token, data).
+        """
+        #-- Inherit Base Class
+        Thread.__init__(self)
+        
+        self._server_name = server_name
+        self._server_port = server_port
+        self._handler = custom_handler
+    
+    
+    #-- Properties ----------------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Private Methods -----------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Public Methods ------------------------------------------------------------------------------------------------
+    #[None]
+
+
 #===========================================================================================================[ DEBUG ]==
 def debug():
-    """ Test method. """
-    test = Server()
+    """ Test method.
+    """
+    def _send(test):
+        """ Do the bee-gees thing...
+        """
+        try:
+            for i in range(6):
+                test.send(["ah", "stayin' alive"][int(i / 5.0)])
+                time.sleep(4)
+        except KeyboardInterrupt:
+            print "\r > Seems we're terminating early!"
+
+    
+    test = None
+    if (len(sys.argv) == 2) and (sys.argv[1] == "--server"):
+        print "Starting a server\n\n"
+        test = Server()
+    else:
+        print "Starting a client\n\n"
+        test = Client("127.0.0.1")
+    
     test.start()
-    try:
-        for i in range(6):
-            test.send(["ah", "stayin' alive"][int(i / 5.0)])
-            time.sleep(4)
-    except KeyboardInterrupt:
-        print "\r > Seems we're terminating early!"
+    _send(test)
     test.stop()
 
 
