@@ -86,13 +86,15 @@ class Server(Thread):
             """ Starts up and manages the client socket as an individual thread.
                 
                     SYNTAX:
-                        x = _Client(client_socket, client_id, client_handler, client_address[, client_buffer])
+                        x = _Client(client_socket, client_id, client_handler, client_address)
+                        x = _Client(client_socket, client_id, client_handler, client_address, client_buffer)
 
                     VARIABLES:
                         client_socket:  [obj] The socket the client is connected to.
                         client_id:      [str] A unique identifier for the client.
                         client_handler: [function] Event handler. Passes event(id, token, data).
                         client_address: [tuple] The client ip and port.
+                        client_buffer:  [int] Optional. Sets the maximum read/write buffer size of the client. (bytes)
             """
             #-- Inherit from Base Class
             Thread.__init__(self)
@@ -556,32 +558,30 @@ class Client(Thread):
 def debug():
     """ Test method.
     """
-
     # aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
-    def _send(test):
-        """ Do the bee-gees thing...
-        """
-        try:
+    test = None
+    try:
+        test_server = "--SERVER" in [i.upper() for i in sys.argv]
+        print "[ Starting a {} ]".format("server" if test_server else "client")
+        if (len(sys.argv) == 2) and test_server:
+            print 
+            test = Server()
+            test.start()
             time.sleep(8)
             for i in range(12):
                 test.send(["ah\n", "stayin' alive\n"][int((i % 6) / 4.0)])
                 time.sleep(0.6 + 0.5 * int((i % 6) / 4.0))
+        else:
+            test = Client("127.0.0.1")
+            test.start()
+            time.sleep(8)
         
-        except KeyboardInterrupt:
-            print "\r > Seems we're terminating early!"
-
+    except KeyboardInterrupt:
+        print "\r > Seems we're terminating early!"
+        
+    finally:
+        test.stop()
     
-    test = None
-    if (len(sys.argv) == 2) and (sys.argv[1] == "--server"):
-        print "Starting a server\n\n"
-        test = Server()
-    else:
-        print "Starting a client\n\n"
-        test = Client("127.0.0.1")
-    
-    test.start()
-    _send(test)
-    test.stop()
 
 
 #============================================================================================================[ MAIN ]==
