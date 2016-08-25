@@ -7,7 +7,6 @@
     
     (C) 2016 David A Swanepoel
 """
-# aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
 
 #-- Import Dependencies
 import socket, time, sys
@@ -47,12 +46,6 @@ class Server(Thread):
                                               follows: event(token, data)
                     (ro) [bool] running     : Returns True if the server is online and listening. False otherwise.
     """
-    #-- Constants -----------------------------------------------------------------------------------------------------
-    DEFAULT     = { "buffer"    : 2**12,    #-- 4096: Advisable to keep it as an exponent of 2
-                    "port"      : 61616,
-                    "backlog"   : 5         }
-    
-    
     #-- Sub-Classes ---------------------------------------------------------------------------------------------------
     class _Client(Thread):
         """ A class to be used by the server to create and handle asynchronous client interactions.
@@ -74,12 +67,13 @@ class Server(Thread):
                         (ro) [bool] running     : Returns True if the client is still alive and running.
         """
         #-- Constants - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-        BUFFER_SIZE = 4096#Server.DEFAULT["buffer"]
+        #[None]
         
         
         #-- Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
         _id         = ""
         _addr       = ("0.0.0.0", 0)
+        _buffer     = None
         _socket     = None
         _handler    = None
         _running    = False
@@ -88,11 +82,11 @@ class Server(Thread):
         
         
         #-- Special Class Methods - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-        def __init__(self, client_socket, client_id, client_handler, client_address):
+        def __init__(self, client_socket, client_id, client_handler, client_address, client_buffer=4096):
             """ Starts up and manages the client socket as an individual thread.
                 
                     SYNTAX:
-                        x = _Client(client_socket, client_id, client_handler, client_address)
+                        x = _Client(client_socket, client_id, client_handler, client_address[, client_buffer])
 
                     VARIABLES:
                         client_socket:  [obj] The socket the client is connected to.
@@ -103,11 +97,12 @@ class Server(Thread):
             #-- Inherit from Base Class
             Thread.__init__(self)
             
-            #-- Initialise globals
+            #-- Initialise globals and properties
             self._socket = client_socket
             self._id = client_id
             self._addr = client_address
             self._handler = client_handler
+            self.buffer_size = client_buffer
             
             #-- Start monitoring the socket
             self.start()
@@ -127,6 +122,19 @@ class Server(Thread):
             """ Returns a tuple containing the ip and port of the client.
             """
             return self._addr
+        
+        
+        @property
+        def buffer_size(self):
+            """ Returns the maximum buffer size of the client.
+            """
+            return self._buffer
+        @buffer_size.setter
+        def buffer_size(self, value):
+            """ Sets the maximum buffer size of the client.
+            """
+            if (type(value) is int) and (value > 0) and (value != self._buffer):
+                self._buffer = value
         
         
         @property
@@ -175,7 +183,7 @@ class Server(Thread):
                 #-- Start the receiver
                 while self._running:
                     #-- Wait for data from client.
-                    data = self._socket.recv(self.BUFFER_SIZE)
+                    data = self._socket.recv(self.buffer_size)
                     if data:
                         #-- Trigger event handler.
                         self._event("RX", data)
@@ -195,8 +203,8 @@ class Server(Thread):
             idx = 0
             while (idx < len(data)) and self._running:
                 #-- Queue the data chunk(s) for transmission.
-                self._queue.push(data[idx : min(len(data) - idx, self.BUFFER_SIZE)])
-                idx += self.BUFFER_SIZE
+                self._queue.push(data[idx : min(len(data) - idx, self.buffer_size)])
+                idx += self.buffer_size
         
         
         def kill(self, finish_jobs=False):
@@ -237,6 +245,12 @@ class Server(Thread):
             #-- All done
             self._socket.close()
             self._event("INFO", "Connection Terminated.")
+    
+    
+    #-- Constants -----------------------------------------------------------------------------------------------------
+    DEFAULT     = { "buffer"    : 2**12,    #-- 4096: Advisable to keep it as an exponent of 2
+                    "port"      : 61616,
+                    "backlog"   : 5         }
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
@@ -378,7 +392,8 @@ class Server(Thread):
         
         while self._running:
             (client_socket, address) = self._server.accept()
-            self._clients.append(Server._Client(client_socket, self._client_id, self._event, tuple(address)))
+            self._clients.append(Server._Client(client_socket, self._client_id, self._event, 
+                                                tuple(address), self.DEFAULT['buffer']))
             self._client_id += 1
         
         self._server.close()
@@ -541,6 +556,8 @@ class Client(Thread):
 def debug():
     """ Test method.
     """
+
+    # aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
     def _send(test):
         """ Do the bee-gees thing...
         """
