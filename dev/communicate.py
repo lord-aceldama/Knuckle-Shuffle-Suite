@@ -82,8 +82,8 @@ class Server(Thread):
         _addr       = ("0.0.0.0", 0)
         _socket     = None
         _handler    = None
-        _running    = True
-        _transmit   = None
+        _running    = False
+        _transmit   = None      #-- Thread monitoring queue
         _queue      = Queue()
         
         
@@ -111,12 +111,7 @@ class Server(Thread):
             
             #-- Start monitoring the socket
             self.start()
-            
-            #-- Start the transmitter thread
-            self._transmit = Thread(target=self._check_queue)
-            self._transmit.daemon = True
-            
-            self._event("CONNECT", None)
+            self._event("CONNECT", "")
     
         
         #-- Properties --- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -171,7 +166,13 @@ class Server(Thread):
             if not self._running:
                 #-- Start client automation.
                 self._running = True
+            
+                #-- Start the transmitter
+                self._transmit = Thread(target=self._check_queue)
+                self._transmit.daemon = True
                 self._transmit.start()
+                
+                #-- Start the receiver
                 while self._running:
                     #-- Wait for data from client.
                     data = self._socket.recv(self.BUFFER_SIZE)
@@ -203,6 +204,19 @@ class Server(Thread):
                 wait until all jobs are finished regardless of how long it takes. If it is an 
                 integer, it will give the thread up to the amount of seconds specified.
             """
+            #-- Send the terminate signal
+            self._running = False
+            
+            #-- Stop the queue manager thread
+            timeout = 2.0
+            self._event("INFO", "Giving {0} seconds for client queue manager to terminate...".format(timeout))
+            self._transmit.join(timeout)
+            if self._transmit.isAlive():
+                self._event("WARN", "Queue manager thread appears to be immortal. I don't know why...")
+            else:
+                self._event("INFO", "The queue manager is no more.")
+            
+            #-- Attempt to finish sending up any unsent data (if any)
             if len(self._queue) and finish_jobs:
                 #-- Give the queue some time to get empty.
                 self._event("INFO", "Waiting for client to catch up. ({0} tasks)".format(len(self._queue)))
@@ -218,12 +232,11 @@ class Server(Thread):
                 
             if len(self._queue):
                 #-- Let the user know about aborted tasks.
-                self._event("WARN", "Aborted {0} pending tasks".format(len(self._queue)))
+                self._event("WARN", "Aborted {0} pending tasks.".format(len(self._queue)))
             
-            #-- Kill the thread
-            self._running = False
+            #-- All done
             self._socket.close()
-            self._event("KILL", None)
+            self._event("INFO", "Connection Terminated.")
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
@@ -272,7 +285,6 @@ class Server(Thread):
         #-- Start up the garbage collector
         self._monitor = Thread(target=self._monitor_clients)
         self._monitor.daemon = True
-        self._monitor.start()
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
@@ -316,7 +328,7 @@ class Server(Thread):
         if self._handler is None:
             if sender_id is 0:
                 #-- It's the server
-                print " [{0}] > {1}".format(token.upper(), data.strip())
+                print " [ {0} ] > {1}".format(token.upper(), data.strip())
             else:
                 #-- It's a client
                 print "  - ID({3})::{0}({2})> {1}".format(token.upper(), data.strip(), len(data), sender_id)
@@ -327,7 +339,7 @@ class Server(Thread):
     def _monitor_clients(self):
         """ Thread that monitors for disconnected clients and cleans them up accordingly.
         """
-        while True:
+        while self._running:
             #-- Find all dead clients
             lst_pop = []
             for i in range(len(self._clients)):
@@ -340,7 +352,7 @@ class Server(Thread):
             
             #-- Wait a few seconds before scanning again
             self._last_gc = time.time()
-            while time.time() - self._last_gc < 5:
+            while (time.time() - self._last_gc) < 5:
                 time.sleep(0.1)
     
     
@@ -373,14 +385,15 @@ class Server(Thread):
         self._event(0, "INFO", "Server thread terminated.")
         self._event(0, "STATUS", "Server stopped.")
     
-    def _force_gc(self):
+    def _force_gc(self, last=15.0):
         """ Forces a garbage collection.
         """
-        if len(self._clients) > 0:
+        if (len(self._clients) > 0) and ((time.time() - self._last_gc) > last):
             self._event(0, "INFO" ,"Forcing garbage collection.")
             self._last_gc = 0
             while self._last_gc == 0:
                 time.sleep(0.1)
+            self._event(0, "INFO" ,"Garbage collection done.")
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
@@ -400,6 +413,9 @@ class Server(Thread):
             self._server.bind(("0.0.0.0", self._server_data["port"]))
             self._event(0, "INFO", "Bind successful.")
             self._running = True
+            
+            #-- Start garbage collector
+            self._monitor.start()
             
             #-- Inherit
             Thread.start(self)
@@ -437,6 +453,8 @@ class Server(Thread):
         """
         if self.running:
             self._event(0, "INFO", "Shutting down clients...")
+            for cli in self._clients:
+                cli.kill()
 
             self._event(0, "INFO", "Shutting down server...")
             self._server.shutdown(1)
@@ -527,9 +545,11 @@ def debug():
         """ Do the bee-gees thing...
         """
         try:
-            for i in range(6):
-                test.send(["ah", "stayin' alive"][int(i / 5.0)])
-                time.sleep(4)
+            time.sleep(8)
+            for i in range(12):
+                test.send(["ah\n", "stayin' alive\n"][int((i % 6) / 4.0)])
+                time.sleep(0.6 + 0.5 * int((i % 6) / 4.0))
+        
         except KeyboardInterrupt:
             print "\r > Seems we're terminating early!"
 
