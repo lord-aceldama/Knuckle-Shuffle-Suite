@@ -219,7 +219,7 @@ class Server(Thread):
             
             #-- Stop the queue manager thread
             timeout = 2.0
-            self._event("INFO", "Giving {0} seconds for client queue manager to terminate...".format(timeout))
+            self._event("INFO", "Giving {:.2f} seconds for client queue manager to terminate...".format(timeout))
             self._transmit.join(timeout)
             if self._transmit.isAlive():
                 self._event("WARN", "Queue manager thread appears to be immortal. I don't know why...")
@@ -388,35 +388,6 @@ class Server(Thread):
     def run(self):
         """ Thread runs this to keep server alert or terminate it.
         """
-        #-- Start listening on socket
-        self._server.listen(self._server_data["backlog"])
-        self._event(0, "STATUS", "Online and listening for new connections.")
-        
-        while self._running:
-            (client_socket, address) = self._server.accept()
-            self._clients.append(Server._Client(client_socket, self._client_id, self._event, 
-                                                tuple(address), self.DEFAULT['buffer']))
-            self._client_id += 1
-        
-        self._server.close()
-        self._event(0, "INFO", "Server thread terminated.")
-        self._event(0, "STATUS", "Server stopped.")
-    
-    def _force_gc(self, last=15.0):
-        """ Forces a garbage collection.
-        """
-        if (len(self._clients) > 0) and ((time.time() - self._last_gc) > last):
-            self._event(0, "INFO" ,"Forcing garbage collection.")
-            self._last_gc = 0
-            while self._last_gc == 0:
-                time.sleep(0.1)
-            self._event(0, "INFO" ,"Garbage collection done.")
-    
-    
-    #-- Public Methods ------------------------------------------------------------------------------------------------
-    def start(self):
-        """ Extension of the Thread start method.
-        """
         self._event(0, "INFO", "Server thread started.")
 
         #-- Initialize the server socket
@@ -434,16 +405,40 @@ class Server(Thread):
             #-- Start garbage collector
             self._monitor.start()
             
-            #-- Inherit
-            Thread.start(self)
+            #-- Start listening on socket
+            self._server.listen(self._server_data["backlog"])
+            self._event(0, "STATUS", "Online and listening for new connections.")
+            
+            #-- Handle incoming connections
+            while self._running:
+                (client_socket, address) = self._server.accept()
+                self._clients.append(Server._Client(client_socket, self._client_id, self._event, 
+                                                    tuple(address), self.DEFAULT['buffer']))
+                self._client_id += 1
+            
+            self._server.close()
+            self._event(0, "INFO", "Server thread terminated.")
+            self._event(0, "STATUS", "Server stopped.")
         
         except socket.error as msg:
             self._event(0, "ERROR", "Bind failed. Code [{0}]: {1}".format(msg[0], msg[1]))
             
             #-- Clean up mess
             self._server.close()
-        
-        
+
+    
+    def _force_gc(self, last=15.0):
+        """ Forces a garbage collection.
+        """
+        if (len(self._clients) > 0) and ((time.time() - self._last_gc) > last):
+            self._event(0, "INFO" ,"Forcing garbage collection.")
+            self._last_gc = 0
+            while self._last_gc == 0:
+                time.sleep(0.1)
+            self._event(0, "INFO" ,"Garbage collection done.")
+    
+    
+    #-- Public Methods ------------------------------------------------------------------------------------------------
     def send(self, data, client_id=None):
         """ Sends data to a specific client if a client id is supplied. Otherwise broadcasts data to all clients.
         """
@@ -537,9 +532,8 @@ class Client(Thread):
         #-- Inherit Base Class
         Thread.__init__(self)
         
-        self._server_name = server_name
-        self._server_port = server_port
-        self._handler = custom_handler
+        #-- Set up the server
+        self._set_server(server_name, server_port, custom_handler)
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
@@ -547,7 +541,17 @@ class Client(Thread):
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
-    #[None]
+    def _set_server(self, server_name, server_port, custom_handler):
+        """ Sets the initialization server variables.
+        """
+        #-- Assertions
+        assert type(server_name) is str, "Server name needs to be a string."
+        assert len(server_name.trim()) > 1, "Server name needs cannot be a zero length string."
+        
+        #-- Init
+        self._server_name = server_name
+        self._server_port = server_port
+        self._handler = custom_handler
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
@@ -558,13 +562,13 @@ class Client(Thread):
 def debug():
     """ Test method.
     """
-    # aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
+    # SAUSAGEFEST: aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
     test = None
     try:
         test_server = "--SERVER" in [i.upper() for i in sys.argv]
         print "[ Starting a {} ]".format("server" if test_server else "client")
         if (len(sys.argv) == 2) and test_server:
-            print 
+            #-- Start a server
             test = Server()
             test.start()
             time.sleep(8)
@@ -572,6 +576,7 @@ def debug():
                 test.send(["ah\n", "stayin' alive\n"][int((i % 6) / 4.0)])
                 time.sleep(0.6 + 0.5 * int((i % 6) / 4.0))
         else:
+            #-- Start a client (or clients)
             test = Client("127.0.0.1")
             test.start()
             time.sleep(8)
