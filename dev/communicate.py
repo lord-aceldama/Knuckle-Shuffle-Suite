@@ -487,11 +487,18 @@ class Client(Thread):
             
             EXPOSES:
                 Constants:
-                    DEFAULT['buffer']       : (int) Default buffer rx/tx size.
-                    DEFAULT['port']         : (int) Default port the server runs on.
-                    DEFAULT['backlog']      : (int) Default maximum number of pending connections.
+                    [None]
                 
                 Methods:
+                    get_valid_hostname(n)   : Returns a tuple(bool, str, int, str). The boolean value indicates whether
+                                              the value passed was a valid hostname. The first string is the cleaned up
+                                              hostname if the one given was valid, otherwise it is an empty string. The
+                                              last two values indicate what type of hostname was given. These are:
+                                              0:None, 1:IPv4, 2:IPv6, 3:FQDN. The final value is a string or None,
+                                              given by the previous int. Note that this function DOES NOT check whether
+                                              the hostname given was online, it just validates and identifies the 
+                                              string.
+                    
                     start()                 : Starts the server and sets up socket.
                     send(data, [client_id]) : Sends data. If client_id was supplied, it will send the data only to that
                                               client, otherwise it broadcasts the data to all connected clients.
@@ -512,10 +519,11 @@ class Client(Thread):
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
-    _server     = { 'addr'  : None,
-                    'port'  : None }
+    _server     = { 'addr' : None, 'port'  : None }
+    _client     = { 'addr' : None, 'port'  : None }
     _handler    = None
     _running    = False
+    _connected  = False
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
@@ -537,9 +545,10 @@ class Client(Thread):
         Thread.__init__(self)
         
         #-- Set up the local vars
-        self._server_name   = server_name
-        self._server_name   = server_port
         self._event_handler = custom_handler
+        
+        self._server_addr   = server_name
+        self._server_port   = server_port
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
@@ -555,8 +564,11 @@ class Client(Thread):
         if not self._running:
             temp = Client.get_valid_hostname(value)
             if temp[0]:
-                self._server['addr'] = temp[1]
-                #-- Might possibly add the hostname type as well: temp[2]
+                if temp[1] != self._server['addr']:
+                    self._server['addr'] = temp[1] 
+                #pass   #-- Might possibly add the hostname type as well (ie. temp[2] and temp[3])
+            else:
+                pass    #-- Might raise a warning here eventually...
     
     
     @property
@@ -568,42 +580,60 @@ class Client(Thread):
     def _server_port(self, value):
         """ Sets the server's remote port if the client isn't running.
         """
-        if (not self._running) and (type(value) is int) and (value != self._server['port']):
-            if (value > 0) or (value <= 65535):
-                self._server['port'] = value
+        if not self._running:
+            if (type(value) is int) and (value >= 0) and (value < 65536):
+                if value != self._server['port']:
+                    self._server['port'] = value
+            else:
+                pass    #-- Might raise a warning here eventually...
     
     
     @property
     def _event_handler(self):
         """ Returns the client event handler.
         """
+        return self._handler
     @_event_handler.setter
     def _event_handler(self, value):
         """ Sets the client event handler.
         """
+        if (value is not None) and hasattr(value, "__call__") and (self._handler is not value):
+            self._handler = value
     
     
-    #-- Private Methods -----------------------------------------------------------------------------------------------
+    @property
+    def server(self):
+        """ Returns the server if one has been set up properly, otherwise it returns None.
+        """
+        result = tuple(self._server['host'], self._server['host'])
+        return None if None in result else result
+    
+    
+    #-- Static Methods ------------------------------------------------------------------------------------------------
     @staticmethod
     def get_valid_hostname(hostname):
-        """ X
+        """ Returns a tuple containing 3 values:
+              - [bool]  given hostname is valid
+              - [str]   cleaned up hostname
+              - [int]   integer representation of the hostname type [None, 'IPv4', 'IPv6', 'FQDN']
+              - [str]   string representation of the hostname type [None, 'IPv4', 'IPv6', 'FQDN'].
         """
         temp = hostname.strip() if (type(hostname) is str) else ""
-        hn_type = None
-        if  (len(temp) > 0) and (len(temp) < 256):
-            #-- Start validation
-            flag = True
-            
+        hn_type = 0
+        
+        #-- Start validation
+        flag = (len(temp) > 0) and (len(temp) < 256)
+        if flag:
             #-- Check for IPv4
             try:
                 flag = type(socket.inet_aton(temp)) is not str
-                hn_type = "IPv4"
+                hn_type = 1
             
             except socket.error:
                 try:
                     #-- Check for IPv6
                     flag = type(socket.AF_INET6, socket.inet_pton(temp)) is not str
-                    hn_type = "IPv6"
+                    hn_type = 2
                     
                 except socket.error:
                     #-- Check for FQDN
@@ -622,26 +652,27 @@ class Client(Thread):
                             y += 1
                     
                     if not flag:
-                        hn_type = "FQDN"
+                        hn_type = 3
                         
             #-- If the flag was flipped (ie. False), the hostname appears to be a valid IPv4, IPv6 or FQDN.
             if flag:
                 temp = ""
             
-        return (len(temp) > 0, temp, hn_type)
+        return tuple(len(temp) > 0, temp, hn_type, [None, 'IPv4', 'IPv6', 'FQDN'][hn_type])
     
     
-    def _set_server(self, server_name, server_port, custom_handler):
-        """ Sets the initialization server variables.
+    #-- Private Methods -----------------------------------------------------------------------------------------------
+    def run(self):
+        """ The thread's main body. use Client.start() instead.
         """
-        #-- Assertions
-        assert type(server_name) is str, "Server name needs to be a string."
-        assert len(server_name.trim()) > 1, "Server name needs cannot be a zero length string."
+        #-- Let the class know it's running.
+        self._running = True
         
-        #-- Init
-        self._server_name = server_name
-        self._server_port = server_port
-        self._handler = custom_handler
+        #-- Do all the things.
+        time.sleep(4)
+        
+        #-- Let the class know it's finished.
+        self._running = False
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
