@@ -482,6 +482,9 @@ class Server(Thread):
 class Client(Thread):
     """ A very basic asynchronous TCP client.
         
+            RESEARCH:
+                - https://en.wikipedia.org/wiki/Hostname
+            
             EXPOSES:
                 Constants:
                     DEFAULT['buffer']       : (int) Default buffer rx/tx size.
@@ -509,9 +512,10 @@ class Client(Thread):
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
-    _server_name = None
-    _server_port = None
-    _handler = None
+    _server     = { 'addr'  : None,
+                    'port'  : None }
+    _handler    = None
+    _running    = False
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
@@ -532,12 +536,84 @@ class Client(Thread):
         #-- Inherit Base Class
         Thread.__init__(self)
         
-        #-- Set up the server
-        self._set_server(server_name, server_port, custom_handler)
+        #-- Set up the local vars
+        self._server_name   = server_name
+        self._server_name   = server_port
+        self._event_handler = custom_handler
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
-    #[None]
+    @property
+    def _server_addr(self):
+        """ Returns the server's ip or domain name.
+        """
+        return self._server['addr']
+    @_server_addr.setter
+    def _server_addr(self, value):
+        """ Sets the server's ip or domain name if the client isn't running.
+        """
+        if (not self._running) and (type(value) is str):
+            #-- Preliminary clean
+            temp = value.strip()
+            
+            #-- Start validation
+            if (temp != self._server['addr']) and (len(temp) > 0) and (len(temp) < 255):
+                #-- Check for IPv4
+                try:
+                    socket.inet_aton(temp)
+                    flag = False
+                
+                except socket.error:
+                    try:
+                        #-- Check for IPv6
+                        socket.inet_pton(temp)
+                        flag = False
+                        
+                    except socket.error:
+                        #-- Check for FQDN
+                        flag = (temp[-2:] == "..")                          #-- FQDNs cannot end in ".."
+                        for x in temp.split("."):
+                            #-- Stop the loop if a violation was found.
+                            if flag: 
+                                break
+                            
+                            #-- Check that each domain label:
+                            flag = flag or (len(x) == 0) and (len(x) > 63)  #-- Is 1-63 chars long
+                            flag = flag or ("-" not in [temp[0], temp[-1]]) #-- Cannot start or end with "-"
+                            
+                            y = 0                                           #-- Doesn't contain invalid chars.
+                            while not (flag or (y >= len(x))):
+                                flag = temp[y].upper() not in "0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                y += 1
+                            
+                finally:
+                    #-- If the flag was flipped again (ie. False), it appears to be a valid IPv1, IPv6 or fqdn.
+                    if not flag:
+                        self._server['addr'] = temp
+    
+    
+    @property
+    def _server_port(self):
+        """ Returns the server's remote port.
+        """
+        return self._server['port']
+    @_server_port.setter
+    def _server_port(self, value):
+        """ Sets the server's remote port if the client isn't running.
+        """
+        if (not self._running) and (type(value) is int) and (value != self._server['port']):
+            if (value > 0) or (value <= 65535):
+                self._server['port'] = value
+    
+    
+    @property
+    def _event_handler(self):
+        """ Returns the client event handler.
+        """
+    @_event_handler.setter
+    def _event_handler(self, value):
+        """ Sets the client event handler.
+        """
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
