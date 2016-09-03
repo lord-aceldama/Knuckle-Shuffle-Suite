@@ -552,44 +552,11 @@ class Client(Thread):
     def _server_addr(self, value):
         """ Sets the server's ip or domain name if the client isn't running.
         """
-        if (not self._running) and (type(value) is str):
-            #-- Preliminary clean
-            temp = value.strip()
-            
-            #-- Start validation
-            if (temp != self._server['addr']) and (len(temp) > 0) and (len(temp) < 255):
-                #-- Check for IPv4
-                try:
-                    socket.inet_aton(temp)
-                    flag = False
-                
-                except socket.error:
-                    try:
-                        #-- Check for IPv6
-                        socket.inet_pton(temp)
-                        flag = False
-                        
-                    except socket.error:
-                        #-- Check for FQDN
-                        flag = (temp[-2:] == "..")                          #-- FQDNs cannot end in ".."
-                        for x in temp.split("."):
-                            #-- Stop the loop if a violation was found.
-                            if flag: 
-                                break
-                            
-                            #-- Check that each domain label:
-                            flag = flag or (len(x) == 0) and (len(x) > 63)  #-- Is 1-63 chars long
-                            flag = flag or ("-" not in [temp[0], temp[-1]]) #-- Cannot start or end with "-"
-                            
-                            y = 0                                           #-- Doesn't contain invalid chars.
-                            while not (flag or (y >= len(x))):
-                                flag = temp[y].upper() not in "0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                y += 1
-                            
-                finally:
-                    #-- If the flag was flipped again (ie. False), it appears to be a valid IPv1, IPv6 or fqdn.
-                    if not flag:
-                        self._server['addr'] = temp
+        if not self._running:
+            temp = Client.get_valid_hostname(value)
+            if temp[0]:
+                self._server['addr'] = temp[1]
+                #-- Might possibly add the hostname type as well: temp[2]
     
     
     @property
@@ -617,6 +584,53 @@ class Client(Thread):
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
+    @staticmethod
+    def get_valid_hostname(hostname):
+        """ X
+        """
+        temp = hostname.strip() if (type(hostname) is str) else ""
+        hn_type = None
+        if  (len(temp) > 0) and (len(temp) < 256):
+            #-- Start validation
+            flag = True
+            
+            #-- Check for IPv4
+            try:
+                flag = type(socket.inet_aton(temp)) is not str
+                hn_type = "IPv4"
+            
+            except socket.error:
+                try:
+                    #-- Check for IPv6
+                    flag = type(socket.AF_INET6, socket.inet_pton(temp)) is not str
+                    hn_type = "IPv6"
+                    
+                except socket.error:
+                    #-- Check for FQDN
+                    flag = (temp[-2:] == "..")                      #-- FQDNs cannot end in ".."
+                    for x in temp.split("."):
+                        #-- Stop the loop if a violation was found.
+                        if flag: 
+                            break
+                                                                    #-- Check that each domain label:
+                        flag = ((len(x) == 0) and (len(x) > 63) or  #     - is between 1 and 63 chars long.
+                                ("-" not in [temp[0], temp[-1]]))   #     - doesn't start or end with "-".
+                        
+                        y = 0                                       #     - doesn't contain invalid chars.
+                        while not (flag or (y >= len(x))):
+                            flag = temp[y].upper() not in "0123456789-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                            y += 1
+                    
+                    if not flag:
+                        hn_type = "FQDN"
+                        
+            #-- If the flag was flipped (ie. False), the hostname appears to be a valid IPv4, IPv6 or FQDN.
+            if flag:
+                temp = ""
+            
+        return (len(temp) > 0, temp, hn_type)
+    
+    
     def _set_server(self, server_name, server_port, custom_handler):
         """ Sets the initialization server variables.
         """
