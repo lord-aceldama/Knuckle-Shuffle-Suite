@@ -521,9 +521,16 @@ class Client(Thread):
     #-- Global Vars ---------------------------------------------------------------------------------------------------
     _server     = { 'addr' : None, 'port'  : None }
     _client     = { 'addr' : None, 'port'  : None }
+    
     _handler    = None
+    
     _running    = False
+    _halt       = False     #-- Signal to stop thread
     _connected  = False
+    
+    _socket     = None
+    _tx_thread  = None      #-- Thread monitoring the TX queue
+    _tx_queue   = Queue()
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
@@ -605,8 +612,7 @@ class Client(Thread):
     def server(self):
         """ Returns the server if one has been set up properly, otherwise it returns None.
         """
-        result = tuple(self._server['host'], self._server['host'])
-        return None if None in result else result
+        return None if None in self._server.values() else tuple(self._server['host'], self._server['port'])
     
     
     #-- Static Methods ------------------------------------------------------------------------------------------------
@@ -662,21 +668,82 @@ class Client(Thread):
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
-    def run(self):
-        """ The thread's main body. use Client.start() instead.
+    def _event(self, token, data):
+        """ Raises an async event by sending it to stdout or, if a handler was set, passing it there.
         """
-        #-- Let the class know it's running.
-        self._running = True
+        return (self._running, token, data)
+    
+    
+    def _connect(self):
+        """ Connects to the server if connection is not already established. Also updates self._client if a connection
+            is established.
+        """
+        if not self._connected:
+            self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self._socket.settimeout(2.5)
+            retries = 0
+            while not ((retries >= 10) or self._connected or self._halt):
+                try :
+                    self._socket.connect(self.server)
+                    self._connected = True
+                except socket.error:
+                    retries += 1
+        else:
+            pass    #-- Already connected...
         
-        #-- Do all the things.
-        time.sleep(4)
+        return self._connected
+    
+    
+    def _tx_monitor(self):
+        """ Thread that monitors the queue and transmits data to the remote server.
+        """
+        while self._running and (not self._halt):
+            if len(self._tx_queue) > 0:
+                pass    #-- Send data
+            time.sleep(0.2)
+    
+    
+    def run(self):
+        """ The thread's main body. Use Client.start() instead.
+        """
+        if not (self._running or (None in self._server.values())) :
+            #-- Let the class know it's running.
+            self._running = True
+            self._halt = False
+            
+            #-- Connect to the remote server
+            if self._connect():
+                #-- Start the TX queue monitor thread
+                self._tx_thread = Thread(target = self._tx_monitor)
+                self._tx_thread.daemon = True
+                self._tx_thread.start()
+                
+                #-- Do all the things.
+                while not self._halt:
+                    time.sleep(0.5)
+            
+            #-- Let the class know it's finished.
+            self._running = False
         
-        #-- Let the class know it's finished.
-        self._running = False
+        elif None in self._server.values():
+            pass    #-- Server has not been set up.
+        
+        else:
+            pass    #-- Already running.
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
-    #[None]
+    def send(self, data):
+        """ Queues data to be sent to the remote server.
+        """
+        return (self._running, data)
+    
+    
+    def stop(self):
+        """ Stops the client.
+        """
+        self._running = False
+        
 
 
 #===========================================================================================================[ DEBUG ]==
