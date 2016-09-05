@@ -696,17 +696,27 @@ class Client(Thread):
             is established.
         """
         if not self._connected:
+            self._event("STAT:INFO", "Setting up socket.")
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._socket.settimeout(2.5)
             retries = 0
             while not ((retries >= 10) or self._connected or self._halt):
                 try :
+                    self._event("STAT:INFO", "Attempting to connect to {}:{}...".format(*self.server))
                     self._socket.connect(self.server)
                     self._connected = True
                 except socket.error:
                     retries += 1
+                finally:
+                    if self._connected:
+                        self._event("STAT:DONE", "Connection to {}:{} established.".format(*self.server))
+                    elif retries >= 10:
+                        self._event("STAT:FAIL", "Could not connect. Tried {} times. Giving up.".format(10))
+                    else:
+                        self._event("STAT:FAIL", "Could not connect. Retrying ({}/{})".format(retries 1, 9))
+            
         else:
-            pass    #-- Already connected...
+            self._event("STAT:INFO", "Already connected.")
         
         return self._connected
     
@@ -714,13 +724,15 @@ class Client(Thread):
     def _rx_monitor(self):
         """ Thread that monitors the socket for data coming from the remote server.
         """
-        while self._running and (not self._halt):
+        while self._running and self._connected and (not self._halt):
             data = self._socket.recv(self.buffer_size)  #-- Wait for socket to receive data
             if data:
                 #-- Trigger event handler.
                 self._event("RX", data)
             else:
-                pass    #-- Socket died.
+                #-- The socket died.
+                self._event("STAT:FAIL", "Socket died.")
+                self._connected = False
     
     
     def run(self):
@@ -733,7 +745,7 @@ class Client(Thread):
             
             #-- Do all the things.
             while not self._halt:
-                if (not self._connected) or self._connect():
+                if (not self._connected) and self._connect():
                     #-- Connect to the remote server and start the TX queue monitor thread.
                     self._rx_thread = Thread(target = self._rx_monitor)
                     self._rx_thread.daemon = True
