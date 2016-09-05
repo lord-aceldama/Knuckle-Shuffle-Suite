@@ -525,11 +525,12 @@ class Client(Thread):
     _handler    = None
     
     _running    = False
-    _halt       = False     #-- Signal to stop thread
+    _halt       = False             #-- Signal to stop thread
     _connected  = False
     
     _socket     = None
-    _tx_thread  = None      #-- Thread monitoring the TX queue
+    _len_buffer = 4096
+    _rx_thread  = None              #-- Thread monitoring the RX queue
     _tx_queue   = Queue()
     
     
@@ -555,7 +556,7 @@ class Client(Thread):
         self._event_handler = custom_handler
         
         self._server_addr   = server_name
-        self._server_port   = server_port
+        self._server_port   = Server.DEFAULT["port"] if server_port is None else server_port
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
@@ -606,6 +607,19 @@ class Client(Thread):
         """
         if (value is not None) and hasattr(value, "__call__") and (self._handler is not value):
             self._handler = value
+    
+    
+    @property
+    def buffer_size(self):
+        """ Returns the client event handler.
+        """
+        return self._len_buffer
+    @buffer_size.setter
+    def buffer_size(self, value):
+        """ Sets the client event handler.
+        """
+        if (value is not None) and (type(value) is int) and (value > 63) and (self._handler is not value):
+            self._len_buffer = value
     
     
     @property
@@ -669,9 +683,12 @@ class Client(Thread):
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
     def _event(self, token, data):
-        """ Raises an async event by sending it to stdout or, if a handler was set, passing it there.
+        """ Calls the custom event handler or dumps it to stdout.
         """
-        return (self._running, token, data)
+        if self._handler is None:
+            print " [ {0} ] > {1}".format(token.upper(), data.strip())
+        else:
+            self._handler(token.upper(), data)
     
     
     def _connect(self):
@@ -694,13 +711,16 @@ class Client(Thread):
         return self._connected
     
     
-    def _tx_monitor(self):
-        """ Thread that monitors the queue and transmits data to the remote server.
+    def _rx_monitor(self):
+        """ Thread that monitors the socket for data coming from the remote server.
         """
         while self._running and (not self._halt):
-            if len(self._tx_queue) > 0:
-                pass    #-- Send data
-            time.sleep(0.2)
+            data = self._socket.recv(self.buffer_size)  #-- Wait for socket to receive data
+            if data:
+                #-- Trigger event handler.
+                self._event("RX", data)
+            else:
+                pass    #-- Socket died.
     
     
     def run(self):
@@ -711,16 +731,25 @@ class Client(Thread):
             self._running = True
             self._halt = False
             
-            #-- Connect to the remote server
-            if self._connect():
-                #-- Start the TX queue monitor thread
-                self._tx_thread = Thread(target = self._tx_monitor)
-                self._tx_thread.daemon = True
-                self._tx_thread.start()
-                
-                #-- Do all the things.
-                while not self._halt:
-                    time.sleep(0.5)
+            #-- Do all the things.
+            while not self._halt:
+                if (not self._connected) or self._connect():
+                    #-- Connect to the remote server and start the TX queue monitor thread.
+                    self._rx_thread = Thread(target = self._rx_monitor)
+                    self._rx_thread.daemon = True
+                    self._rx_thread.start()
+                    
+                elif self._connected and (len(self._tx_queue) > 0):
+                    #-- Transmit data.
+                    data = self._tx_queue.pop()
+                    while (not self._halt) and self._connected and (len(data) > 0):
+                        chunk = data[:self.buffer_size]
+                        data  = data[self.buffer_size:]
+                        self._socket.send(chunk)
+                        self._event("TX", chunk)
+                else:
+                    #-- Wait a moment before attemting a reconnect.
+                    time.sleep(0.25)
             
             #-- Let the class know it's finished.
             self._running = False
@@ -742,8 +771,8 @@ class Client(Thread):
     def stop(self):
         """ Stops the client.
         """
-        self._running = False
-        
+        if self._running:
+            self._halt = False
 
 
 #===========================================================================================================[ DEBUG ]==
