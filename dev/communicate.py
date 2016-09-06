@@ -484,6 +484,7 @@ class Client(Thread):
         
             RESEARCH:
                 - https://en.wikipedia.org/wiki/Hostname
+                - http://stackoverflow.com/questions/24196932/how-can-i-get-the-ip-address-of-eth0-in-python
             
             EXPOSES:
                 Constants:
