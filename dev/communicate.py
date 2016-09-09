@@ -488,7 +488,7 @@ class Client(Thread):
             
             EXPOSES:
                 Constants:
-                    [None yet]
+                    [None]
                 
                 Methods:
                     get_valid_hostname(n)   : Returns a tuple(bool, str, int, str). The boolean value indicates whether
