@@ -790,7 +790,7 @@ class Client(Thread):
 
 #===========================================================================================================[ DEBUG ]==
 def debug():
-    """ Test method.
+    """ Test method. For debuggering server/client classes. ;)
     """
     # SAUSAGEFEST: aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
     test = None
