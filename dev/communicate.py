@@ -407,7 +407,7 @@ class Server(Thread):
             
             #-- Start listening on socket
             self._server.listen(self._server_data["backlog"])
-            self._event(0, "STATUS", "Online and listening for new connections.")
+            self._event(0, "STAT", "Online and listening for new connections.")
             
             #-- Handle incoming connections
             while self._running:
@@ -418,7 +418,7 @@ class Server(Thread):
             
             self._server.close()
             self._event(0, "INFO", "Server thread terminated.")
-            self._event(0, "STATUS", "Server stopped.")
+            self._event(0, "STAT", "Server stopped.")
         
         except socket.error as msg:
             self._event(0, "ERROR", "Bind failed. Code [{0}]: {1}".format(msg[0], msg[1]))
@@ -473,7 +473,7 @@ class Server(Thread):
             self._server.close()
             self._running = False
 
-        self._event(0, "STATUS", "Offline")
+        self._event(0, "STAT", "Offline")
         self._Thread__stop() # pylint: disable=no-member
 
 
@@ -501,18 +501,18 @@ class Client(Thread):
                                               string.
                     
                     start()                 : Starts the server and sets up socket.
-                    send(data, [client_id]) : Sends data. If client_id was supplied, it will send the data only to that
-                                              client, otherwise it broadcasts the data to all connected clients.
-                    stop([finish_jobs])     : Stops the server and kills all connected clients. If finish_jobs was
-                                              supplied, it will either wait until all client send queues are empty if 
-                                              the value was True, or wait a maximum of N seconds if it was an integer.
+                    send(data)              : Queues data to be sent to the remote server.
+                    stop()                  : Stops the client.
                 
                 Properties:
-                    (rw) [int] port         : Gets or sets the port the server will be listening on. If the server is 
-                                              running, the port number becomes read-only.
-                    (rw) [function] handler : The main async event handler function. Parameters that are passed are as
-                                              follows: event(token, data)
-                    (ro) [bool] running     : Returns True if the server is online and listening. False otherwise.
+                    (rw) [int] buffer_size  : Gets or sets the RX and TX buffer sizes.
+                    (ro) [bool] connected   : Returns a boolean value indicating whether the client is connected to the
+                                              remote server.
+                    (ro) [bool] stopping    : Returns a boolean value indicating whether the client is in the process
+                                              of terminating.
+                    (ro) [bool] running     : Returns a boolean value indicating whether the client is running.
+                    (ro) [tuple] server     : Returns a tuple containing (server, port) if a server has been set up
+                                              properly, otherwise it returns None.
     """
     
     #-- Constants -----------------------------------------------------------------------------------------------------
@@ -560,7 +560,7 @@ class Client(Thread):
         self._server_port   = Server.DEFAULT["port"] if server_port is None else server_port
     
     
-    #-- Properties ----------------------------------------------------------------------------------------------------
+    #-- Private Properties --------------------------------------------------------------------------------------------
     @property
     def _server_addr(self):
         """ Returns the server's ip or domain name.
@@ -610,6 +610,7 @@ class Client(Thread):
             self._handler = value
     
     
+    #-- Public Properties ---------------------------------------------------------------------------------------------
     @property
     def buffer_size(self):
         """ Returns the client event handler.
@@ -621,6 +622,27 @@ class Client(Thread):
         """
         if (value is not None) and (type(value) is int) and (value > 63) and (self._handler is not value):
             self._len_buffer = value
+    
+    
+    @property
+    def connected(self):
+        """ Returns a boolean value indicating whether the client is connected to the remote server.
+        """
+        return self._connected
+    
+    
+    @property
+    def stopping(self):
+        """ Returns a boolean value indicating whether the client is in the process of terminating.
+        """
+        return self._halt
+    
+    
+    @property
+    def running(self):
+        """ Returns a boolean value indicating whether the client is running.
+        """
+        return self._running
     
     
     @property
@@ -714,7 +736,7 @@ class Client(Thread):
                     elif retries >= 10:
                         self._event("STAT:FAIL", "Could not connect. Tried {} times. Giving up.".format(10))
                     else:
-                        self._event("STAT:FAIL", "Could not connect. Retrying ({}/{})".format(retries 1, 9))
+                        self._event("STAT:FAIL", "Could not connect. Retrying ({}/{})".format(retries + 1, 10))
             
         else:
             self._event("STAT:INFO", "Already connected.")
@@ -768,17 +790,17 @@ class Client(Thread):
             self._running = False
         
         elif None in self._server.values():
-            pass    #-- Server has not been set up.
+            self._event("STAT:FAIL", "Server has not been set up.")
         
         else:
-            pass    #-- Already running.
+            self._event("STAT:WARN", "Server already running.")
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
     def send(self, data):
         """ Queues data to be sent to the remote server.
         """
-        return (self._running, data)
+        self._tx_queue.push(data)
     
     
     def stop(self):
@@ -790,7 +812,7 @@ class Client(Thread):
 
 #===========================================================================================================[ DEBUG ]==
 def debug():
-    """ Test method. For debuggering server/client classes. ;)
+    """ Test method for debuggering server/client classes.
     """
     # SAUSAGEFEST: aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
     test = None
