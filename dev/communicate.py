@@ -480,7 +480,7 @@ class Server(Thread):
 
 #====================================================================================================[ CLIENT CLASS ]==
 class Client(Thread):
-    """ A very basic asynchronous TCP client.
+    """ A very basic asynchronous TCP client. :)
         
             RESEARCH:
                 - https://en.wikipedia.org/wiki/Hostname
