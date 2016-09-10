@@ -649,7 +649,7 @@ class Client(Thread):
     def server(self):
         """ Returns the server if one has been set up properly, otherwise it returns None.
         """
-        return None if None in self._server.values() else tuple(self._server['host'], self._server['port'])
+        return None if None in self._server.values() else (self._server['addr'], self._server['port'])
     
     
     #-- Static Methods ------------------------------------------------------------------------------------------------
@@ -701,7 +701,7 @@ class Client(Thread):
             if flag:
                 temp = ""
             
-        return tuple(len(temp) > 0, temp, hn_type, [None, 'IPv4', 'IPv6', 'FQDN'][hn_type])
+        return (len(temp) > 0, temp, hn_type, [None, 'IPv4', 'IPv6', 'FQDN'][hn_type])
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
@@ -721,22 +721,30 @@ class Client(Thread):
         if not self._connected:
             self._event("STAT:INFO", "Setting up socket.")
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self._socket.settimeout(2.5)
+            self._socket.settimeout(2)
             retries = 0
-            while not ((retries >= 10) or self._connected or self._halt):
-                try :
-                    self._event("STAT:INFO", "Attempting to connect to {}:{}...".format(*self.server))
+            ret_max = 10
+            wait = 4
+            while not ((retries >= ret_max) or self._connected or self._halt):
+                try:
+                    token = "STAT:INFO"
+                    message = "Attempt {} of {} connecting to {}:{}...".format(retries + 1, ret_max, *self.server)
+                    self._event(token, message)
                     self._socket.connect(self.server)
                     self._connected = True
+
                 except socket.error:
                     retries += 1
+
                 finally:
                     if self._connected:
                         self._event("STAT:DONE", "Connection to {}:{} established.".format(*self.server))
-                    elif retries >= 10:
-                        self._event("STAT:FAIL", "Could not connect. Tried {} times. Giving up.".format(10))
+                    elif retries >= ret_max:
+                        self._event("STAT:FAIL", "Could not connect. Tried {} times. Giving up.".format(ret_max))
+                        self._halt = True
                     else:
-                        self._event("STAT:FAIL", "Could not connect. Retrying ({}/{})".format(retries + 1, 10))
+                        self._event("STAT:FAIL", "Could not connect. Wait {} seconds before retrying...".format(wait))
+                        time.sleep(wait)
             
         else:
             self._event("STAT:INFO", "Already connected.")
@@ -748,14 +756,18 @@ class Client(Thread):
         """ Thread that monitors the socket for data coming from the remote server.
         """
         while self._running and self._connected and (not self._halt):
-            data = self._socket.recv(self.buffer_size)  #-- Wait for socket to receive data
-            if data:
-                #-- Trigger event handler.
-                self._event("RX", data)
-            else:
-                #-- The socket died.
-                self._event("STAT:FAIL", "Socket died.")
-                self._connected = False
+            try:
+                data = self._socket.recv(self.buffer_size)  #-- Wait for socket to receive data
+                if data:
+                    #-- Trigger event handler.
+                    self._event("RX", data)
+                else:
+                    #-- The socket died.
+                    self._event("STAT:FAIL", "Server connection severed.")
+                    self._connected = False
+            
+            except socket.timeout:
+                pass #-- Do nothing. This except is just so we can have the thread terminate cleanly (w/o locking).
     
     
     def run(self):
@@ -814,7 +826,9 @@ class Client(Thread):
 def debug():
     """ Test method for debuggering server/client classes.
     """
+    # IN CASE I HANG: kill $(ps aux | grep communicate.py | grep python | grep -o -P "\d+" | head -n1)
     # SAUSAGEFEST: aircrack-ng -w - ../../crack/lab-password.cap | grep -o -P "(FOUND! \[ .* \]|not in dict)"
+    
     test = None
     try:
         test_server = "--SERVER" in [i.upper() for i in sys.argv]
@@ -831,10 +845,22 @@ def debug():
             #-- Start a client (or clients)
             test = Client("127.0.0.1")
             test.start()
-            time.sleep(8)
+            while not test.connected:
+                time.sleep(0.2)
+            time.sleep(1)
+            test.send("wibble 01")
+            time.sleep(2)
+            test.send("wibble 02")
+            time.sleep(3)
+            test.send("wibble 03")
+            time.sleep(5)
+            
         
     except KeyboardInterrupt:
         print "\r > Seems we're terminating early!"
+        
+    except:
+        print "Other error occurred..."
         
     finally:
         test.stop()
