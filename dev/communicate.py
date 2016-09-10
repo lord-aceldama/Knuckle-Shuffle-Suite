@@ -819,7 +819,7 @@ class Client(Thread):
         """ Stops the client.
         """
         if self._running:
-            self._halt = False
+            self._halt = True
 
 
 #===========================================================================================================[ DEBUG ]==
@@ -855,12 +855,8 @@ def debug():
             test.send("wibble 03")
             time.sleep(5)
             
-        
     except KeyboardInterrupt:
         print "\r > Seems we're terminating early!"
-        
-    except:
-        print "Other error occurred..."
         
     finally:
         test.stop()
