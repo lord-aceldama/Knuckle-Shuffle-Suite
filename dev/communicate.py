@@ -9,7 +9,9 @@
 """
 
 #-- Import Dependencies
-import socket, time, sys
+import sys
+import time
+import socket
 from threading import Thread
 from xifo import Queue
 
@@ -135,7 +137,7 @@ class Server(Thread):
         def buffer_size(self, value):
             """ Sets the maximum buffer size of the client.
             """
-            if (type(value) is int) and (value > 0) and (value != self._buffer):
+            if isinstance(value, int) and (value > 0) and (value != self._buffer):
                 self._buffer = value
         
         
@@ -291,7 +293,7 @@ class Server(Thread):
         self.daemon = True
         
         #-- Check if a valid custom port is supplied
-        if (port is not None) and (type(port) is int) and (port > 0) and (port < 65536):
+        if isinstance(port, int) and (port > 0) and (port < 65536):
             self._server_data["port"] = port
         
         #-- Check if a valid custom event handler is supplied
@@ -313,7 +315,7 @@ class Server(Thread):
     def port(self, value):
         """ Sets the port the server is listening on.
         """
-        if (not self._running) and (type(value) is int) and (value < 65536) and (value >= 0):
+        if (not self._running) and isinstance(value, int) and (value < 65536) and (value >= 0):
             self._server_data["port"] = value
     
         
@@ -590,7 +592,7 @@ class Client(Thread):
         """ Sets the server's remote port if the client isn't running.
         """
         if not self._running:
-            if (type(value) is int) and (value >= 0) and (value < 65536):
+            if isinstance(value, int) and (value >= 0) and (value < 65536):
                 if value != self._server['port']:
                     self._server['port'] = value
             else:
@@ -620,7 +622,7 @@ class Client(Thread):
     def buffer_size(self, value):
         """ Sets the client event handler.
         """
-        if (value is not None) and (type(value) is int) and (value > 63) and (self._handler is not value):
+        if isinstance(value, int) and (value > 63) and (self._handler is not value):
             self._len_buffer = value
     
     
@@ -661,7 +663,7 @@ class Client(Thread):
               - [int]   integer representation of the hostname type [None, 'IPv4', 'IPv6', 'FQDN']
               - [str]   string representation of the hostname type [None, 'IPv4', 'IPv6', 'FQDN'].
         """
-        temp = hostname.strip() if (type(hostname) is str) else ""
+        temp = hostname.strip() if isinstance(hostname, str) else ""
         hn_type = 0
         
         #-- Start validation
@@ -669,13 +671,13 @@ class Client(Thread):
         if flag:
             #-- Check for IPv4
             try:
-                flag = type(socket.inet_aton(temp)) is not str
+                flag = not isinstance(socket.inet_aton(temp), str)
                 hn_type = 1
             
             except socket.error:
                 try:
                     #-- Check for IPv6
-                    flag = type(socket.AF_INET6, socket.inet_pton(temp)) is not str
+                    flag = not isinstance(socket.AF_INET6, socket.inet_pton(temp), str)
                     hn_type = 2
                     
                 except socket.error:
@@ -833,27 +835,22 @@ def debug():
     try:
         test_server = "--SERVER" in [i.upper() for i in sys.argv]
         print "[ Starting a {} ]".format("server" if test_server else "client")
+        test = Server() if test_server and (len(sys.argv) == 2) else Client("127.0.0.1")
+        test.start()
         if (len(sys.argv) == 2) and test_server:
             #-- Start a server
-            test = Server()
-            test.start()
             time.sleep(8)
             for i in range(12):
                 test.send(["ah\n", "stayin' alive\n"][int((i % 6) / 4.0)])
                 time.sleep(0.6 + 0.5 * int((i % 6) / 4.0))
         else:
             #-- Start a client (or clients)
-            test = Client("127.0.0.1")
-            test.start()
             while not test.connected:
                 time.sleep(0.2)
-            time.sleep(1)
-            test.send("wibble 01")
-            time.sleep(2)
-            test.send("wibble 02")
-            time.sleep(3)
-            test.send("wibble 03")
-            time.sleep(5)
+            for i in range(3):
+                time.sleep(i + 1)
+                test.send("wibble 0{}".format(i))
+                time.sleep(2**i)
             
     except KeyboardInterrupt:
         print "\r > Seems we're terminating early!"

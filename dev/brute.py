@@ -1,4 +1,4 @@
-""" Brute
+""" Brute: Incremental, Shuffle and Abacus
     
     author: aceldama.v1.0 at gmail
     
@@ -12,7 +12,7 @@
 import sys
 
 
-#=================================================================================================[ FORCE_INC CLASS ]==
+#===============================================================================================[ INCREMENTAL CLASS ]==
 class Incremental(object):
     """ The most basic brute force type class: Incremental. They don't get much simpler than this.
         
@@ -32,7 +32,6 @@ class Incremental(object):
                     (ro) [tuple] progress   : Returns the current progress and max value as a tuple.
                     (ro) [bool] done        : Returns True if the current token is the last token.
     """
-    
     #-- Constants -----------------------------------------------------------------------------------------------------
     #[None]
     
@@ -53,7 +52,7 @@ class Incremental(object):
         """
         self._chars = sorted(set(chars))
         self._index = [0 for _ in xrange(max(1, length))]
-        if (type(std_err) is file) and (self._stderr is not std_err):
+        if isinstance(std_err, file) and (self._stderr is not std_err):
             self._stderr = std_err
         self.token = token_start
     
@@ -85,7 +84,7 @@ class Incremental(object):
     @token.setter
     def token(self, value):
         """ Sets the name. """
-        if (type(value) is str) and (str(self) != value) and (len(value) > 0):
+        if isinstance(value, str) and (str(self) != value) and (len(value) > 0):
             i = 0
             flag = True
             while flag and (i < len(value)):
@@ -152,6 +151,97 @@ class Incremental(object):
             #-- Overflow
             self._error("WARNING: An overflow error occurred. Token reset to [ {} ]\n".format(str(self)))
         return str(self)
+
+
+#===================================================================================================[ SHUFFLE CLASS ]==
+class Shuffle(Incremental):
+    """ Calculates all unique permutations of a given token string.
+        
+            EXPOSES:
+                Constants:
+                    [None]
+                
+                Methods:
+                    resume(token)           : Resumes from the specified token.
+                    reset()                 : Resets the token to position 0.
+                    inc()                   : Increments the brute-force token by one position. Overflow errors are
+                                              possible, and will perform a reset as well as raise a soft error.
+                
+                Properties:
+                    (rw) [str] token        : Gets or sets the current token. The token supplied can only contain 
+                                              characters present in the charset supplied during init.
+                    (ro) [tuple] progress   : Returns the current progress and max value as a tuple.
+                    (ro) [bool] done        : Returns True if the current token is the last token.
+    """
+    #-- Constants -----------------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Output --------------------------------------------------------------------------------------------------------
+    _stderr = None
+    
+    
+    #-- Global Vars ---------------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Special Class Methods -----------------------------------------------------------------------------------------
+    def __init__(self, chars, length, token_start=None, std_err=None):
+        """ Initializes the object.
+        """
+        Incremental.__init__(self, chars, length, token_start, std_err)
+    
+    
+    #-- Private Methods -----------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Public Methods ------------------------------------------------------------------------------------------------
+    #[None]
+
+
+#====================================================================================================[ ABACUS CLASS ]==
+class Abacus(Shuffle):
+    """ The most basic brute force type class: Incremental. They don't get much simpler than this.
+        
+            EXPOSES:
+                Constants:
+                    [None]
+                
+                Methods:
+                    resume(token)           : Resumes from the specified token.
+                    reset()                 : Resets the token to position 0.
+                    inc()                   : Increments the brute-force token by one position. Overflow errors are
+                                              possible, and will perform a reset as well as raise a soft error.
+                
+                Properties:
+                    (rw) [str] token        : Gets or sets the current token. The token supplied can only contain 
+                                              characters present in the charset supplied during init.
+                    (ro) [tuple] progress   : Returns the current progress and max value as a tuple.
+                    (ro) [bool] done        : Returns True if the current token is the last token.
+    """
+    #-- Constants -----------------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Output --------------------------------------------------------------------------------------------------------
+    _stderr = None
+    
+    
+    #-- Global Vars ---------------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Special Class Methods -----------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Private Methods -----------------------------------------------------------------------------------------------
+    #[None]
+    
+    
+    #-- Public Methods ------------------------------------------------------------------------------------------------
+    #[None]
 
 
 #===========================================================================================================[ DEBUG ]==
