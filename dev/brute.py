@@ -118,7 +118,7 @@ class Incremental(object):
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
     def _error(self, text):
-        """ Prints an error to stderr is it's set.
+        """ Prints an error to stderr if it's set.
         """
         if self._stderr is not None:
             self._stderr.write(text)
@@ -247,14 +247,37 @@ class Abacus(Shuffle):
 #===========================================================================================================[ DEBUG ]==
 def debug():
     """ Test method. """
-    #test = Incremental("abc", 3, "bbb")
-    test = Incremental("abc", 3, std_err=sys.stderr)
-    test.resume("bax")
-    test.resume("bac")
-    print test, test.progress
-    while not test.done:
-        print test.inc(), test.progress
-    test.inc()
+    def test_incremental():
+        """ Tests the Incremental class.
+        """
+        #test = Incremental("abc", 3, "bbb")
+        test = Incremental("abc", 3, std_err=sys.stderr)
+        test.resume("bax")
+        test.resume("bac")
+        print test, test.progress
+        while not test.done:
+            print test.inc(), test.progress
+        test.inc()
+    
+    def test_shuffle():
+        """ Tests the Shuffle class.
+        """
+        test = Shuffle("abc", 3, std_err=sys.stderr)
+        test.resume("bax")
+    
+    def test_abacus():
+        """ Tests the Abacus class.
+        """
+    
+    #-- Pick and test a class for debugging.
+    idx=1
+    if idx == 0:
+        test_incremental()
+    elif idx == 1:
+        test_shuffle()
+    elif idx == 2:
+        test_abacus()
+        
 
 
 #============================================================================================================[ MAIN ]==
