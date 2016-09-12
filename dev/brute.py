@@ -189,7 +189,7 @@ class Shuffle(Incremental):
     def __init__(self, chars, length, token_start=None, std_err=None):
         """ Initializes the object.
         """
-        Incremental.__init__(self, chars, length, token_start, std_err)
+        Incremental.__init__(self, chars, length, token_start, std_err) #-- Inherit base
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
