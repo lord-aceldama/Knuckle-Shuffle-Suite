@@ -2,7 +2,7 @@
     
     author: aceldama.v1.0 at gmail
     
-    Licensed under the GNU General Public License Version 2 (GNU GPL v2), 
+    Licensed under the GNU General Public License Version 2 (GNU GPL v2),
         available at: http://www.gnu.org/licenses/gpl-2.0.txt
     
     (C) 2016 David A Swanepoel
@@ -19,7 +19,7 @@ class Shuffle(object):
         in a dedicated class because I plan to add multi-processing and buffering capabilities
         later on.
         
-        Non-recursive permutations: 
+        Non-recursive permutations:
             http://stackoverflow.com/questions/18227931/iterative-solution-for-finding-string-permutations
     """
     
@@ -55,8 +55,8 @@ class Shuffle(object):
     
     def __str__(self):
         """ Returns data containing the current token, unshuffled token and progress. """
-        return "{0}:{1}[{2}/{3}] ({4:.2%})".format(self._current, self.token, 
-                                                   self._progval + 1, self._progmax, 
+        return "{0}:{1}[{2}/{3}] ({4:.2%})".format(self._current, self.token,
+                                                   self._progval + 1, self._progmax,
                                                    1. * self.pos / self._progmax)
     
     
@@ -97,7 +97,7 @@ class Shuffle(object):
         if len(self._stack) > 0:
             value = self._stack.top["prefix"] + self._stack.top["token"]
         return value
-        
+    
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
     def _stack_next_idx(self):
@@ -219,14 +219,14 @@ class Shuffle(object):
     def next(self):
         """ Returns the current token and moves on to the next.
         """
-        value = self.token 
+        value = self.token
         self._shift()
         return value
     
     
     #-- Generator
     def next_n(self, qty_max=None):
-        """ Generator that yields the next tokens or completes early if Shuffle.done is True or qty_max is supplied 
+        """ Generator that yields the next tokens or completes early if Shuffle.done is True or qty_max is supplied
             and reached.
         """
         idx = 0
@@ -236,7 +236,7 @@ class Shuffle(object):
     
     
     def print_shuffle(self, token, prefix=""):
-        """ Generates and prints all unique permutations of a token string. It 
+        """ Generates and prints all unique permutations of a token string. It
             currently returns the total amount of permutations.
         """
         total = 0
@@ -249,7 +249,7 @@ class Shuffle(object):
             idx = 0
             while idx < len(token):
                 #-- If the character at the current position also to the right
-                #   we don't need process it as it would create duplicates. 
+                #   we don't need process it as it would create duplicates.
                 if token[idx] not in token[idx + 1:]:
                     total += self.print_shuffle(token[:idx] + token[idx + 1:], prefix + token[idx])
                 idx += 1

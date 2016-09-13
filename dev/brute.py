@@ -1,8 +1,8 @@
-""" Brute: Incremental, Permutation, Shuffle and Abacus
+""" Brute: Incremental, Permute, Shuffle and Abacus
     
     author: aceldama.v1.0 at gmail
     
-    Licensed under the GNU General Public License Version 2 (GNU GPL v2), 
+    Licensed under the GNU General Public License Version 2 (GNU GPL v2),
         available at: http://www.gnu.org/licenses/gpl-2.0.txt
     
     (C) 2016 David A Swanepoel
@@ -28,7 +28,7 @@ class Incremental(object):
                 Properties:
                     (rw) [str] token            : Gets or sets the current token. The token supplied may only
                                                   contain chars present in the charset supplied during init.
-                    (ro) [tuple] progress       : Returns the current progress and max value as a tuple.
+                    (ro) [int] progress         : Returns the current progress. (See self.__len__() for max value)
                     (ro) [float] percent_done   : Returns the progress as a percentage.
                     (ro) [bool] done            : Returns True if the current token is the last token.
     """
@@ -73,8 +73,7 @@ class Incremental(object):
         """
         result = ""
         if (len(self._chars) > 0) and (len(self._index) > 0):
-            for i in self._index:
-                result += self._chars[i]
+            result = "".join([self._chars[i] for i in self._index])
         return result
     
     
@@ -126,7 +125,7 @@ class Incremental(object):
     def percent_done(self):
         """ Returns the progress in percent.
         """
-        return 100.0 * self._progress / self._prog_max 
+        return 100.0 * self._progress / self._prog_max
     
     
     @property
@@ -192,12 +191,12 @@ class Permute(object):
                 
                 Methods:
                     resume(token)               : Resumes from the specified token.
-                    reset()                     : Resets the token to position 0.
+                    reset()                     : Resets the object to the initial starting position.
                     inc()                       : Moves to the next permutation until all permutations are done.
                                                   Returns the current token.
                 
                 Properties:
-                    (rw) [str] token            : Gets or sets the token. 
+                    (rw) [str] token            : Gets or sets the token.
                     (ro) [tuple] progress       : Returns the current progress and max value as a tuple.
                     (ro) [float] percent_done   : Returns the progress as a percentage.
                     (ro) [bool] done            : Returns True if the current token is the last token.
@@ -280,7 +279,7 @@ class Permute(object):
     def percent_done(self):
         """ Returns the progress in percent.
         """
-        return 100.0 * self._progress / self._prog_max 
+        return 100.0 * self._progress / self._prog_max
     
     
     @property
@@ -385,7 +384,7 @@ class Permute(object):
             #-- Seek token
             """ [ NOTE ]: Build stack and use Permute.permutations(token) to skip dead branches.     << [ INEFFICIENT ]
             """ # pylint: disable=pointless-string-statement
-            while self.token != token:  
+            while self.token != token:
                 self.inc()
             
             flag = True
@@ -425,8 +424,9 @@ class Shuffle(Incremental):
                                                   Returns the current token.
                 
                 Properties:
-                    (rw) [str] token            : Gets or sets the token. 
-                    (ro) [tuple] progress       : Returns the current progress and max value as a tuple.
+                    (rw) [str] token            : Gets or sets the token.
+                    (ro) [str] token_base       : Returns the chars of the token currently being permuted. (sorted)
+                    (ro) [int] progress         : Returns the current progress. (See self.__len__() for max value)
                     (ro) [float] percent_done   : Returns the progress as a percentage.
                     (ro) [bool] done            : Returns True if the current token is the last token.
     """
@@ -439,23 +439,147 @@ class Shuffle(Incremental):
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
-    #[None]
+    _chars      = []
+    _index      = []
+    
+    _token_flag = True  #-- Optimize property to skip rebuilding token every time it's called.
+    _token_base = ""
+    
+    _tumble     = None  #-- Will hold the Permute() object
+    _prog_max   = 1
+    _progress   = 0
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
-    #[None]
+    def __init__(self, chars, length=None, token=None, std_err=None):
+        """ Initializes the object. Either length or token are required.
+        """
+        #-- Inherit
+        Incremental.__init__(self, chars, length, token, std_err)
+    
+    
+    def __str__(self):
+        """ Returns a string containing the current token.
+        """
+        return "" if self._tumble is None else str(self._tumble)
+    
+    
+    def __len__(self):
+        """ Returns the current progress value of the token.
+        """
+        return Incremental.__len__(self)    #-- Inherited
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
-    #[None]
+    #-- Inherited: percent_done, done
+    @property
+    def token(self):
+        """ Returns the current token. """
+        return str(self)
+    @token.setter
+    def token(self, value):
+        """ Sets the token and resumes. """
+        if isinstance(value, str) and (str(self) != value) and (len(value) > 0):
+            i = 0
+            flag = True
+            while flag and (i < len(value)):
+                flag = value[i] in self._chars
+                i += 1
+                
+            if flag:
+                #-- Reset the indexes
+                self._index = [0 for _ in xrange(len(value))]
+                
+                #-- Set up the index to resume from
+                self._progress = 0
+                sort_value = "".join(sorted(value))
+                while self.token_base != sort_value:
+                    self._inc_base()
+                
+                if self.token_base != value:
+                    self._tumble.resume(value)
+                
+                #-- Set the maximum progress value
+                self._prog_max = 0
+                for _ in xrange(len(self._index)):
+                    self._prog_max = (self._prog_max * len(self._chars)) + len(self._chars) - 1
+                self._prog_max += 1
+            else:
+                self._error("ERROR: Supplied token [ {} ] contains bad chars. Using [ {} ]\n".format(value, str(self)))
+    
+    
+    @property
+    def token_base(self):
+        """ Returns the token currently being permuted.
+        """
+        if self._token_flag:
+            self._token_flag = False
+            self._token_base = Incremental.__str__(self)
+        return self._token_base
+    
+    
+    @property
+    def progress(self):
+        """ Returns the current progress. See also __len__ for max value.
+        """
+        return self._progress + self._tumble.progress
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
-    #[None]
+    def _inc_base(self):
+        """ Originally called smart_inc, _inc_base increments the base token in such a way that duplicates don't happen
+            in permutations. Also increments the base progress.
+        """
+        if (len(self._index) and len(self._chars)) > 0:
+            #-- Update progress base
+            self.progress += Permute.permutations(self.token_base)
+            
+            #-- Increment base token indexes
+            idx = len(self._index) - 1
+            while self._index[idx] + 1 == len(self._chars):
+                self._index[idx] = 0
+                idx -= 1
+            self._index[idx] += 1
+            
+            idx += 1
+            while idx < len(self._index):
+                self._index[idx] = self._index[idx - 1]
+            
+            self._token_flag = True
+            
+            #-- Set up new tumbler
+            self._tumble = Permute(self.token_base)
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
-    #[None]
+    #-- Inherited: resume(token)
+    
+    def reset(self):
+        """ Resets the token to position 0.
+        """
+        if (len(self._index) and len(self._chars)) > 0:
+            #-- Reset progress counter
+            self._progress = 0
+            
+            #-- Reset token base
+            for i in xrange(len(self._index)):
+                self._index[i] = 0
+            self._token_flag = True
+            
+            #-- Reset tumbler
+            self._tumble = Permute(self.token_base)
+    
+    
+    def inc(self):
+        """ Increments the tumbler until it's done. Once that happens, it increments the base token until the base token
+            is also complete. Returns the next token.
+        """
+        if (len(self._index) and len(self._chars)) > 0:
+            if not self._tumble.done:
+                self._tumble.inc()
+            else:
+                self._inc_base()
+        return str(self)
 
 
 #====================================================================================================[ ABACUS CLASS ]==
@@ -559,7 +683,7 @@ def debug():
         """
     
     #-- Pick and test a class for debugging.
-    idx=1
+    idx=2
     if idx == 0:
         test_incremental()
     elif idx == 1:
