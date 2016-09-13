@@ -125,7 +125,7 @@ class Incremental(object):
     def percent_done(self):
         """ Returns the progress in percent.
         """
-        return 100.0 * self._progress / self._prog_max
+        return 100.0 * self.progress / len(self)
     
     
     @property
@@ -224,14 +224,14 @@ class Permute(object):
         if isinstance(std_err, file) and (self._stderr is not std_err):
             self._stderr = std_err
         
-        #-- 
+        #-- Set up the token
         if isinstance(token, str) and (len(token) > 0):
             self.token = "".join(sorted(token))
             if self._prog_max == 0:
                 pass #-- User is a special needs case
             elif isinstance(resume, bool) and resume:
                 #-- Resume
-                self.resume(token)
+                self.token = token
     
     
     def __str__(self):
@@ -343,7 +343,7 @@ class Permute(object):
                 for idx in set_t:
                     factp *= math.factorial(token.count(idx))
                 result = math.factorial(len(token)) / factp
-        return result
+        return int(result)
 
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
@@ -485,9 +485,10 @@ class Shuffle(Incremental):
             while flag and (i < len(value)):
                 flag = value[i] in self._chars
                 i += 1
-                
+            
             if flag:
                 #-- Reset the indexes
+                self._token_flag = True
                 self._index = [0 for _ in xrange(len(value))]
                 
                 #-- Set up the index to resume from
@@ -496,7 +497,10 @@ class Shuffle(Incremental):
                 while self.token_base != sort_value:
                     self._inc_base()
                 
-                if self.token_base != value:
+                if (self._tumble is None):
+                    self._tumble = Permute(value)
+                
+                if (self.token_base != value):
                     self._tumble.resume(value)
                 
                 #-- Set the maximum progress value
@@ -532,7 +536,7 @@ class Shuffle(Incremental):
         """
         if (len(self._index) and len(self._chars)) > 0:
             #-- Update progress base
-            self.progress += Permute.permutations(self.token_base)
+            self._progress += Permute.permutations(self.token_base)
             
             #-- Increment base token indexes
             idx = len(self._index) - 1
@@ -544,6 +548,7 @@ class Shuffle(Incremental):
             idx += 1
             while idx < len(self._index):
                 self._index[idx] = self._index[idx - 1]
+                idx += 1
             
             self._token_flag = True
             
@@ -676,6 +681,10 @@ def debug():
         """
         test = Shuffle("abc", 3, std_err=sys.stderr)
         test.resume("bax")
+        test.resume("cbc")
+        
+        #-- Iteration test
+        dump(test)
     
     
     def test_abacus():
