@@ -497,10 +497,10 @@ class Shuffle(Incremental):
                 while self.token_base != sort_value:
                     self._inc_base()
                 
-                if (self._tumble is None):
+                if self._tumble is None:
                     self._tumble = Permute(value)
                 
-                if (self.token_base != value):
+                if self.token_base != value:
                     self._tumble.resume(value)
                 
                 #-- Set the maximum progress value
@@ -588,7 +588,7 @@ class Shuffle(Incremental):
 
 
 #====================================================================================================[ ABACUS CLASS ]==
-class Abacus(Incremental):
+class Abacus(Shuffle):
     """ The most basic brute force type class: Incremental. They don't get much simpler than this.
         
             EXPOSES:
@@ -596,16 +596,17 @@ class Abacus(Incremental):
                     [None]
                 
                 Methods:
-                    resume(token)           : Resumes from the specified token.
-                    reset()                 : Resets the token to position 0.
-                    inc()                   : Increments the brute-force token by one position. Overflow errors are
-                                              possible, and will perform a reset as well as raise a soft error.
+                    resume(token)               : Resumes from the specified token.
+                    reset()                     : Resets the token to position 0.
+                    inc()                       : Moves to the next permutation until all permutations are done.
+                                                  Returns the current token.
                 
                 Properties:
-                    (rw) [str] token        : Gets or sets the current token. The token supplied can only contain 
-                                              characters present in the charset supplied during init.
-                    (ro) [tuple] progress   : Returns the current progress and max value as a tuple.
-                    (ro) [bool] done        : Returns True if the current token is the last token.
+                    (rw) [str] token            : Gets or sets the token.
+                    (ro) [str] token_base       : Returns the chars of the token currently being permuted. (sorted)
+                    (ro) [int] progress         : Returns the current progress. (See self.__len__() for max value)
+                    (ro) [float] percent_done   : Returns the progress as a percentage.
+                    (ro) [bool] done            : Returns True if the current token is the last token.
     """
     #-- Constants -----------------------------------------------------------------------------------------------------
     #[None]
@@ -648,59 +649,48 @@ def debug():
             else:
                 break
     
-    
     def test_incremental():
         """ Tests the Incremental class.
         """
         test = Incremental("abc", 3, std_err=sys.stderr)
-        #test.resume("bax")  #-- Token resume failure test
-        #test.resume("bac")
         #test = Incremental("abc", token="abca")
         
-        #-- Iteration test
-        dump(test)
+        #test.resume("bax")      #-- Test invalid resume
+        #test.resume("bac")      #-- Test vlaid resume
         
-        #-- Overflow test
-        print "[", test.inc(), "] <- Overflow test"
-        
+        return test
     
     def test_permute():
         """ Tests the Permute class.
         """
         test = Permute("abcdefg")
-        test.resume("gfdceba")
-        #test.resume("bac")  #-- Resumes with current token
-        #test.resume("bax")  #-- Sets new token and resumes
+        test.resume("gfdceba")  #-- Test vlaid resume
         
-        #-- Iteration test
-        dump(test)
-    
+        #test.resume("bac")      #-- Test vlaid resume
+        #test.resume("bax")      #-- Test invalid resume
+        
+        return test
     
     def test_shuffle():
         """ Tests the Shuffle class.
         """
         test = Shuffle("abc", 3, std_err=sys.stderr)
-        test.resume("bax")
-        test.resume("cbc")
+        test.resume("cbc")      #-- Test vlaid resume
+        #test.resume("bax")      #-- est invalid resume
         
-        #-- Iteration test
-        dump(test)
-    
+        return test
     
     def test_abacus():
         """ Tests the Abacus class.
         """
+        test = Abacus("abcdef", 3, std_err=sys.stderr)
+        test.resume("fed")      #-- Test vlaid resume
+        #test.resume("bax")      #-- est invalid resume
+        
+        return test
     
     #-- Pick and test a class for debugging.
-    idx=2
-    if idx == 0:
-        test_incremental()
-    elif idx == 1:
-        test_permute()
-    elif idx == 2:
-        test_shuffle()
-    elif idx == 3:
-        test_abacus()
+    dump([test_incremental, test_permute, test_shuffle, test_abacus][3]())
         
 
 

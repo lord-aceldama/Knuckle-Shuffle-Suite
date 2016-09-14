@@ -2,7 +2,7 @@
     
     author: aceldama.v1.0 at gmail
     
-    Licensed under the GNU General Public License Version 2 (GNU GPL v2), 
+    Licensed under the GNU General Public License Version 2 (GNU GPL v2),
         available at: http://www.gnu.org/licenses/gpl-2.0.txt
     
     (C) 2016 David A Swanepoel
@@ -38,11 +38,11 @@ class Server(Thread):
                     send(data, [client_id]) : Sends data. If client_id was supplied, it will send the data only to that
                                               client, otherwise it broadcasts the data to all connected clients.
                     stop([finish_jobs])     : Stops the server and kills all connected clients. If finish_jobs was
-                                              supplied, it will either wait until all client send queues are empty if 
+                                              supplied, it will either wait until all client send queues are empty if
                                               the value was True, or wait a maximum of N seconds if it was an integer.
                 
                 Properties:
-                    (rw) [int] port         : Gets or sets the port the server will be listening on. If the server is 
+                    (rw) [int] port         : Gets or sets the port the server will be listening on. If the server is
                                               running, the port number becomes read-only.
                     (rw) [function] handler : The main async event handler function. Parameters that are passed are as
                                               follows: event(token, data)
@@ -57,10 +57,10 @@ class Server(Thread):
                         BUFFER_SIZE             : (int) Inherited from Server.DEFAULT['buffer'].
                     
                     Methods:
-                        send(data)              : Queues data to be sent to the client. The queue is handled by 
+                        send(data)              : Queues data to be sent to the client. The queue is handled by
                                                   self._check_queue which is run in a thread.
-                        kill([finish_jobs])     : Kills the socket. If finish_jobs was supplied, it will either 
-                                                  wait until all client send queues are empty if the value was 
+                        kill([finish_jobs])     : Kills the socket. If finish_jobs was supplied, it will either
+                                                  wait until all client send queues are empty if the value was
                                                   True, or wait a maximum of N seconds if it was an integer.
                     
                     Properties:
@@ -201,7 +201,7 @@ class Server(Thread):
         
         #-- Public Methods -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
         def send(self, data):
-            """ Queues data to be sent to the client. If the data to be sent is too big, it breaks it up into chunks 
+            """ Queues data to be sent to the client. If the data to be sent is too big, it breaks it up into chunks
                 and queues them as separate transmissions.
             """
             idx = 0
@@ -213,7 +213,7 @@ class Server(Thread):
         
         def kill(self, finish_jobs=False):
             """ Ends the thread and kills the socket. If finish_jobs is set to True, kill will
-                wait until all jobs are finished regardless of how long it takes. If it is an 
+                wait until all jobs are finished regardless of how long it takes. If it is an
                 integer, it will give the thread up to the amount of seconds specified.
             """
             #-- Send the terminate signal
@@ -499,7 +499,7 @@ class Client(Thread):
                                               last two values indicate what type of hostname was given. These are:
                                               0:None, 1:IPv4, 2:IPv6, 3:FQDN. The final value is a string or None,
                                               given by the previous int. Note that this function DOES NOT check whether
-                                              the hostname given was online, it just validates and identifies the 
+                                              the hostname given was online, it just validates and identifies the
                                               string.
                     
                     start()                 : Starts the server and sets up socket.
@@ -576,7 +576,7 @@ class Client(Thread):
             temp = Client.get_valid_hostname(value)
             if temp[0]:
                 if temp[1] != self._server['addr']:
-                    self._server['addr'] = temp[1] 
+                    self._server['addr'] = temp[1]
                 #pass   #-- Might possibly add the hostname type as well (ie. temp[2] and temp[3])
             else:
                 pass    #-- Might raise a warning here eventually...
@@ -685,7 +685,7 @@ class Client(Thread):
                     flag = (temp[-2:] == "..")                      #-- FQDNs cannot end in ".."
                     for x in temp.split("."):
                         #-- Stop the loop if a violation was found.
-                        if flag: 
+                        if flag:
                             break
                                                                     #-- Check that each domain label:
                         flag = ((len(x) == 0) and (len(x) > 63) or  #     - is between 1 and 63 chars long.
@@ -857,7 +857,6 @@ def debug():
         
     finally:
         test.stop()
-    
 
 
 #============================================================================================================[ MAIN ]==
