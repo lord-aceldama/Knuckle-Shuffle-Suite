@@ -178,7 +178,7 @@ class Incremental(object):
         return str(self)
 
 
-#===============================================================================================[ PERMUTATION CLASS ]==
+#===================================================================================================[ PERMUTE CLASS ]==
 class Permute(object):
     """ Calculates all unique permutations of a single given token string.
         
@@ -451,6 +451,7 @@ class Shuffle(Incremental):
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
+    #-- Inherited: __len__(self)
     def __init__(self, chars, length=None, token=None, std_err=None):
         """ Initializes the object. Either length or token are required.
         """
@@ -462,12 +463,6 @@ class Shuffle(Incremental):
         """ Returns a string containing the current token.
         """
         return "" if self._tumble is None else str(self._tumble)
-    
-    
-    def __len__(self):
-        """ Returns the current progress value of the token.
-        """
-        return Incremental.__len__(self)    #-- Inherited
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
@@ -558,7 +553,6 @@ class Shuffle(Incremental):
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
     #-- Inherited: resume(token)
-    
     def reset(self):
         """ Resets the token to position 0.
         """
@@ -588,7 +582,7 @@ class Shuffle(Incremental):
 
 
 #====================================================================================================[ ABACUS CLASS ]==
-class Abacus(Shuffle):
+class Abacus(Incremental):
     """ The most basic brute force type class: Incremental. They don't get much simpler than this.
         
             EXPOSES:
@@ -617,15 +611,38 @@ class Abacus(Shuffle):
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
-    #[None]
+    _chars      = []
+    _index      = []
+    
+    _choke      = []
+    _abacus     = []
+    _checked    = {}
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
-    #[None]
+    def __init__(self, chars, length=None, token=None, std_err=None):
+        """ Initializes the object. Either length or token are required.
+        """
+        Incremental.__init__(self, chars, length, token, std_err)
+    
+    
+    def __str__(self):
+        """ Returns the current token.
+        """
+        return self
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
-    #[None]
+    @property
+    def token(self):
+        """ Returns the current token. """
+        return str(self)
+    @token.setter
+    def token(self, value):
+        """ Sets the token and resumes. """
+        if isinstance(value, str) and (str(self) != value) and (len(value) > 0):
+            #-- Global variable initialization
+            self._checked = {char : set([]) for char in self._chars}
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
@@ -663,9 +680,10 @@ def debug():
     def test_permute():
         """ Tests the Permute class.
         """
-        test = Permute("abcdefg")
-        test.resume("gfdceba")  #-- Test vlaid resume
+        test = Permute("abcdefgh")
+        test.resume("hgfdceba")  #-- Test vlaid resume
         
+        #test = Permute("abc")
         #test.resume("bac")      #-- Test vlaid resume
         #test.resume("bax")      #-- Test invalid resume
         
@@ -690,8 +708,10 @@ def debug():
         return test
     
     #-- Pick and test a class for debugging.
-    dump([test_incremental, test_permute, test_shuffle, test_abacus][3]())
-        
+    try:
+        dump([test_incremental, test_permute, test_shuffle, test_abacus][2]())
+    except KeyboardInterrupt:
+        pass
 
 
 #============================================================================================================[ MAIN ]==
