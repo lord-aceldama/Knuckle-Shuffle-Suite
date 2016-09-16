@@ -611,12 +611,12 @@ class Abacus(Incremental):
     
     
     #-- Global Vars ---------------------------------------------------------------------------------------------------
-    _chars      = []
-    _index      = []
+    _chars  = []    #-- The full charset
+    _index  = []    #-- Indirect charset indexes. _index range optimized by _chokes.  ->  _chars[_abacus[_index[]]]
     
-    _choke      = []
-    _abacus     = []
-    _checked    = {}
+    _abacus = []    #-- Holds the abacus indexes so it is, effectively, a subset of _chars.
+    _chokes = []    #-- Holds the token per-position ranges for _index.
+    _checks = {}    #-- Keeps track of which chars have been checked against which. Needed to generate _chokes.
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
@@ -629,7 +629,10 @@ class Abacus(Incremental):
     def __str__(self):
         """ Returns the current token.
         """
-        return self
+        result = ""
+        if (len(self._chars) > 0) and (len(self._index) > 0):
+            result = "".join([self._chars[_abacus[idx]] for idx in self._index])
+        return result
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
@@ -642,7 +645,7 @@ class Abacus(Incremental):
         """ Sets the token and resumes. """
         if isinstance(value, str) and (str(self) != value) and (len(value) > 0):
             #-- Global variable initialization
-            self._checked = {char : set([]) for char in self._chars}
+            self.reset()
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
@@ -650,7 +653,17 @@ class Abacus(Incremental):
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
-    #[None]
+    def reset(self):
+        """ X """
+        if (len(self._index) and len(self._chars)) > 0:
+            #-- Reset tracker
+            self._checks = { char : set([]) for char in self._chars }
+            
+            #-- Reset abacus and indexes
+            self._abacus = range(len(self._index))
+            self._index  = range(len(self._index))
+        else:
+            pass #-- Not set up yet!
 
 
 #===========================================================================================================[ DEBUG ]==
