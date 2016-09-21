@@ -103,12 +103,10 @@ class Incremental(object):
                 self._index = [self._chars.index(value[i]) for i in xrange(len(value))]
                 
                 #-- Set the current and maximum progress values
-                self._prog_max = 0
+                self._prog_max = len(self._chars) ** len(self._index)
                 self._progress = 0
                 for idx in xrange(len(self._index)):
-                    self._prog_max = (self._prog_max * len(self._chars)) + len(self._chars) - 1
                     self._progress = (self._progress * len(self._chars)) + self._index[idx]
-                self._prog_max += 1
                 self._progress += 1
             else:
                 self._error("ERROR: Supplied token [ {} ] contains bad chars. Using [ {} ]\n".format(value, str(self)))
@@ -249,11 +247,11 @@ class Permute(object):
     #-- Properties ----------------------------------------------------------------------------------------------------
     @property
     def token(self):
-        """ Returns the name. """
+        """ Returns the current token. """
         return str(self)
     @token.setter
     def token(self, value):
-        """ Sets the name. """
+        """ Sets the current token. """
         if isinstance(value, str) and (len(value) > 0) and (str(self) != value):
             #-- Empty the stack
             while len(self._stack):
@@ -486,6 +484,9 @@ class Shuffle(Incremental):
                 self._token_flag = True
                 self._index = [0 for _ in xrange(len(value))]
                 
+                #-- Set the maximum progress value
+                self._prog_max = len(self._chars) ** len(self._index)
+                
                 #-- Set up the index to resume from
                 self._progress = 0
                 sort_value = "".join(sorted(value))
@@ -497,12 +498,6 @@ class Shuffle(Incremental):
                 
                 if self.token_base != value:
                     self._tumble.resume(value)
-                
-                #-- Set the maximum progress value
-                self._prog_max = 0
-                for _ in xrange(len(self._index)):
-                    self._prog_max = (self._prog_max * len(self._chars)) + len(self._chars) - 1
-                self._prog_max += 1
             else:
                 self._error("ERROR: Supplied token [ {} ] contains bad chars. Using [ {} ]\n".format(value, str(self)))
     
@@ -616,10 +611,15 @@ class Abacus(Incremental):
     
     _abacus = []    #-- Holds the abacus indexes so it is, effectively, a subset of _chars.
     _chokes = []    #-- Holds the token per-position ranges for _index.
-    _checks = {}    #-- Keeps track of which chars have been checked against which. Needed to generate _chokes.
+    _checks = []    #-- Keeps track of which chars have been checked against which. Needed to generate _chokes.
+    
+    _tumble     = None  #-- Will hold the Permute() object
+    _prog_max   = 1
+    _progress   = 0
     
     
     #-- Special Class Methods -----------------------------------------------------------------------------------------
+    #Inherited: __len__(self)
     def __init__(self, chars, length=None, token=None, std_err=None):
         """ Initializes the object. Either length or token are required.
         """
@@ -629,10 +629,10 @@ class Abacus(Incremental):
     def __str__(self):
         """ Returns the current token.
         """
-        result = ""
-        if (len(self._chars) > 0) and (len(self._index) > 0):
-            result = "".join([self._chars[_abacus[idx]] for idx in self._index])
-        return result
+        #result = ""
+        #if (len(self._chars) > 0) and (len(self._index) > 0):
+        #    result = "".join([self._chars[self._abacus[idx]] for idx in self._index])
+        return str(self._tumble)#result
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
@@ -645,25 +645,150 @@ class Abacus(Incremental):
         """ Sets the token and resumes. """
         if isinstance(value, str) and (str(self) != value) and (len(value) > 0):
             #-- Global variable initialization
+            if len(self._index) != len(value):
+                self._index = [0] * len(value)
             self.reset()
+            
+            #-- Find point from which to resume
+            #while self._abacus
+    
+    
+    @property
+    def progress(self):
+        """ Returns the current progress. See also __len__ for max value.
+        """
+        return self._progress + self._tumble.progress
+    
+    
+    @property
+    def base_token(self):
+        """ Returns the current base token.
+        """
+        token = ""
+        for idx in range(len(self._index)):
+            token += self._chars[self._chokes[idx][self._index[idx]]]
+        return token
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
-    #[None]
+    def _inc(self):
+        """ X """
+        idx  = len(self._index) - 1
+        self._index[idx] += 1
+        while (idx >= 0) and (self._index[idx] >= len(self._chokes[idx])):
+            self._index[idx] = 0
+            idx -= 1
+            self._index[idx] += 1
+        
+        if idx >= 0:
+            #-- Iron out the indexes to avoid duplicate shuffles.
+            idx += 1
+            while idx < len(self._index):
+                self._index[idx] = min(self._index[idx - 1], len(self._chokes[idx]) - 1)
+                idx += 1
+        return idx == len(self._index)
+
+    
+    
+    def _inc_abacus(self):
+        """ X
+        """
+        #-- Update checked characters dictionary.
+        for idx in self._abacus:
+            self._checks[idx].update(self._abacus)
+        
+        #-- Perform the abacus shift operation.
+        if (self._abacus[-1] + 1) < len(self._chars):
+            #-- Shift the abacus one position on
+            for idx in range(len(self._abacus)):
+                self._abacus[idx] += 1
+        else:
+            #-- Shift the entire abacus back to first position.
+            idx = len(self._abacus)
+            while idx > 0:
+                idx -= 1
+                self._abacus[idx] -= self._abacus[0]
+            
+            #-- Progress the abacus.                # xooo
+            self._abacus[1] += 1                                            #-- [0] is static, inc index [1]
+            if (len(self._abacus) > 2) and (self._abacus[1] == self._abacus[2]):
+                #-- Index collision detected!       # x-8o          x-8-o
+                idx = 2
+                flr = 1
+                while (idx < len(self._abacus)) and (self._abacus[idx - 1] == self._abacus[idx]):
+                    self._abacus[idx - 1] = flr     # xooo  xooo    xoo-o   #-- Move colliding value to floor.
+                    flr += 1                        #  || // ||      ||     #-- Increment floor position.
+                    self._abacus[idx] += 1          # xo-8  xoo-o   xo-oo   #-- Increment checked value.
+                    idx += 1                                                #-- Increment position to check.
+        
+        #-- Zero out indexes
+        self._index = [0] * len(self._abacus)
+        
+        #-- Build new index chokes
+        empty_sets      = 0
+        partial_sets    = 0
+        complete_sets   = 0
+        for idx in self._abacus:
+            if self._checks[idx].issuperset(self._abacus):
+                complete_sets += 1
+            elif len(self._checks[idx]) == 0:
+                empty_sets += 1
+            else:
+                partial_sets += 1
+        
+        self._chokes = [list(self._abacus) for _ in range(len(self._abacus))]
+        if complete_sets < len(self._abacus):
+            #-- Last index is static
+            self._chokes[-1] = [self._chokes[-1][-1]]
+            if (partial_sets > 1) and (empty_sets == 0):
+                #-- First index is also static
+                self._chokes[0] = [self._chokes[0][0]]
+        print " >>", self._chokes
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
+    #-- Inherited: resume(token)
     def reset(self):
-        """ X """
+        """ X
+        """
         if (len(self._index) and len(self._chars)) > 0:
+            #-- Reset progress
+            self._prog_max = len(self._chars) ** len(self._index)
+            self._progress = 0
+            
             #-- Reset tracker
-            self._checks = { char : set([]) for char in self._chars }
+            self._checks = [set([]) for _ in self._chars]
             
             #-- Reset abacus and indexes
-            self._abacus = range(len(self._index))
-            self._index  = range(len(self._index))
+            self._abacus = range(min(len(self._index), len(self._chars)))
+            self._index  = [0] * len(self._index)
+            
+            #-- Reset chokes (first set of brutes will not be choked)
+            self._chokes = [list(self._abacus) for _ in range(len(self._index))]
+            
+            #-- Reset Tumbler
+            self._tumble = Permute(self.base_token)
         else:
-            pass #-- Not set up yet!
+            pass #-- Object not set up yet!
+    
+    
+    def inc(self):
+        """ X
+        """
+        #-- Update checked characters dictionary.
+        if (len(self._index) and len(self._chars)) > 0:
+            if self._tumble.done:
+                #-- Perform an inc and check if we need to shift the abacus.
+                if not self._inc():
+                    #-- Yes, shift the abacus.
+                    print ">> WIBBLE!!"
+                    self._inc_abacus()
+                
+                #-- Update progress and tumbler
+                self._progress += len(self._tumble)
+                self._tumble = Permute(self.base_token)
+            else:
+                self._tumble.inc()
 
 
 #===========================================================================================================[ DEBUG ]==
@@ -673,7 +798,7 @@ def debug():
         """ Prints all values in test.
         """
         for _ in range(len(test)):
-            print "[ {} ] {:3.2f}% ({}/{})".format(test, test.percent_done, test.progress, len(test))
+            print "[ {} ] {:.2f}% ({}/{})".format(test, test.percent_done, test.progress, len(test))
             if not test.done:
                 test.inc()
             else:
@@ -714,15 +839,16 @@ def debug():
     def test_abacus():
         """ Tests the Abacus class.
         """
-        test = Abacus("abcdef", 3, std_err=sys.stderr)
-        test.resume("fed")      #-- Test vlaid resume
+        test = Abacus("abcde", 3)
+        #test = Abacus("abcdef", 3, std_err=sys.stderr)
+        #test.resume("fed")      #-- Test vlaid resume
         #test.resume("bax")      #-- est invalid resume
         
         return test
     
     #-- Pick and test a class for debugging.
     try:
-        dump([test_incremental, test_permute, test_shuffle, test_abacus][2]())
+        dump([test_incremental, test_permute, test_shuffle, test_abacus][3]())
     except KeyboardInterrupt:
         pass
 

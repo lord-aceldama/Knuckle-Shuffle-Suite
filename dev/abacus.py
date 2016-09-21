@@ -475,7 +475,7 @@ class Abacus(object):
 def test_abacus():
     """ Test run """
     #shuffle = Shuffle()
-    #test = Abacus("abcde", token_length = 3)
+    test = Abacus("abcde", token_length = 3)
     
     #test = Abacus("abcde", token_length = 4)
     #test = Abacus("abcde", "acde", "acde")
@@ -487,7 +487,7 @@ def test_abacus():
     #test = Abacus("01adoprswxyz", "1adoprssw", "01adoprsw", token_length=len("password1"))
     #test = Abacus("0123456789abcdef", "abcd", "abcd", 4)
     #test = Abacus("0123456789abcdef", token_length=6)
-    test = Abacus("abc", token_length=3)
+    #test = Abacus("abc", token_length=3)
     
     stop = 0
     while not (test.done() or (stop < 0)):
