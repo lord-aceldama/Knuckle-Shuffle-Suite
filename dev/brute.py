@@ -12,7 +12,7 @@
 import sys
 import math
 from xifo import DictStack
-
+import traceback
 
 #===============================================================================================[ INCREMENTAL CLASS ]==
 class Incremental(object):
@@ -223,6 +223,7 @@ class Permute(object):
             self._stderr = std_err
         
         #-- Set up the token
+        _stack = DictStack(token="", prefix="", idx = 0)
         if isinstance(token, str) and (len(token) > 0):
             self.token = "".join(sorted(token))
             if self._prog_max == 0:
@@ -252,7 +253,7 @@ class Permute(object):
     @token.setter
     def token(self, value):
         """ Sets the current token. """
-        if isinstance(value, str) and (len(value) > 0) and (str(self) != value):
+        if isinstance(value, str) and (len(value) > 0) and (str(self) != value) or (self._progress != 1):
             #-- Empty the stack
             while len(self._stack):
                 self._stack.pop()
@@ -632,25 +633,34 @@ class Abacus(Incremental):
         #result = ""
         #if (len(self._chars) > 0) and (len(self._index) > 0):
         #    result = "".join([self._chars[self._abacus[idx]] for idx in self._index])
-        return str(self._tumble)#result
+        return str(self._tumble) if self._tumble is not None else ""
     
     
     #-- Properties ----------------------------------------------------------------------------------------------------
     @property
     def token(self):
         """ Returns the current token. """
-        return str(self)
+        return str(self) if str(self) is not None else ""
     @token.setter
     def token(self, value):
         """ Sets the token and resumes. """
         if isinstance(value, str) and (str(self) != value) and (len(value) > 0):
-            #-- Global variable initialization
-            if len(self._index) != len(value):
-                self._index = [0] * len(value)
-            self.reset()
-            
-            #-- Find point from which to resume
-            #while self._abacus
+            seek_token = set(value)
+            if seek_token.issubset(self._chars):
+                #-- Global variable initialization
+                if (len(self._index) != len(value)) or (len(self._abacus) != len(value)):
+                    self._index = range(len(value))
+                    self._index = [0] * len(value)
+                self.reset()
+
+                #-- Find point from which to resume
+                seek_token = set([self._chars.index(char) for char in value])
+                while not seek_token.issubset(self._abacus):
+                    self.inc()
+                    #print self.progress, self._chars, self._abacus, self._index, seek_token
+                
+                #-- Init the tumbler
+                self._tumble.resume(value)
     
     
     @property
@@ -665,34 +675,61 @@ class Abacus(Incremental):
         """ Returns the current base token.
         """
         token = ""
-        for idx in range(len(self._index)):
-            token += self._chars[self._chokes[idx][self._index[idx]]]
+        for idx in self._index:
+            token += self._chars[self._abacus[idx]]
         return token
+    
+    
+    @property
+    def done(self):
+        """ Returns true if the current progress equals the maximum progress.
+        """
+        return self.progress == len(self)
     
     
     #-- Private Methods -----------------------------------------------------------------------------------------------
     def _inc(self):
-        """ X """
+        """ Tries to perform an increment on the indexes and returns True if an overflow was not encountered.
+        """
         idx  = len(self._index) - 1
         self._index[idx] += 1
         while (idx >= 0) and (self._index[idx] >= len(self._chokes[idx])):
-            self._index[idx] = 0
+            self._index[idx] = self._chokes[idx][0]
             idx -= 1
             self._index[idx] += 1
         
         if idx >= 0:
             #-- Iron out the indexes to avoid duplicate shuffles.
+            print ""
             idx += 1
             while idx < len(self._index):
-                self._index[idx] = min(self._index[idx - 1], len(self._chokes[idx]) - 1)
+                self._index[idx] = max(self._index[idx - 1], self._index[idx])
                 idx += 1
+            
         return idx == len(self._index)
 
     
-    
-    def _inc_abacus(self):
-        """ X
+    def _abacus_digest(self):
+        """ Returns a tuple containg number of unchecked, partially checked and fully checked characters.
         """
+        empty_sets      = 0
+        partial_sets    = 0
+        complete_sets   = 0
+        for idx in self._abacus:
+            if self._checks[idx].issuperset(self._abacus):
+                complete_sets += 1
+            elif len(self._checks[idx]) == 0:
+                empty_sets += 1
+            else:
+                partial_sets += 1
+        return (empty_sets, partial_sets, complete_sets)
+
+        
+    def _inc_abacus(self):
+        """ Shifts the abacus indexes and updates the progress, chokes and 
+        """
+        print "\n\n--[ WIBBLE ]----------------------------------------------"
+        print [self._chars[idx] for idx in self._abacus]
         #-- Update checked characters dictionary.
         for idx in self._abacus:
             self._checks[idx].update(self._abacus)
@@ -721,29 +758,41 @@ class Abacus(Incremental):
                     self._abacus[idx] += 1          # xo-8  xoo-o   xo-oo   #-- Increment checked value.
                     idx += 1                                                #-- Increment position to check.
         
-        #-- Zero out indexes
-        self._index = [0] * len(self._abacus)
-        
         #-- Build new index chokes
-        empty_sets      = 0
-        partial_sets    = 0
-        complete_sets   = 0
-        for idx in self._abacus:
-            if self._checks[idx].issuperset(self._abacus):
-                complete_sets += 1
-            elif len(self._checks[idx]) == 0:
-                empty_sets += 1
-            else:
-                partial_sets += 1
+        empty_sets, partial_sets, complete_sets = self._abacus_digest()
+        #for idx in self._abacus:
+        #    if self._checks[idx].issuperset(self._abacus):
+        #        complete_sets += 1
+        #    elif len(self._checks[idx]) == 0:
+        #        empty_sets += 1
+        #    else:
+        #        partial_sets += 1
         
-        self._chokes = [list(self._abacus) for _ in range(len(self._abacus))]
         if complete_sets < len(self._abacus):
-            #-- Last index is static
-            self._chokes[-1] = [self._chokes[-1][-1]]
-            if (partial_sets > 1) and (empty_sets == 0):
-                #-- First index is also static
-                self._chokes[0] = [self._chokes[0][0]]
-        print " >>", self._chokes
+            #-- Create a full chokes list
+            self._chokes = [range(len(self._abacus)) for _ in self._abacus]
+
+            if empty_sets < len(self._abacus):
+                #-- Last index is always static after the initial set
+                self._chokes[-1] = [self._chokes[-1][-1]]
+                if (partial_sets > 1) and (empty_sets == 0):
+                    #-- First index is also static
+                    self._chokes[0] = [self._chokes[0][0]]
+        else:
+            self._chokes = [[idx] for idx in range(len(self._abacus))]
+            
+        
+        #-- Zero out indexes
+        self._index = [self._chokes[idx][0] for idx in range(len(self._chokes))]
+        
+        #--Debugging...
+        print [self._chars[idx] for idx in self._abacus]
+        print empty_sets, partial_sets, complete_sets, ":", self._chokes
+        print
+        for idx in range(len(self._checks)):
+            fmt = "[{}] :" if idx in self._abacus else " {}  :"
+            print fmt.format(self._chars[idx]), [self._chars[idx] for idx in sorted(self._checks[idx])]
+        print
     
     
     #-- Public Methods ------------------------------------------------------------------------------------------------
@@ -756,6 +805,7 @@ class Abacus(Incremental):
             self._prog_max = len(self._chars) ** len(self._index)
             self._progress = 0
             
+            print " >>", len(self._chars), len(self._index), len(self._chars) ** len(self._index)
             #-- Reset tracker
             self._checks = [set([]) for _ in self._chars]
             
@@ -781,7 +831,6 @@ class Abacus(Incremental):
                 #-- Perform an inc and check if we need to shift the abacus.
                 if not self._inc():
                     #-- Yes, shift the abacus.
-                    print ">> WIBBLE!!"
                     self._inc_abacus()
                 
                 #-- Update progress and tumbler
@@ -839,10 +888,46 @@ def debug():
     def test_abacus():
         """ Tests the Abacus class.
         """
-        test = Abacus("abcde", 3)
-        #test = Abacus("abcdef", 3, std_err=sys.stderr)
-        #test.resume("fed")      #-- Test vlaid resume
+        #test = Abacus("abcde", 3)
+        #test.resume("gaff")      #-- Test vlaid resume
+        #test.resume("eaa")      #-- Test vlaid resume
         #test.resume("bax")      #-- est invalid resume
+        
+        hold = []
+        test = Shuffle("abcdefg", 4)
+        while not test.done:
+            hold.append(str(test))
+            test.inc()
+        hold.append(str(test))
+        try:
+            test = Abacus("abcdefg", 4)#, std_err=sys.stderr)
+            for i in range(len(hold)):
+                print "[ {}/{} ] {:.2f}% ({}/{})".format(test.base_token, test, test.percent_done, test.progress, len(test))
+                hold.pop(hold.index(str(test)))
+                test.inc()
+        except Exception, e:
+            sets = sorted(set(["".join(sorted(token)) for token in hold]))
+
+            print "\n\n[{} orphans]".format(len(hold))
+            while len(hold):
+                i = 0
+                tmp = hold.pop(0)
+                while len(hold) and (i < 19):
+                    tmp += "  " + hold.pop(0)
+                    i += 1
+                print tmp
+                
+            print "\n\n[{} sets]".format(len(sets))
+            while len(sets):
+                i = 0
+                tmp = sets.pop(0)
+                while len(sets) and (i < 19):
+                    tmp += "  " + sets.pop(0)
+                    i += 1
+                print tmp
+                
+            traceback.print_exc()
+            exit(0)
         
         return test
     
