@@ -74,15 +74,19 @@ while not flag:
         perms = Permute.permutations(token)
         count += perms
         print " ", token, "[{}]".format(perms)
-        #if perms > 1:
-        #    shuffle = Permute(token)
-        #    while not shuffle.done:
-        #        print "    ", shuffle
-        #        shuffle.inc()
-        #    print "    ", shuffle
-            
+        if perms > 1:
+            shuffle = Permute(token)
+            while not shuffle.done:
+                prn = "  "
+                while (not shuffle.done) and (len(prn) < 50):
+                    prn += "  " + str(shuffle)
+                    shuffle.inc()
+                if shuffle.done:
+                    print prn, "", shuffle
+                else:
+                    print prn
     
-    print "TOTAL:", count 
+    print "TOTAL:", count, "\n"
     total += count
     
     flag = is_done(abacus)
