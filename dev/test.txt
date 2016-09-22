@@ -7,45 +7,60 @@ abcd--- [35]
   aaad [4]
     aaad  aada  adaa  daaa
   aabb [6]
-    aabb  abab  abba  baab  baba  bbaa
+    aabb  abab  abba  baab
+    baba  bbaa
   aabc [12]
-    aabc  aacb  abac  abca  acab  acba  baac  baca
+    aabc  aacb  abac  abca
+    acab  acba  baac  baca
     bcaa  caab  caba  cbaa
   aabd [12]
-    aabd  aadb  abad  abda  adab  adba  baad  bada
+    aabd  aadb  abad  abda
+    adab  adba  baad  bada
     bdaa  daab  daba  dbaa
   aacc [6]
-    aacc  acac  acca  caac  caca  ccaa
+    aacc  acac  acca  caac
+    caca  ccaa
   aacd [12]
-    aacd  aadc  acad  acda  adac  adca  caad  cada
+    aacd  aadc  acad  acda
+    adac  adca  caad  cada
     cdaa  daac  daca  dcaa
   aadd [6]
-    aadd  adad  adda  daad  dada  ddaa
+    aadd  adad  adda  daad
+    dada  ddaa
   abbb [4]
     abbb  babb  bbab  bbba
   abbc [12]
-    abbc  abcb  acbb  babc  bacb  bbac  bbca  bcab
+    abbc  abcb  acbb  babc
+    bacb  bbac  bbca  bcab
     bcba  cabb  cbab  cbba
   abbd [12]
-    abbd  abdb  adbb  babd  badb  bbad  bbda  bdab
+    abbd  abdb  adbb  babd
+    badb  bbad  bbda  bdab
     bdba  dabb  dbab  dbba
   abcc [12]
-    abcc  acbc  accb  bacc  bcac  bcca  cabc  cacb
+    abcc  acbc  accb  bacc
+    bcac  bcca  cabc  cacb
     cbac  cbca  ccab  ccba
   abcd [24]
-    abcd  abdc  acbd  acdb  adbc  adcb  bacd  badc
-    bcad  bcda  bdac  bdca  cabd  cadb  cbad  cbda
-    cdab  cdba  dabc  dacb  dbac  dbca  dcab  dcba
+    abcd  abdc  acbd  acdb
+    adbc  adcb  bacd  badc
+    bcad  bcda  bdac  bdca
+    cabd  cadb  cbad  cbda
+    cdab  cdba  dabc  dacb
+    dbac  dbca  dcab  dcba
   abdd [12]
-    abdd  adbd  addb  badd  bdad  bdda  dabd  dadb
+    abdd  adbd  addb  badd
+    bdad  bdda  dabd  dadb
     dbad  dbda  ddab  ddba
   accc [4]
     accc  cacc  ccac  ccca
   accd [12]
-    accd  acdc  adcc  cacd  cadc  ccad  ccda  cdac
+    accd  acdc  adcc  cacd
+    cadc  ccad  ccda  cdac
     cdca  dacc  dcac  dcca
   acdd [12]
-    acdd  adcd  addc  cadd  cdad  cdda  dacd  dadc
+    acdd  adcd  addc  cadd
+    cdad  cdda  dacd  dadc
     dcad  dcda  ddac  ddca
   addd [4]
     addd  dadd  ddad  ddda
@@ -55,19 +70,24 @@ abcd--- [35]
   bbbd [4]
     bbbd  bbdb  bdbb  dbbb
   bbcc [6]
-    bbcc  bcbc  bccb  cbbc  cbcb  ccbb
+    bbcc  bcbc  bccb  cbbc
+    cbcb  ccbb
   bbcd [12]
-    bbcd  bbdc  bcbd  bcdb  bdbc  bdcb  cbbd  cbdb
+    bbcd  bbdc  bcbd  bcdb
+    bdbc  bdcb  cbbd  cbdb
     cdbb  dbbc  dbcb  dcbb
   bbdd [6]
-    bbdd  bdbd  bddb  dbbd  dbdb  ddbb
+    bbdd  bdbd  bddb  dbbd
+    dbdb  ddbb
   bccc [4]
     bccc  cbcc  ccbc  cccb
   bccd [12]
-    bccd  bcdc  bdcc  cbcd  cbdc  ccbd  ccdb  cdbc
+    bccd  bcdc  bdcc  cbcd
+    cbdc  ccbd  ccdb  cdbc
     cdcb  dbcc  dcbc  dccb
   bcdd [12]
-    bcdd  bdcd  bddc  cbdd  cdbd  cddb  dbcd  dbdc
+    bcdd  bdcd  bddc  cbdd
+    cdbd  cddb  dbcd  dbdc
     dcbd  dcdb  ddbc  ddcb
   bddd [4]
     bddd  dbdd  ddbd  dddb
@@ -75,7 +95,8 @@ abcd--- [35]
   cccd [4]
     cccd  ccdc  cdcc  dccc
   ccdd [6]
-    ccdd  cdcd  cddc  dccd  dcdc  ddcc
+    ccdd  cdcd  cddc  dccd
+    dcdc  ddcc
   cddd [4]
     cddd  dcdd  ddcd  dddc
   dddd [1]
@@ -86,50 +107,65 @@ TOTAL: 256
   bbbe [4]
     bbbe  bbeb  bebb  ebbb
   bbce [12]
-    bbce  bbec  bcbe  bceb  bebc  becb  cbbe  cbeb
+    bbce  bbec  bcbe  bceb
+    bebc  becb  cbbe  cbeb
     cebb  ebbc  ebcb  ecbb
   bbde [12]
-    bbde  bbed  bdbe  bdeb  bebd  bedb  dbbe  dbeb
+    bbde  bbed  bdbe  bdeb
+    bebd  bedb  dbbe  dbeb
     debb  ebbd  ebdb  edbb
   bbee [6]
-    bbee  bebe  beeb  ebbe  ebeb  eebb
+    bbee  bebe  beeb  ebbe
+    ebeb  eebb
   bcce [12]
-    bcce  bcec  becc  cbce  cbec  ccbe  cceb  cebc
+    bcce  bcec  becc  cbce
+    cbec  ccbe  cceb  cebc
     cecb  ebcc  ecbc  eccb
   bcde [24]
-    bcde  bced  bdce  bdec  becd  bedc  cbde  cbed
-    cdbe  cdeb  cebd  cedb  dbce  dbec  dcbe  dceb
-    debc  decb  ebcd  ebdc  ecbd  ecdb  edbc  edcb
+    bcde  bced  bdce  bdec
+    becd  bedc  cbde  cbed
+    cdbe  cdeb  cebd  cedb
+    dbce  dbec  dcbe  dceb
+    debc  decb  ebcd  ebdc
+    ecbd  ecdb  edbc  edcb
   bcee [12]
-    bcee  bece  beec  cbee  cebe  ceeb  ebce  ebec
+    bcee  bece  beec  cbee
+    cebe  ceeb  ebce  ebec
     ecbe  eceb  eebc  eecb
   bdde [12]
-    bdde  bded  bedd  dbde  dbed  ddbe  ddeb  debd
+    bdde  bded  bedd  dbde
+    dbed  ddbe  ddeb  debd
     dedb  ebdd  edbd  eddb
   bdee [12]
-    bdee  bede  beed  dbee  debe  deeb  ebde  ebed
+    bdee  bede  beed  dbee
+    debe  deeb  ebde  ebed
     edbe  edeb  eebd  eedb
   beee [4]
     beee  ebee  eebe  eeeb
   ccce [4]
     ccce  ccec  cecc  eccc
   ccde [12]
-    ccde  cced  cdce  cdec  cecd  cedc  dcce  dcec
+    ccde  cced  cdce  cdec
+    cecd  cedc  dcce  dcec
     decc  eccd  ecdc  edcc
   ccee [6]
-    ccee  cece  ceec  ecce  ecec  eecc
+    ccee  cece  ceec  ecce
+    ecec  eecc
   cdde [12]
-    cdde  cded  cedd  dcde  dced  ddce  ddec  decd
+    cdde  cded  cedd  dcde
+    dced  ddce  ddec  decd
     dedc  ecdd  edcd  eddc
   cdee [12]
-    cdee  cede  ceed  dcee  dece  deec  ecde  eced
+    cdee  cede  ceed  dcee
+    dece  deec  ecde  eced
     edce  edec  eecd  eedc
   ceee [4]
     ceee  ecee  eece  eeec
   ddde [4]
     ddde  dded  dedd  eddd
   ddee [6]
-    ddee  dede  deed  edde  eded  eedd
+    ddee  dede  deed  edde
+    eded  eedd
   deee [4]
     deee  edee  eede  eeed
   eeee [1]
@@ -140,50 +176,65 @@ TOTAL: 175
   cccf [4]
     cccf  ccfc  cfcc  fccc
   ccdf [12]
-    ccdf  ccfd  cdcf  cdfc  cfcd  cfdc  dccf  dcfc
+    ccdf  ccfd  cdcf  cdfc
+    cfcd  cfdc  dccf  dcfc
     dfcc  fccd  fcdc  fdcc
   ccef [12]
-    ccef  ccfe  cecf  cefc  cfce  cfec  eccf  ecfc
+    ccef  ccfe  cecf  cefc
+    cfce  cfec  eccf  ecfc
     efcc  fcce  fcec  fecc
   ccff [6]
-    ccff  cfcf  cffc  fccf  fcfc  ffcc
+    ccff  cfcf  cffc  fccf
+    fcfc  ffcc
   cddf [12]
-    cddf  cdfd  cfdd  dcdf  dcfd  ddcf  ddfc  dfcd
+    cddf  cdfd  cfdd  dcdf
+    dcfd  ddcf  ddfc  dfcd
     dfdc  fcdd  fdcd  fddc
   cdef [24]
-    cdef  cdfe  cedf  cefd  cfde  cfed  dcef  dcfe
-    decf  defc  dfce  dfec  ecdf  ecfd  edcf  edfc
-    efcd  efdc  fcde  fced  fdce  fdec  fecd  fedc
+    cdef  cdfe  cedf  cefd
+    cfde  cfed  dcef  dcfe
+    decf  defc  dfce  dfec
+    ecdf  ecfd  edcf  edfc
+    efcd  efdc  fcde  fced
+    fdce  fdec  fecd  fedc
   cdff [12]
-    cdff  cfdf  cffd  dcff  dfcf  dffc  fcdf  fcfd
+    cdff  cfdf  cffd  dcff
+    dfcf  dffc  fcdf  fcfd
     fdcf  fdfc  ffcd  ffdc
   ceef [12]
-    ceef  cefe  cfee  ecef  ecfe  eecf  eefc  efce
+    ceef  cefe  cfee  ecef
+    ecfe  eecf  eefc  efce
     efec  fcee  fece  feec
   ceff [12]
-    ceff  cfef  cffe  ecff  efcf  effc  fcef  fcfe
+    ceff  cfef  cffe  ecff
+    efcf  effc  fcef  fcfe
     fecf  fefc  ffce  ffec
   cfff [4]
     cfff  fcff  ffcf  fffc
   dddf [4]
     dddf  ddfd  dfdd  fddd
   ddef [12]
-    ddef  ddfe  dedf  defd  dfde  dfed  eddf  edfd
+    ddef  ddfe  dedf  defd
+    dfde  dfed  eddf  edfd
     efdd  fdde  fded  fedd
   ddff [6]
-    ddff  dfdf  dffd  fddf  fdfd  ffdd
+    ddff  dfdf  dffd  fddf
+    fdfd  ffdd
   deef [12]
-    deef  defe  dfee  edef  edfe  eedf  eefd  efde
+    deef  defe  dfee  edef
+    edfe  eedf  eefd  efde
     efed  fdee  fede  feed
   deff [12]
-    deff  dfef  dffe  edff  efdf  effd  fdef  fdfe
+    deff  dfef  dffe  edff
+    efdf  effd  fdef  fdfe
     fedf  fefd  ffde  ffed
   dfff [4]
     dfff  fdff  ffdf  fffd
   eeef [4]
     eeef  eefe  efee  feee
   eeff [6]
-    eeff  efef  effe  feef  fefe  ffee
+    eeff  efef  effe  feef
+    fefe  ffee
   efff [4]
     efff  feff  ffef  fffe
   ffff [1]
@@ -194,50 +245,65 @@ TOTAL: 175
   dddg [4]
     dddg  ddgd  dgdd  gddd
   ddeg [12]
-    ddeg  ddge  dedg  degd  dgde  dged  eddg  edgd
+    ddeg  ddge  dedg  degd
+    dgde  dged  eddg  edgd
     egdd  gdde  gded  gedd
   ddfg [12]
-    ddfg  ddgf  dfdg  dfgd  dgdf  dgfd  fddg  fdgd
+    ddfg  ddgf  dfdg  dfgd
+    dgdf  dgfd  fddg  fdgd
     fgdd  gddf  gdfd  gfdd
   ddgg [6]
-    ddgg  dgdg  dggd  gddg  gdgd  ggdd
+    ddgg  dgdg  dggd  gddg
+    gdgd  ggdd
   deeg [12]
-    deeg  dege  dgee  edeg  edge  eedg  eegd  egde
+    deeg  dege  dgee  edeg
+    edge  eedg  eegd  egde
     eged  gdee  gede  geed
   defg [24]
-    defg  degf  dfeg  dfge  dgef  dgfe  edfg  edgf
-    efdg  efgd  egdf  egfd  fdeg  fdge  fedg  fegd
-    fgde  fged  gdef  gdfe  gedf  gefd  gfde  gfed
+    defg  degf  dfeg  dfge
+    dgef  dgfe  edfg  edgf
+    efdg  efgd  egdf  egfd
+    fdeg  fdge  fedg  fegd
+    fgde  fged  gdef  gdfe
+    gedf  gefd  gfde  gfed
   degg [12]
-    degg  dgeg  dgge  edgg  egdg  eggd  gdeg  gdge
+    degg  dgeg  dgge  edgg
+    egdg  eggd  gdeg  gdge
     gedg  gegd  ggde  gged
   dffg [12]
-    dffg  dfgf  dgff  fdfg  fdgf  ffdg  ffgd  fgdf
+    dffg  dfgf  dgff  fdfg
+    fdgf  ffdg  ffgd  fgdf
     fgfd  gdff  gfdf  gffd
   dfgg [12]
-    dfgg  dgfg  dggf  fdgg  fgdg  fggd  gdfg  gdgf
+    dfgg  dgfg  dggf  fdgg
+    fgdg  fggd  gdfg  gdgf
     gfdg  gfgd  ggdf  ggfd
   dggg [4]
     dggg  gdgg  ggdg  gggd
   eeeg [4]
     eeeg  eege  egee  geee
   eefg [12]
-    eefg  eegf  efeg  efge  egef  egfe  feeg  fege
+    eefg  eegf  efeg  efge
+    egef  egfe  feeg  fege
     fgee  geef  gefe  gfee
   eegg [6]
-    eegg  egeg  egge  geeg  gege  ggee
+    eegg  egeg  egge  geeg
+    gege  ggee
   effg [12]
-    effg  efgf  egff  fefg  fegf  ffeg  ffge  fgef
+    effg  efgf  egff  fefg
+    fegf  ffeg  ffge  fgef
     fgfe  geff  gfef  gffe
   efgg [12]
-    efgg  egfg  eggf  fegg  fgeg  fgge  gefg  gegf
+    efgg  egfg  eggf  fegg
+    fgeg  fgge  gefg  gegf
     gfeg  gfge  ggef  ggfe
   eggg [4]
     eggg  gegg  ggeg  ggge
   fffg [4]
     fffg  ffgf  fgff  gfff
   ffgg [6]
-    ffgg  fgfg  fggf  gffg  gfgf  ggff
+    ffgg  fgfg  fggf  gffg
+    gfgf  ggff
   fggg [4]
     fggg  gfgg  ggfg  gggf
   gggg [1]
@@ -248,28 +314,38 @@ abc-e-- [10]
   aaae [4]
     aaae  aaea  aeaa  eaaa
   aabe [12]
-    aabe  aaeb  abae  abea  aeab  aeba  baae  baea
+    aabe  aaeb  abae  abea
+    aeab  aeba  baae  baea
     beaa  eaab  eaba  ebaa
   aace [12]
-    aace  aaec  acae  acea  aeac  aeca  caae  caea
+    aace  aaec  acae  acea
+    aeac  aeca  caae  caea
     ceaa  eaac  eaca  ecaa
   aaee [6]
-    aaee  aeae  aeea  eaae  eaea  eeaa
+    aaee  aeae  aeea  eaae
+    eaea  eeaa
   abbe [12]
-    abbe  abeb  aebb  babe  baeb  bbae  bbea  beab
+    abbe  abeb  aebb  babe
+    baeb  bbae  bbea  beab
     beba  eabb  ebab  ebba
   abce [24]
-    abce  abec  acbe  aceb  aebc  aecb  bace  baec
-    bcae  bcea  beac  beca  cabe  caeb  cbae  cbea
-    ceab  ceba  eabc  eacb  ebac  ebca  ecab  ecba
+    abce  abec  acbe  aceb
+    aebc  aecb  bace  baec
+    bcae  bcea  beac  beca
+    cabe  caeb  cbae  cbea
+    ceab  ceba  eabc  eacb
+    ebac  ebca  ecab  ecba
   abee [12]
-    abee  aebe  aeeb  baee  beae  beea  eabe  eaeb
+    abee  aebe  aeeb  baee
+    beae  beea  eabe  eaeb
     ebae  ebea  eeab  eeba
   acce [12]
-    acce  acec  aecc  cace  caec  ccae  ccea  ceac
+    acce  acec  aecc  cace
+    caec  ccae  ccea  ceac
     ceca  eacc  ecac  ecca
   acee [12]
-    acee  aece  aeec  caee  ceae  ceea  eace  eaec
+    acee  aece  aeec  caee
+    ceae  ceea  eace  eaec
     ecae  ecea  eeac  eeca
   aeee [4]
     aeee  eaee  eeae  eeea
@@ -280,28 +356,38 @@ TOTAL: 110
   bbbf [4]
     bbbf  bbfb  bfbb  fbbb
   bbcf [12]
-    bbcf  bbfc  bcbf  bcfb  bfbc  bfcb  cbbf  cbfb
+    bbcf  bbfc  bcbf  bcfb
+    bfbc  bfcb  cbbf  cbfb
     cfbb  fbbc  fbcb  fcbb
   bbdf [12]
-    bbdf  bbfd  bdbf  bdfb  bfbd  bfdb  dbbf  dbfb
+    bbdf  bbfd  bdbf  bdfb
+    bfbd  bfdb  dbbf  dbfb
     dfbb  fbbd  fbdb  fdbb
   bbff [6]
-    bbff  bfbf  bffb  fbbf  fbfb  ffbb
+    bbff  bfbf  bffb  fbbf
+    fbfb  ffbb
   bccf [12]
-    bccf  bcfc  bfcc  cbcf  cbfc  ccbf  ccfb  cfbc
+    bccf  bcfc  bfcc  cbcf
+    cbfc  ccbf  ccfb  cfbc
     cfcb  fbcc  fcbc  fccb
   bcdf [24]
-    bcdf  bcfd  bdcf  bdfc  bfcd  bfdc  cbdf  cbfd
-    cdbf  cdfb  cfbd  cfdb  dbcf  dbfc  dcbf  dcfb
-    dfbc  dfcb  fbcd  fbdc  fcbd  fcdb  fdbc  fdcb
+    bcdf  bcfd  bdcf  bdfc
+    bfcd  bfdc  cbdf  cbfd
+    cdbf  cdfb  cfbd  cfdb
+    dbcf  dbfc  dcbf  dcfb
+    dfbc  dfcb  fbcd  fbdc
+    fcbd  fcdb  fdbc  fdcb
   bcff [12]
-    bcff  bfcf  bffc  cbff  cfbf  cffb  fbcf  fbfc
+    bcff  bfcf  bffc  cbff
+    cfbf  cffb  fbcf  fbfc
     fcbf  fcfb  ffbc  ffcb
   bddf [12]
-    bddf  bdfd  bfdd  dbdf  dbfd  ddbf  ddfb  dfbd
+    bddf  bdfd  bfdd  dbdf
+    dbfd  ddbf  ddfb  dfbd
     dfdb  fbdd  fdbd  fddb
   bdff [12]
-    bdff  bfdf  bffd  dbff  dfbf  dffb  fbdf  fbfd
+    bdff  bfdf  bffd  dbff
+    dfbf  dffb  fbdf  fbfd
     fdbf  fdfb  ffbd  ffdb
   bfff [4]
     bfff  fbff  ffbf  fffb
@@ -312,28 +398,38 @@ TOTAL: 110
   cccg [4]
     cccg  ccgc  cgcc  gccc
   ccdg [12]
-    ccdg  ccgd  cdcg  cdgc  cgcd  cgdc  dccg  dcgc
+    ccdg  ccgd  cdcg  cdgc
+    cgcd  cgdc  dccg  dcgc
     dgcc  gccd  gcdc  gdcc
   cceg [12]
-    cceg  ccge  cecg  cegc  cgce  cgec  eccg  ecgc
+    cceg  ccge  cecg  cegc
+    cgce  cgec  eccg  ecgc
     egcc  gcce  gcec  gecc
   ccgg [6]
-    ccgg  cgcg  cggc  gccg  gcgc  ggcc
+    ccgg  cgcg  cggc  gccg
+    gcgc  ggcc
   cddg [12]
-    cddg  cdgd  cgdd  dcdg  dcgd  ddcg  ddgc  dgcd
+    cddg  cdgd  cgdd  dcdg
+    dcgd  ddcg  ddgc  dgcd
     dgdc  gcdd  gdcd  gddc
   cdeg [24]
-    cdeg  cdge  cedg  cegd  cgde  cged  dceg  dcge
-    decg  degc  dgce  dgec  ecdg  ecgd  edcg  edgc
-    egcd  egdc  gcde  gced  gdce  gdec  gecd  gedc
+    cdeg  cdge  cedg  cegd
+    cgde  cged  dceg  dcge
+    decg  degc  dgce  dgec
+    ecdg  ecgd  edcg  edgc
+    egcd  egdc  gcde  gced
+    gdce  gdec  gecd  gedc
   cdgg [12]
-    cdgg  cgdg  cggd  dcgg  dgcg  dggc  gcdg  gcgd
+    cdgg  cgdg  cggd  dcgg
+    dgcg  dggc  gcdg  gcgd
     gdcg  gdgc  ggcd  ggdc
   ceeg [12]
-    ceeg  cege  cgee  eceg  ecge  eecg  eegc  egce
+    ceeg  cege  cgee  eceg
+    ecge  eecg  eegc  egce
     egec  gcee  gece  geec
   cegg [12]
-    cegg  cgeg  cgge  ecgg  egcg  eggc  gceg  gcge
+    cegg  cgeg  cgge  ecgg
+    egcg  eggc  gceg  gcge
     gecg  gegc  ggce  ggec
   cggg [4]
     cggg  gcgg  ggcg  gggc
@@ -342,76 +438,103 @@ TOTAL: 110
 
 ab-de-- [4]
   aade [12]
-    aade  aaed  adae  adea  aead  aeda  daae  daea
+    aade  aaed  adae  adea
+    aead  aeda  daae  daea
     deaa  eaad  eada  edaa
   abde [24]
-    abde  abed  adbe  adeb  aebd  aedb  bade  baed
-    bdae  bdea  bead  beda  dabe  daeb  dbae  dbea
-    deab  deba  eabd  eadb  ebad  ebda  edab  edba
+    abde  abed  adbe  adeb
+    aebd  aedb  bade  baed
+    bdae  bdea  bead  beda
+    dabe  daeb  dbae  dbea
+    deab  deba  eabd  eadb
+    ebad  ebda  edab  edba
   adde [12]
-    adde  aded  aedd  dade  daed  ddae  ddea  dead
+    adde  aded  aedd  dade
+    daed  ddae  ddea  dead
     deda  eadd  edad  edda
   adee [12]
-    adee  aede  aeed  daee  deae  deea  eade  eaed
+    adee  aede  aeed  daee
+    deae  deea  eade  eaed
     edae  edea  eead  eeda
 TOTAL: 60 
 
 
 -bc-ef- [4]
   bbef [12]
-    bbef  bbfe  bebf  befb  bfbe  bfeb  ebbf  ebfb
+    bbef  bbfe  bebf  befb
+    bfbe  bfeb  ebbf  ebfb
     efbb  fbbe  fbeb  febb
   bcef [24]
-    bcef  bcfe  becf  befc  bfce  bfec  cbef  cbfe
-    cebf  cefb  cfbe  cfeb  ebcf  ebfc  ecbf  ecfb
-    efbc  efcb  fbce  fbec  fcbe  fceb  febc  fecb
+    bcef  bcfe  becf  befc
+    bfce  bfec  cbef  cbfe
+    cebf  cefb  cfbe  cfeb
+    ebcf  ebfc  ecbf  ecfb
+    efbc  efcb  fbce  fbec
+    fcbe  fceb  febc  fecb
   beef [12]
-    beef  befe  bfee  ebef  ebfe  eebf  eefb  efbe
+    beef  befe  bfee  ebef
+    ebfe  eebf  eefb  efbe
     efeb  fbee  febe  feeb
   beff [12]
-    beff  bfef  bffe  ebff  efbf  effb  fbef  fbfe
+    beff  bfef  bffe  ebff
+    efbf  effb  fbef  fbfe
     febf  fefb  ffbe  ffeb
 TOTAL: 60 
 
 
 --cd-fg [4]
   ccfg [12]
-    ccfg  ccgf  cfcg  cfgc  cgcf  cgfc  fccg  fcgc
+    ccfg  ccgf  cfcg  cfgc
+    cgcf  cgfc  fccg  fcgc
     fgcc  gccf  gcfc  gfcc
   cdfg [24]
-    cdfg  cdgf  cfdg  cfgd  cgdf  cgfd  dcfg  dcgf
-    dfcg  dfgc  dgcf  dgfc  fcdg  fcgd  fdcg  fdgc
-    fgcd  fgdc  gcdf  gcfd  gdcf  gdfc  gfcd  gfdc
+    cdfg  cdgf  cfdg  cfgd
+    cgdf  cgfd  dcfg  dcgf
+    dfcg  dfgc  dgcf  dgfc
+    fcdg  fcgd  fdcg  fdgc
+    fgcd  fgdc  gcdf  gcfd
+    gdcf  gdfc  gfcd  gfdc
   cffg [12]
-    cffg  cfgf  cgff  fcfg  fcgf  ffcg  ffgc  fgcf
+    cffg  cfgf  cgff  fcfg
+    fcgf  ffcg  ffgc  fgcf
     fgfc  gcff  gfcf  gffc
   cfgg [12]
-    cfgg  cgfg  cggf  fcgg  fgcg  fggc  gcfg  gcgf
+    cfgg  cgfg  cggf  fcgg
+    fgcg  fggc  gcfg  gcgf
     gfcg  gfgc  ggcf  ggfc
 TOTAL: 60 
 
 
 a-cde-- [1]
   acde [24]
-    acde  aced  adce  adec  aecd  aedc  cade  caed
-    cdae  cdea  cead  ceda  dace  daec  dcae  dcea
-    deac  deca  eacd  eadc  ecad  ecda  edac  edca
+    acde  aced  adce  adec
+    aecd  aedc  cade  caed
+    cdae  cdea  cead  ceda
+    dace  daec  dcae  dcea
+    deac  deca  eacd  eadc
+    ecad  ecda  edac  edca
 TOTAL: 24 
 
 
 -b-def- [1]
   bdef [24]
-    bdef  bdfe  bedf  befd  bfde  bfed  dbef  dbfe
-    debf  defb  dfbe  dfeb  ebdf  ebfd  edbf  edfb
-    efbd  efdb  fbde  fbed  fdbe  fdeb  febd  fedb
+    bdef  bdfe  bedf  befd
+    bfde  bfed  dbef  dbfe
+    debf  defb  dfbe  dfeb
+    ebdf  ebfd  edbf  edfb
+    efbd  efdb  fbde  fbed
+    fdbe  fdeb  febd  fedb
 TOTAL: 24 
 
 
 --c-efg [1]
   cefg [24]
-    cefg  cegf  cfeg  cfge  cgef  cgfe  ecfg  ecgf
-    efcg  efgc  egcf  egfc  fceg  fcge  fecg  fegc
-    fgce  fgec  gcef  gcfe  gecf  gefc  gfce  gfec
+    cefg  cegf  cfeg  cfge
+    cgef  cgfe  ecfg  ecgf
+    efcg  efgc  egcf  egfc
+    fceg  fcge  fecg  fegc
+    fgce  fgec  gcef  gcfe
+    gecf  gefc  gfce  gfec
 TOTAL: 24 
 
 
@@ -419,28 +542,38 @@ abc--f- [10]
   aaaf [4]
     aaaf  aafa  afaa  faaa
   aabf [12]
-    aabf  aafb  abaf  abfa  afab  afba  baaf  bafa
+    aabf  aafb  abaf  abfa
+    afab  afba  baaf  bafa
     bfaa  faab  faba  fbaa
   aacf [12]
-    aacf  aafc  acaf  acfa  afac  afca  caaf  cafa
+    aacf  aafc  acaf  acfa
+    afac  afca  caaf  cafa
     cfaa  faac  faca  fcaa
   aaff [6]
-    aaff  afaf  affa  faaf  fafa  ffaa
+    aaff  afaf  affa  faaf
+    fafa  ffaa
   abbf [12]
-    abbf  abfb  afbb  babf  bafb  bbaf  bbfa  bfab
+    abbf  abfb  afbb  babf
+    bafb  bbaf  bbfa  bfab
     bfba  fabb  fbab  fbba
   abcf [24]
-    abcf  abfc  acbf  acfb  afbc  afcb  bacf  bafc
-    bcaf  bcfa  bfac  bfca  cabf  cafb  cbaf  cbfa
-    cfab  cfba  fabc  facb  fbac  fbca  fcab  fcba
+    abcf  abfc  acbf  acfb
+    afbc  afcb  bacf  bafc
+    bcaf  bcfa  bfac  bfca
+    cabf  cafb  cbaf  cbfa
+    cfab  cfba  fabc  facb
+    fbac  fbca  fcab  fcba
   abff [12]
-    abff  afbf  affb  baff  bfaf  bffa  fabf  fafb
+    abff  afbf  affb  baff
+    bfaf  bffa  fabf  fafb
     fbaf  fbfa  ffab  ffba
   accf [12]
-    accf  acfc  afcc  cacf  cafc  ccaf  ccfa  cfac
+    accf  acfc  afcc  cacf
+    cafc  ccaf  ccfa  cfac
     cfca  facc  fcac  fcca
   acff [12]
-    acff  afcf  affc  caff  cfaf  cffa  facf  fafc
+    acff  afcf  affc  caff
+    cfaf  cffa  facf  fafc
     fcaf  fcfa  ffac  ffca
   afff [4]
     afff  faff  ffaf  fffa
@@ -451,28 +584,38 @@ TOTAL: 110
   bbbg [4]
     bbbg  bbgb  bgbb  gbbb
   bbcg [12]
-    bbcg  bbgc  bcbg  bcgb  bgbc  bgcb  cbbg  cbgb
+    bbcg  bbgc  bcbg  bcgb
+    bgbc  bgcb  cbbg  cbgb
     cgbb  gbbc  gbcb  gcbb
   bbdg [12]
-    bbdg  bbgd  bdbg  bdgb  bgbd  bgdb  dbbg  dbgb
+    bbdg  bbgd  bdbg  bdgb
+    bgbd  bgdb  dbbg  dbgb
     dgbb  gbbd  gbdb  gdbb
   bbgg [6]
-    bbgg  bgbg  bggb  gbbg  gbgb  ggbb
+    bbgg  bgbg  bggb  gbbg
+    gbgb  ggbb
   bccg [12]
-    bccg  bcgc  bgcc  cbcg  cbgc  ccbg  ccgb  cgbc
+    bccg  bcgc  bgcc  cbcg
+    cbgc  ccbg  ccgb  cgbc
     cgcb  gbcc  gcbc  gccb
   bcdg [24]
-    bcdg  bcgd  bdcg  bdgc  bgcd  bgdc  cbdg  cbgd
-    cdbg  cdgb  cgbd  cgdb  dbcg  dbgc  dcbg  dcgb
-    dgbc  dgcb  gbcd  gbdc  gcbd  gcdb  gdbc  gdcb
+    bcdg  bcgd  bdcg  bdgc
+    bgcd  bgdc  cbdg  cbgd
+    cdbg  cdgb  cgbd  cgdb
+    dbcg  dbgc  dcbg  dcgb
+    dgbc  dgcb  gbcd  gbdc
+    gcbd  gcdb  gdbc  gdcb
   bcgg [12]
-    bcgg  bgcg  bggc  cbgg  cgbg  cggb  gbcg  gbgc
+    bcgg  bgcg  bggc  cbgg
+    cgbg  cggb  gbcg  gbgc
     gcbg  gcgb  ggbc  ggcb
   bddg [12]
-    bddg  bdgd  bgdd  dbdg  dbgd  ddbg  ddgb  dgbd
+    bddg  bdgd  bgdd  dbdg
+    dbgd  ddbg  ddgb  dgbd
     dgdb  gbdd  gdbd  gddb
   bdgg [12]
-    bdgg  bgdg  bggd  dbgg  dgbg  dggb  gbdg  gbgd
+    bdgg  bgdg  bggd  dbgg
+    dgbg  dggb  gbdg  gbgd
     gdbg  gdgb  ggbd  ggdb
   bggg [4]
     bggg  gbgg  ggbg  gggb
@@ -481,117 +624,159 @@ TOTAL: 110
 
 ab-d-f- [4]
   aadf [12]
-    aadf  aafd  adaf  adfa  afad  afda  daaf  dafa
+    aadf  aafd  adaf  adfa
+    afad  afda  daaf  dafa
     dfaa  faad  fada  fdaa
   abdf [24]
-    abdf  abfd  adbf  adfb  afbd  afdb  badf  bafd
-    bdaf  bdfa  bfad  bfda  dabf  dafb  dbaf  dbfa
-    dfab  dfba  fabd  fadb  fbad  fbda  fdab  fdba
+    abdf  abfd  adbf  adfb
+    afbd  afdb  badf  bafd
+    bdaf  bdfa  bfad  bfda
+    dabf  dafb  dbaf  dbfa
+    dfab  dfba  fabd  fadb
+    fbad  fbda  fdab  fdba
   addf [12]
-    addf  adfd  afdd  dadf  dafd  ddaf  ddfa  dfad
+    addf  adfd  afdd  dadf
+    dafd  ddaf  ddfa  dfad
     dfda  fadd  fdad  fdda
   adff [12]
-    adff  afdf  affd  daff  dfaf  dffa  fadf  fafd
+    adff  afdf  affd  daff
+    dfaf  dffa  fadf  fafd
     fdaf  fdfa  ffad  ffda
 TOTAL: 60 
 
 
 -bc-e-g [4]
   bbeg [12]
-    bbeg  bbge  bebg  begb  bgbe  bgeb  ebbg  ebgb
+    bbeg  bbge  bebg  begb
+    bgbe  bgeb  ebbg  ebgb
     egbb  gbbe  gbeb  gebb
   bceg [24]
-    bceg  bcge  becg  begc  bgce  bgec  cbeg  cbge
-    cebg  cegb  cgbe  cgeb  ebcg  ebgc  ecbg  ecgb
-    egbc  egcb  gbce  gbec  gcbe  gceb  gebc  gecb
+    bceg  bcge  becg  begc
+    bgce  bgec  cbeg  cbge
+    cebg  cegb  cgbe  cgeb
+    ebcg  ebgc  ecbg  ecgb
+    egbc  egcb  gbce  gbec
+    gcbe  gceb  gebc  gecb
   beeg [12]
-    beeg  bege  bgee  ebeg  ebge  eebg  eegb  egbe
+    beeg  bege  bgee  ebeg
+    ebge  eebg  eegb  egbe
     egeb  gbee  gebe  geeb
   begg [12]
-    begg  bgeg  bgge  ebgg  egbg  eggb  gbeg  gbge
+    begg  bgeg  bgge  ebgg
+    egbg  eggb  gbeg  gbge
     gebg  gegb  ggbe  ggeb
 TOTAL: 60 
 
 
 a-cd-f- [1]
   acdf [24]
-    acdf  acfd  adcf  adfc  afcd  afdc  cadf  cafd
-    cdaf  cdfa  cfad  cfda  dacf  dafc  dcaf  dcfa
-    dfac  dfca  facd  fadc  fcad  fcda  fdac  fdca
+    acdf  acfd  adcf  adfc
+    afcd  afdc  cadf  cafd
+    cdaf  cdfa  cfad  cfda
+    dacf  dafc  dcaf  dcfa
+    dfac  dfca  facd  fadc
+    fcad  fcda  fdac  fdca
 TOTAL: 24 
 
 
 -b-de-g [1]
   bdeg [24]
-    bdeg  bdge  bedg  begd  bgde  bged  dbeg  dbge
-    debg  degb  dgbe  dgeb  ebdg  ebgd  edbg  edgb
-    egbd  egdb  gbde  gbed  gdbe  gdeb  gebd  gedb
+    bdeg  bdge  bedg  begd
+    bgde  bged  dbeg  dbge
+    debg  degb  dgbe  dgeb
+    ebdg  ebgd  edbg  edgb
+    egbd  egdb  gbde  gbed
+    gdbe  gdeb  gebd  gedb
 TOTAL: 24 
 
 
 ab--ef- [4]
   aaef [12]
-    aaef  aafe  aeaf  aefa  afae  afea  eaaf  eafa
+    aaef  aafe  aeaf  aefa
+    afae  afea  eaaf  eafa
     efaa  faae  faea  feaa
   abef [24]
-    abef  abfe  aebf  aefb  afbe  afeb  baef  bafe
-    beaf  befa  bfae  bfea  eabf  eafb  ebaf  ebfa
-    efab  efba  fabe  faeb  fbae  fbea  feab  feba
+    abef  abfe  aebf  aefb
+    afbe  afeb  baef  bafe
+    beaf  befa  bfae  bfea
+    eabf  eafb  ebaf  ebfa
+    efab  efba  fabe  faeb
+    fbae  fbea  feab  feba
   aeef [12]
-    aeef  aefe  afee  eaef  eafe  eeaf  eefa  efae
+    aeef  aefe  afee  eaef
+    eafe  eeaf  eefa  efae
     efea  faee  feae  feea
   aeff [12]
-    aeff  afef  affe  eaff  efaf  effa  faef  fafe
+    aeff  afef  affe  eaff
+    efaf  effa  faef  fafe
     feaf  fefa  ffae  ffea
 TOTAL: 60 
 
 
 -bc--fg [4]
   bbfg [12]
-    bbfg  bbgf  bfbg  bfgb  bgbf  bgfb  fbbg  fbgb
+    bbfg  bbgf  bfbg  bfgb
+    bgbf  bgfb  fbbg  fbgb
     fgbb  gbbf  gbfb  gfbb
   bcfg [24]
-    bcfg  bcgf  bfcg  bfgc  bgcf  bgfc  cbfg  cbgf
-    cfbg  cfgb  cgbf  cgfb  fbcg  fbgc  fcbg  fcgb
-    fgbc  fgcb  gbcf  gbfc  gcbf  gcfb  gfbc  gfcb
+    bcfg  bcgf  bfcg  bfgc
+    bgcf  bgfc  cbfg  cbgf
+    cfbg  cfgb  cgbf  cgfb
+    fbcg  fbgc  fcbg  fcgb
+    fgbc  fgcb  gbcf  gbfc
+    gcbf  gcfb  gfbc  gfcb
   bffg [12]
-    bffg  bfgf  bgff  fbfg  fbgf  ffbg  ffgb  fgbf
+    bffg  bfgf  bgff  fbfg
+    fbgf  ffbg  ffgb  fgbf
     fgfb  gbff  gfbf  gffb
   bfgg [12]
-    bfgg  bgfg  bggf  fbgg  fgbg  fggb  gbfg  gbgf
+    bfgg  bgfg  bggf  fbgg
+    fgbg  fggb  gbfg  gbgf
     gfbg  gfgb  ggbf  ggfb
 TOTAL: 60 
 
 
 a-c-ef- [1]
   acef [24]
-    acef  acfe  aecf  aefc  afce  afec  caef  cafe
-    ceaf  cefa  cfae  cfea  eacf  eafc  ecaf  ecfa
-    efac  efca  face  faec  fcae  fcea  feac  feca
+    acef  acfe  aecf  aefc
+    afce  afec  caef  cafe
+    ceaf  cefa  cfae  cfea
+    eacf  eafc  ecaf  ecfa
+    efac  efca  face  faec
+    fcae  fcea  feac  feca
 TOTAL: 24 
 
 
 -b-d-fg [1]
   bdfg [24]
-    bdfg  bdgf  bfdg  bfgd  bgdf  bgfd  dbfg  dbgf
-    dfbg  dfgb  dgbf  dgfb  fbdg  fbgd  fdbg  fdgb
-    fgbd  fgdb  gbdf  gbfd  gdbf  gdfb  gfbd  gfdb
+    bdfg  bdgf  bfdg  bfgd
+    bgdf  bgfd  dbfg  dbgf
+    dfbg  dfgb  dgbf  dgfb
+    fbdg  fbgd  fdbg  fdgb
+    fgbd  fgdb  gbdf  gbfd
+    gdbf  gdfb  gfbd  gfdb
 TOTAL: 24 
 
 
 a--def- [1]
   adef [24]
-    adef  adfe  aedf  aefd  afde  afed  daef  dafe
-    deaf  defa  dfae  dfea  eadf  eafd  edaf  edfa
-    efad  efda  fade  faed  fdae  fdea  fead  feda
+    adef  adfe  aedf  aefd
+    afde  afed  daef  dafe
+    deaf  defa  dfae  dfea
+    eadf  eafd  edaf  edfa
+    efad  efda  fade  faed
+    fdae  fdea  fead  feda
 TOTAL: 24 
 
 
 -b--efg [1]
   befg [24]
-    befg  begf  bfeg  bfge  bgef  bgfe  ebfg  ebgf
-    efbg  efgb  egbf  egfb  fbeg  fbge  febg  fegb
-    fgbe  fgeb  gbef  gbfe  gebf  gefb  gfbe  gfeb
+    befg  begf  bfeg  bfge
+    bgef  bgfe  ebfg  ebgf
+    efbg  efgb  egbf  egfb
+    fbeg  fbge  febg  fegb
+    fgbe  fgeb  gbef  gbfe
+    gebf  gefb  gfbe  gfeb
 TOTAL: 24 
 
 
@@ -599,28 +784,38 @@ abc---g [10]
   aaag [4]
     aaag  aaga  agaa  gaaa
   aabg [12]
-    aabg  aagb  abag  abga  agab  agba  baag  baga
+    aabg  aagb  abag  abga
+    agab  agba  baag  baga
     bgaa  gaab  gaba  gbaa
   aacg [12]
-    aacg  aagc  acag  acga  agac  agca  caag  caga
+    aacg  aagc  acag  acga
+    agac  agca  caag  caga
     cgaa  gaac  gaca  gcaa
   aagg [6]
-    aagg  agag  agga  gaag  gaga  ggaa
+    aagg  agag  agga  gaag
+    gaga  ggaa
   abbg [12]
-    abbg  abgb  agbb  babg  bagb  bbag  bbga  bgab
+    abbg  abgb  agbb  babg
+    bagb  bbag  bbga  bgab
     bgba  gabb  gbab  gbba
   abcg [24]
-    abcg  abgc  acbg  acgb  agbc  agcb  bacg  bagc
-    bcag  bcga  bgac  bgca  cabg  cagb  cbag  cbga
-    cgab  cgba  gabc  gacb  gbac  gbca  gcab  gcba
+    abcg  abgc  acbg  acgb
+    agbc  agcb  bacg  bagc
+    bcag  bcga  bgac  bgca
+    cabg  cagb  cbag  cbga
+    cgab  cgba  gabc  gacb
+    gbac  gbca  gcab  gcba
   abgg [12]
-    abgg  agbg  aggb  bagg  bgag  bgga  gabg  gagb
+    abgg  agbg  aggb  bagg
+    bgag  bgga  gabg  gagb
     gbag  gbga  ggab  ggba
   accg [12]
-    accg  acgc  agcc  cacg  cagc  ccag  ccga  cgac
+    accg  acgc  agcc  cacg
+    cagc  ccag  ccga  cgac
     cgca  gacc  gcac  gcca
   acgg [12]
-    acgg  agcg  aggc  cagg  cgag  cgga  gacg  gagc
+    acgg  agcg  aggc  cagg
+    cgag  cgga  gacg  gagc
     gcag  gcga  ggac  ggca
   aggg [4]
     aggg  gagg  ggag  ggga
@@ -629,100 +824,136 @@ TOTAL: 110
 
 ab-d--g [4]
   aadg [12]
-    aadg  aagd  adag  adga  agad  agda  daag  daga
+    aadg  aagd  adag  adga
+    agad  agda  daag  daga
     dgaa  gaad  gada  gdaa
   abdg [24]
-    abdg  abgd  adbg  adgb  agbd  agdb  badg  bagd
-    bdag  bdga  bgad  bgda  dabg  dagb  dbag  dbga
-    dgab  dgba  gabd  gadb  gbad  gbda  gdab  gdba
+    abdg  abgd  adbg  adgb
+    agbd  agdb  badg  bagd
+    bdag  bdga  bgad  bgda
+    dabg  dagb  dbag  dbga
+    dgab  dgba  gabd  gadb
+    gbad  gbda  gdab  gdba
   addg [12]
-    addg  adgd  agdd  dadg  dagd  ddag  ddga  dgad
+    addg  adgd  agdd  dadg
+    dagd  ddag  ddga  dgad
     dgda  gadd  gdad  gdda
   adgg [12]
-    adgg  agdg  aggd  dagg  dgag  dgga  gadg  gagd
+    adgg  agdg  aggd  dagg
+    dgag  dgga  gadg  gagd
     gdag  gdga  ggad  ggda
 TOTAL: 60 
 
 
 a-cd--g [1]
   acdg [24]
-    acdg  acgd  adcg  adgc  agcd  agdc  cadg  cagd
-    cdag  cdga  cgad  cgda  dacg  dagc  dcag  dcga
-    dgac  dgca  gacd  gadc  gcad  gcda  gdac  gdca
+    acdg  acgd  adcg  adgc
+    agcd  agdc  cadg  cagd
+    cdag  cdga  cgad  cgda
+    dacg  dagc  dcag  dcga
+    dgac  dgca  gacd  gadc
+    gcad  gcda  gdac  gdca
 TOTAL: 24 
 
 
 ab--e-g [4]
   aaeg [12]
-    aaeg  aage  aeag  aega  agae  agea  eaag  eaga
+    aaeg  aage  aeag  aega
+    agae  agea  eaag  eaga
     egaa  gaae  gaea  geaa
   abeg [24]
-    abeg  abge  aebg  aegb  agbe  ageb  baeg  bage
-    beag  bega  bgae  bgea  eabg  eagb  ebag  ebga
-    egab  egba  gabe  gaeb  gbae  gbea  geab  geba
+    abeg  abge  aebg  aegb
+    agbe  ageb  baeg  bage
+    beag  bega  bgae  bgea
+    eabg  eagb  ebag  ebga
+    egab  egba  gabe  gaeb
+    gbae  gbea  geab  geba
   aeeg [12]
-    aeeg  aege  agee  eaeg  eage  eeag  eega  egae
+    aeeg  aege  agee  eaeg
+    eage  eeag  eega  egae
     egea  gaee  geae  geea
   aegg [12]
-    aegg  ageg  agge  eagg  egag  egga  gaeg  gage
+    aegg  ageg  agge  eagg
+    egag  egga  gaeg  gage
     geag  gega  ggae  ggea
 TOTAL: 60 
 
 
 a-c-e-g [1]
   aceg [24]
-    aceg  acge  aecg  aegc  agce  agec  caeg  cage
-    ceag  cega  cgae  cgea  eacg  eagc  ecag  ecga
-    egac  egca  gace  gaec  gcae  gcea  geac  geca
+    aceg  acge  aecg  aegc
+    agce  agec  caeg  cage
+    ceag  cega  cgae  cgea
+    eacg  eagc  ecag  ecga
+    egac  egca  gace  gaec
+    gcae  gcea  geac  geca
 TOTAL: 24 
 
 
 a--de-g [1]
   adeg [24]
-    adeg  adge  aedg  aegd  agde  aged  daeg  dage
-    deag  dega  dgae  dgea  eadg  eagd  edag  edga
-    egad  egda  gade  gaed  gdae  gdea  gead  geda
+    adeg  adge  aedg  aegd
+    agde  aged  daeg  dage
+    deag  dega  dgae  dgea
+    eadg  eagd  edag  edga
+    egad  egda  gade  gaed
+    gdae  gdea  gead  geda
 TOTAL: 24 
 
 
 ab---fg [4]
   aafg [12]
-    aafg  aagf  afag  afga  agaf  agfa  faag  faga
+    aafg  aagf  afag  afga
+    agaf  agfa  faag  faga
     fgaa  gaaf  gafa  gfaa
   abfg [24]
-    abfg  abgf  afbg  afgb  agbf  agfb  bafg  bagf
-    bfag  bfga  bgaf  bgfa  fabg  fagb  fbag  fbga
-    fgab  fgba  gabf  gafb  gbaf  gbfa  gfab  gfba
+    abfg  abgf  afbg  afgb
+    agbf  agfb  bafg  bagf
+    bfag  bfga  bgaf  bgfa
+    fabg  fagb  fbag  fbga
+    fgab  fgba  gabf  gafb
+    gbaf  gbfa  gfab  gfba
   affg [12]
-    affg  afgf  agff  fafg  fagf  ffag  ffga  fgaf
+    affg  afgf  agff  fafg
+    fagf  ffag  ffga  fgaf
     fgfa  gaff  gfaf  gffa
   afgg [12]
-    afgg  agfg  aggf  fagg  fgag  fgga  gafg  gagf
+    afgg  agfg  aggf  fagg
+    fgag  fgga  gafg  gagf
     gfag  gfga  ggaf  ggfa
 TOTAL: 60 
 
 
 a-c--fg [1]
   acfg [24]
-    acfg  acgf  afcg  afgc  agcf  agfc  cafg  cagf
-    cfag  cfga  cgaf  cgfa  facg  fagc  fcag  fcga
-    fgac  fgca  gacf  gafc  gcaf  gcfa  gfac  gfca
+    acfg  acgf  afcg  afgc
+    agcf  agfc  cafg  cagf
+    cfag  cfga  cgaf  cgfa
+    facg  fagc  fcag  fcga
+    fgac  fgca  gacf  gafc
+    gcaf  gcfa  gfac  gfca
 TOTAL: 24 
 
 
 a--d-fg [1]
   adfg [24]
-    adfg  adgf  afdg  afgd  agdf  agfd  dafg  dagf
-    dfag  dfga  dgaf  dgfa  fadg  fagd  fdag  fdga
-    fgad  fgda  gadf  gafd  gdaf  gdfa  gfad  gfda
+    adfg  adgf  afdg  afgd
+    agdf  agfd  dafg  dagf
+    dfag  dfga  dgaf  dgfa
+    fadg  fagd  fdag  fdga
+    fgad  fgda  gadf  gafd
+    gdaf  gdfa  gfad  gfda
 TOTAL: 24 
 
 
 a---efg [1]
   aefg [24]
-    aefg  aegf  afeg  afge  agef  agfe  eafg  eagf
-    efag  efga  egaf  egfa  faeg  fage  feag  fega
-    fgae  fgea  gaef  gafe  geaf  gefa  gfae  gfea
+    aefg  aegf  afeg  afge
+    agef  agfe  eafg  eagf
+    efag  efga  egaf  egfa
+    faeg  fage  feag  fega
+    fgae  fgea  gaef  gafe
+    geaf  gefa  gfae  gfea
 TOTAL: 24 
 
 

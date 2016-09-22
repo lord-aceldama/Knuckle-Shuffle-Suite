@@ -78,7 +78,7 @@ while not flag:
             shuffle = Permute(token)
             while not shuffle.done:
                 prn = "  "
-                while (not shuffle.done) and (len(prn) < 30):
+                while (not shuffle.done) and (len(prn) < 25):
                     prn += "  " + str(shuffle)
                     shuffle.inc()
                 if shuffle.done:
