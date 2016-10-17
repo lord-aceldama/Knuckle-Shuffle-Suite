@@ -180,12 +180,16 @@ while not flag:
 print "\n\nMISSED TOKENS ({}):".format(len(miss))
 match = [[] for _ in miss]
 abacus = range(LENGTH)
-while not is_done(abacus):
+flag = False
+while not flag:
+    flag = is_done(abacus)
     for i in range(len(miss)):
         token = "".join([CHARS[idx] for idx in abacus])
         if set(miss[i]).issubset(token):
             match[i].append(token)
-    inc_abacus(abacus)
+    
+    if not flag:
+        inc_abacus(abacus)
 
 for i in range(len(miss)):
     print "  {}: {}".format(miss[i], match[i])

@@ -133,6 +133,7 @@ abcde--  [base tokens: 126]
   ddeee [10]
   deeee [5]
   eeeee [1]
+MISS: []
 TOTAL: 3125 
 
 
@@ -215,6 +216,7 @@ TOTAL: 3125
   eefff [10]
   effff [5]
   fffff [1]
+MISS: []
 TOTAL: 2101 
 
 
@@ -297,6 +299,7 @@ TOTAL: 2101
   ffggg [10]
   fgggg [5]
   ggggg [1]
+MISS: []
 TOTAL: 2101 
 
 
@@ -344,6 +347,7 @@ abcd-f-  [base tokens: 35]
   addff [30]
   adfff [20]
   affff [5]
+MISS: []
 TOTAL: 1320 
 
 
@@ -391,6 +395,7 @@ TOTAL: 1320
   beegg [30]
   beggg [20]
   bgggg [5]
+MISS: []
 TOTAL: 1320 
 
 
@@ -403,21 +408,22 @@ abc-ef-  [base tokens: 15]
   [f] : abcdefg  <- Full
    g  : -bcdefg
 
-  aaaef [20]
-  aabef [60]
-  aacef [60]
-  aaeef [30]
-  aaeff [30]
-  abbef [60]
+  aaaef [20]  <- MISS
+  aabef [60]  <- MISS
+  aacef [60]  <- MISS
+  aaeef [30]  <- MISS
+  aaeff [30]  <- MISS
+  abbef [60]  <- MISS
   abcef [120]
-  abeef [60]
-  abeff [60]
-  accef [60]
-  aceef [60]
-  aceff [60]
-  aeeef [20]
-  aeeff [30]
-  aefff [20]
+  abeef [60]  <- MISS
+  abeff [60]  <- MISS
+  accef [60]  <- MISS
+  aceef [60]  <- MISS
+  aceff [60]  <- MISS
+  aeeef [20]  <- MISS
+  aeeff [30]  <- MISS
+  aefff [20]  <- MISS
+MISS: ['aaaef', 'aabef', 'aacef', 'aaeef', 'aaeff', 'abbef', 'abeef', 'abeff', 'accef', 'aceef', 'aceff', 'aeeef', 'aeeff', 'aefff']
 TOTAL: 750 
 
 
@@ -430,21 +436,22 @@ TOTAL: 750
   [f] : abcdefg  <- Full
   [g] : -bcdefg  <- Full
 
-  bbbfg [20]
-  bbcfg [60]
-  bbdfg [60]
-  bbffg [30]
-  bbfgg [30]
-  bccfg [60]
+  bbbfg [20]  <- MISS
+  bbcfg [60]  <- MISS
+  bbdfg [60]  <- MISS
+  bbffg [30]  <- MISS
+  bbfgg [30]  <- MISS
+  bccfg [60]  <- MISS
   bcdfg [120]
-  bcffg [60]
-  bcfgg [60]
-  bddfg [60]
-  bdffg [60]
-  bdfgg [60]
-  bfffg [20]
-  bffgg [30]
-  bfggg [20]
+  bcffg [60]  <- MISS
+  bcfgg [60]  <- MISS
+  bddfg [60]  <- MISS
+  bdffg [60]  <- MISS
+  bdfgg [60]  <- MISS
+  bfffg [20]  <- MISS
+  bffgg [30]  <- MISS
+  bfggg [20]  <- MISS
+MISS: ['bbbfg', 'bbcfg', 'bbdfg', 'bbffg', 'bbfgg', 'bccfg', 'bcffg', 'bcfgg', 'bddfg', 'bdffg', 'bdfgg', 'bfffg', 'bffgg', 'bfggg']
 TOTAL: 750 
 
 
@@ -457,11 +464,12 @@ ab-def-  [base tokens: 5]
   [f] : abcdefg  <- Full
    g  : -bcdefg
 
-  aadef [60]
+  aadef [60]  <- MISS
   abdef [120]
-  addef [60]
-  adeef [60]
-  adeff [60]
+  addef [60]  <- MISS
+  adeef [60]  <- MISS
+  adeff [60]  <- MISS
+MISS: ['aadef', 'addef', 'adeef', 'adeff']
 TOTAL: 360 
 
 
@@ -474,11 +482,12 @@ TOTAL: 360
   [f] : abcdefg  <- Full
   [g] : -bcdefg  <- Full
 
-  bbefg [60]
+  bbefg [60]  <- MISS
   bcefg [120]
-  beefg [60]
-  beffg [60]
-  befgg [60]
+  beefg [60]  <- MISS
+  beffg [60]  <- MISS
+  befgg [60]  <- MISS
+MISS: ['bbefg', 'beefg', 'beffg', 'befgg']
 TOTAL: 360 
 
 
@@ -492,6 +501,7 @@ a-cdef-  [base tokens: 1]
    g  : -bcdefg
 
   acdef [120]
+MISS: []
 TOTAL: 120 
 
 
@@ -505,6 +515,7 @@ TOTAL: 120
   [g] : -bcdefg  <- Full
 
   bdefg [120]
+MISS: []
 TOTAL: 120 
 
 
@@ -552,6 +563,7 @@ abcd--g  [base tokens: 35]
   addgg [30]
   adggg [20]
   agggg [5]
+MISS: []
 TOTAL: 1320 
 
 
@@ -564,21 +576,22 @@ abc-e-g  [base tokens: 15]
    f  : abcdefg
   [g] : abcdefg  <- Full
 
-  aaaeg [20]
-  aabeg [60]
-  aaceg [60]
-  aaeeg [30]
-  aaegg [30]
-  abbeg [60]
+  aaaeg [20]  <- MISS
+  aabeg [60]  <- MISS
+  aaceg [60]  <- MISS
+  aaeeg [30]  <- MISS
+  aaegg [30]  <- MISS
+  abbeg [60]  <- MISS
   abceg [120]
-  abeeg [60]
-  abegg [60]
-  acceg [60]
-  aceeg [60]
-  acegg [60]
-  aeeeg [20]
-  aeegg [30]
-  aeggg [20]
+  abeeg [60]  <- MISS
+  abegg [60]  <- MISS
+  acceg [60]  <- MISS
+  aceeg [60]  <- MISS
+  acegg [60]  <- MISS
+  aeeeg [20]  <- MISS
+  aeegg [30]  <- MISS
+  aeggg [20]  <- MISS
+MISS: ['aaaeg', 'aabeg', 'aaceg', 'aaeeg', 'aaegg', 'abbeg', 'abeeg', 'abegg', 'acceg', 'aceeg', 'acegg', 'aeeeg', 'aeegg', 'aeggg']
 TOTAL: 750 
 
 
@@ -591,11 +604,12 @@ ab-de-g  [base tokens: 5]
    f  : abcdefg
   [g] : abcdefg  <- Full
 
-  aadeg [60]
+  aadeg [60]  <- MISS
   abdeg [120]
-  addeg [60]
-  adeeg [60]
-  adegg [60]
+  addeg [60]  <- MISS
+  adeeg [60]  <- MISS
+  adegg [60]  <- MISS
+MISS: ['aadeg', 'addeg', 'adeeg', 'adegg']
 TOTAL: 360 
 
 
@@ -609,6 +623,7 @@ a-cde-g  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   acdeg [120]
+MISS: []
 TOTAL: 120 
 
 
@@ -621,21 +636,22 @@ abc--fg  [base tokens: 15]
   [f] : abcdefg  <- Full
   [g] : abcdefg  <- Full
 
-  aaafg [20]
-  aabfg [60]
-  aacfg [60]
-  aaffg [30]
-  aafgg [30]
-  abbfg [60]
+  aaafg [20]  <- MISS
+  aabfg [60]  <- MISS
+  aacfg [60]  <- MISS
+  aaffg [30]  <- MISS
+  aafgg [30]  <- MISS
+  abbfg [60]  <- MISS
   abcfg [120]
-  abffg [60]
-  abfgg [60]
-  accfg [60]
-  acffg [60]
-  acfgg [60]
-  afffg [20]
-  affgg [30]
-  afggg [20]
+  abffg [60]  <- MISS
+  abfgg [60]  <- MISS
+  accfg [60]  <- MISS
+  acffg [60]  <- MISS
+  acfgg [60]  <- MISS
+  afffg [20]  <- MISS
+  affgg [30]  <- MISS
+  afggg [20]  <- MISS
+MISS: ['aaafg', 'aabfg', 'aacfg', 'aaffg', 'aafgg', 'abbfg', 'abffg', 'abfgg', 'accfg', 'acffg', 'acfgg', 'afffg', 'affgg', 'afggg']
 TOTAL: 750 
 
 
@@ -648,11 +664,12 @@ ab-d-fg  [base tokens: 5]
   [f] : abcdefg  <- Full
   [g] : abcdefg  <- Full
 
-  aadfg [60]
+  aadfg [60]  <- MISS
   abdfg [120]
-  addfg [60]
-  adffg [60]
-  adfgg [60]
+  addfg [60]  <- MISS
+  adffg [60]  <- MISS
+  adfgg [60]  <- MISS
+MISS: ['aadfg', 'addfg', 'adffg', 'adfgg']
 TOTAL: 360 
 
 
@@ -666,6 +683,7 @@ a-cd-fg  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   acdfg [120]
+MISS: []
 TOTAL: 120 
 
 
@@ -678,11 +696,12 @@ ab--efg  [base tokens: 5]
   [f] : abcdefg  <- Full
   [g] : abcdefg  <- Full
 
-  aaefg [60]
+  aaefg [60]  <- MISS
   abefg [120]
-  aeefg [60]
-  aeffg [60]
-  aefgg [60]
+  aeefg [60]  <- MISS
+  aeffg [60]  <- MISS
+  aefgg [60]  <- MISS
+MISS: ['aaefg', 'aeefg', 'aeffg', 'aefgg']
 TOTAL: 360 
 
 
@@ -696,6 +715,7 @@ a-c-efg  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   acefg [120]
+MISS: []
 TOTAL: 120 
 
 
@@ -709,9 +729,87 @@ a--defg  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   adefg [120]
+MISS: []
 TOTAL: 120 
 
 
 
-MISSED TOKENS: []
+MISSED TOKENS (76):
+  aaaef: ['abcef', 'abdef', 'acdef', 'abefg', 'acefg', 'adefg']
+  aabef: ['abcef', 'abdef', 'abefg']
+  aacef: ['abcef', 'acdef', 'acefg']
+  aaeef: ['abcef', 'abdef', 'acdef', 'abefg', 'acefg', 'adefg']
+  aaeff: ['abcef', 'abdef', 'acdef', 'abefg', 'acefg', 'adefg']
+  abbef: ['abcef', 'abdef', 'abefg']
+  abeef: ['abcef', 'abdef', 'abefg']
+  abeff: ['abcef', 'abdef', 'abefg']
+  accef: ['abcef', 'acdef', 'acefg']
+  aceef: ['abcef', 'acdef', 'acefg']
+  aceff: ['abcef', 'acdef', 'acefg']
+  aeeef: ['abcef', 'abdef', 'acdef', 'abefg', 'acefg', 'adefg']
+  aeeff: ['abcef', 'abdef', 'acdef', 'abefg', 'acefg', 'adefg']
+  aefff: ['abcef', 'abdef', 'acdef', 'abefg', 'acefg', 'adefg']
+  bbbfg: ['bcdfg', 'bcefg', 'bdefg', 'abcfg', 'abdfg', 'abefg']
+  bbcfg: ['bcdfg', 'bcefg', 'abcfg']
+  bbdfg: ['bcdfg', 'bdefg', 'abdfg']
+  bbffg: ['bcdfg', 'bcefg', 'bdefg', 'abcfg', 'abdfg', 'abefg']
+  bbfgg: ['bcdfg', 'bcefg', 'bdefg', 'abcfg', 'abdfg', 'abefg']
+  bccfg: ['bcdfg', 'bcefg', 'abcfg']
+  bcffg: ['bcdfg', 'bcefg', 'abcfg']
+  bcfgg: ['bcdfg', 'bcefg', 'abcfg']
+  bddfg: ['bcdfg', 'bdefg', 'abdfg']
+  bdffg: ['bcdfg', 'bdefg', 'abdfg']
+  bdfgg: ['bcdfg', 'bdefg', 'abdfg']
+  bfffg: ['bcdfg', 'bcefg', 'bdefg', 'abcfg', 'abdfg', 'abefg']
+  bffgg: ['bcdfg', 'bcefg', 'bdefg', 'abcfg', 'abdfg', 'abefg']
+  bfggg: ['bcdfg', 'bcefg', 'bdefg', 'abcfg', 'abdfg', 'abefg']
+  aadef: ['abdef', 'acdef', 'adefg']
+  addef: ['abdef', 'acdef', 'adefg']
+  adeef: ['abdef', 'acdef', 'adefg']
+  adeff: ['abdef', 'acdef', 'adefg']
+  bbefg: ['bcefg', 'bdefg', 'abefg']
+  beefg: ['bcefg', 'bdefg', 'abefg']
+  beffg: ['bcefg', 'bdefg', 'abefg']
+  befgg: ['bcefg', 'bdefg', 'abefg']
+  aaaeg: ['abceg', 'abdeg', 'acdeg', 'abefg', 'acefg', 'adefg']
+  aabeg: ['abceg', 'abdeg', 'abefg']
+  aaceg: ['abceg', 'acdeg', 'acefg']
+  aaeeg: ['abceg', 'abdeg', 'acdeg', 'abefg', 'acefg', 'adefg']
+  aaegg: ['abceg', 'abdeg', 'acdeg', 'abefg', 'acefg', 'adefg']
+  abbeg: ['abceg', 'abdeg', 'abefg']
+  abeeg: ['abceg', 'abdeg', 'abefg']
+  abegg: ['abceg', 'abdeg', 'abefg']
+  acceg: ['abceg', 'acdeg', 'acefg']
+  aceeg: ['abceg', 'acdeg', 'acefg']
+  acegg: ['abceg', 'acdeg', 'acefg']
+  aeeeg: ['abceg', 'abdeg', 'acdeg', 'abefg', 'acefg', 'adefg']
+  aeegg: ['abceg', 'abdeg', 'acdeg', 'abefg', 'acefg', 'adefg']
+  aeggg: ['abceg', 'abdeg', 'acdeg', 'abefg', 'acefg', 'adefg']
+  aadeg: ['abdeg', 'acdeg', 'adefg']
+  addeg: ['abdeg', 'acdeg', 'adefg']
+  adeeg: ['abdeg', 'acdeg', 'adefg']
+  adegg: ['abdeg', 'acdeg', 'adefg']
+  aaafg: ['abcfg', 'abdfg', 'acdfg', 'abefg', 'acefg', 'adefg']
+  aabfg: ['abcfg', 'abdfg', 'abefg']
+  aacfg: ['abcfg', 'acdfg', 'acefg']
+  aaffg: ['abcfg', 'abdfg', 'acdfg', 'abefg', 'acefg', 'adefg']
+  aafgg: ['abcfg', 'abdfg', 'acdfg', 'abefg', 'acefg', 'adefg']
+  abbfg: ['abcfg', 'abdfg', 'abefg']
+  abffg: ['abcfg', 'abdfg', 'abefg']
+  abfgg: ['abcfg', 'abdfg', 'abefg']
+  accfg: ['abcfg', 'acdfg', 'acefg']
+  acffg: ['abcfg', 'acdfg', 'acefg']
+  acfgg: ['abcfg', 'acdfg', 'acefg']
+  afffg: ['abcfg', 'abdfg', 'acdfg', 'abefg', 'acefg', 'adefg']
+  affgg: ['abcfg', 'abdfg', 'acdfg', 'abefg', 'acefg', 'adefg']
+  afggg: ['abcfg', 'abdfg', 'acdfg', 'abefg', 'acefg', 'adefg']
+  aadfg: ['abdfg', 'acdfg', 'adefg']
+  addfg: ['abdfg', 'acdfg', 'adefg']
+  adffg: ['abdfg', 'acdfg', 'adefg']
+  adfgg: ['abdfg', 'acdfg', 'adefg']
+  aaefg: ['abefg', 'acefg', 'adefg']
+  aeefg: ['abefg', 'acefg', 'adefg']
+  aeffg: ['abefg', 'acefg', 'adefg']
+  aefgg: ['abefg', 'acefg', 'adefg']
+
 TOTAL TOKENS: 16807

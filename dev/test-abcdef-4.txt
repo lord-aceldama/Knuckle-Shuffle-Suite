@@ -42,6 +42,7 @@ abcd---  [base tokens: 35]
   ccdd [6]
   cddd [4]
   dddd [1]
+MISS: []
 TOTAL: 256 
 
 
@@ -74,6 +75,7 @@ TOTAL: 256
   ddee [6]
   deee [4]
   eeee [1]
+MISS: []
 TOTAL: 175 
 
 
@@ -106,6 +108,7 @@ TOTAL: 175
   eeff [6]
   efff [4]
   ffff [1]
+MISS: []
 TOTAL: 175 
 
 
@@ -138,6 +141,7 @@ TOTAL: 175
   ffgg [6]
   fggg [4]
   gggg [1]
+MISS: []
 TOTAL: 175 
 
 
@@ -160,6 +164,7 @@ abc-e--  [base tokens: 10]
   acce [12]
   acee [12]
   aeee [4]
+MISS: []
 TOTAL: 110 
 
 
@@ -182,6 +187,7 @@ TOTAL: 110
   bddf [12]
   bdff [12]
   bfff [4]
+MISS: []
 TOTAL: 110 
 
 
@@ -204,6 +210,7 @@ TOTAL: 110
   ceeg [12]
   cegg [12]
   cggg [4]
+MISS: []
 TOTAL: 110 
 
 
@@ -216,10 +223,11 @@ ab-de--  [base tokens: 4]
    f  : -bcdefg
    g  : --cdefg
 
-  aade [12]
+  aade [12]  <- MISS
   abde [24]
-  adde [12]
-  adee [12]
+  adde [12]  <- MISS
+  adee [12]  <- MISS
+MISS: ['aade', 'adde', 'adee']
 TOTAL: 60 
 
 
@@ -232,10 +240,11 @@ TOTAL: 60
   [f] : -bcdefg  <- Full
    g  : --cdefg
 
-  bbef [12]
+  bbef [12]  <- MISS
   bcef [24]
-  beef [12]
-  beff [12]
+  beef [12]  <- MISS
+  beff [12]  <- MISS
+MISS: ['bbef', 'beef', 'beff']
 TOTAL: 60 
 
 
@@ -248,10 +257,11 @@ TOTAL: 60
   [f] : -bcdefg  <- Full
   [g] : --cdefg  <- Full
 
-  ccfg [12]
+  ccfg [12]  <- MISS
   cdfg [24]
-  cffg [12]
-  cfgg [12]
+  cffg [12]  <- MISS
+  cfgg [12]  <- MISS
+MISS: ['ccfg', 'cffg', 'cfgg']
 TOTAL: 60 
 
 
@@ -265,6 +275,7 @@ a-cde--  [base tokens: 1]
    g  : --cdefg
 
   acde [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -278,6 +289,7 @@ TOTAL: 24
    g  : --cdefg
 
   bdef [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -291,6 +303,7 @@ TOTAL: 24
   [g] : --cdefg  <- Full
 
   cefg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -313,6 +326,7 @@ abc--f-  [base tokens: 10]
   accf [12]
   acff [12]
   afff [4]
+MISS: []
 TOTAL: 110 
 
 
@@ -335,6 +349,7 @@ TOTAL: 110
   bddg [12]
   bdgg [12]
   bggg [4]
+MISS: []
 TOTAL: 110 
 
 
@@ -347,10 +362,11 @@ ab-d-f-  [base tokens: 4]
   [f] : abcdefg  <- Full
    g  : -bcdefg
 
-  aadf [12]
+  aadf [12]  <- MISS
   abdf [24]
-  addf [12]
-  adff [12]
+  addf [12]  <- MISS
+  adff [12]  <- MISS
+MISS: ['aadf', 'addf', 'adff']
 TOTAL: 60 
 
 
@@ -363,10 +379,11 @@ TOTAL: 60
    f  : abcdefg
   [g] : -bcdefg  <- Full
 
-  bbeg [12]
+  bbeg [12]  <- MISS
   bceg [24]
-  beeg [12]
-  begg [12]
+  beeg [12]  <- MISS
+  begg [12]  <- MISS
+MISS: ['bbeg', 'beeg', 'begg']
 TOTAL: 60 
 
 
@@ -380,6 +397,7 @@ a-cd-f-  [base tokens: 1]
    g  : -bcdefg
 
   acdf [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -393,6 +411,7 @@ TOTAL: 24
   [g] : -bcdefg  <- Full
 
   bdeg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -405,10 +424,11 @@ ab--ef-  [base tokens: 4]
   [f] : abcdefg  <- Full
    g  : -bcdefg
 
-  aaef [12]
+  aaef [12]  <- MISS
   abef [24]
-  aeef [12]
-  aeff [12]
+  aeef [12]  <- MISS
+  aeff [12]  <- MISS
+MISS: ['aaef', 'aeef', 'aeff']
 TOTAL: 60 
 
 
@@ -421,10 +441,11 @@ TOTAL: 60
   [f] : abcdefg  <- Full
   [g] : -bcdefg  <- Full
 
-  bbfg [12]
+  bbfg [12]  <- MISS
   bcfg [24]
-  bffg [12]
-  bfgg [12]
+  bffg [12]  <- MISS
+  bfgg [12]  <- MISS
+MISS: ['bbfg', 'bffg', 'bfgg']
 TOTAL: 60 
 
 
@@ -438,6 +459,7 @@ a-c-ef-  [base tokens: 1]
    g  : -bcdefg
 
   acef [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -451,6 +473,7 @@ TOTAL: 24
   [g] : -bcdefg  <- Full
 
   bdfg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -464,6 +487,7 @@ a--def-  [base tokens: 1]
    g  : -bcdefg
 
   adef [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -477,6 +501,7 @@ TOTAL: 24
   [g] : -bcdefg  <- Full
 
   befg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -499,6 +524,7 @@ abc---g  [base tokens: 10]
   accg [12]
   acgg [12]
   aggg [4]
+MISS: []
 TOTAL: 110 
 
 
@@ -511,10 +537,11 @@ ab-d--g  [base tokens: 4]
    f  : abcdefg
   [g] : abcdefg  <- Full
 
-  aadg [12]
+  aadg [12]  <- MISS
   abdg [24]
-  addg [12]
-  adgg [12]
+  addg [12]  <- MISS
+  adgg [12]  <- MISS
+MISS: ['aadg', 'addg', 'adgg']
 TOTAL: 60 
 
 
@@ -528,6 +555,7 @@ a-cd--g  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   acdg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -540,10 +568,11 @@ ab--e-g  [base tokens: 4]
    f  : abcdefg
   [g] : abcdefg  <- Full
 
-  aaeg [12]
+  aaeg [12]  <- MISS
   abeg [24]
-  aeeg [12]
-  aegg [12]
+  aeeg [12]  <- MISS
+  aegg [12]  <- MISS
+MISS: ['aaeg', 'aeeg', 'aegg']
 TOTAL: 60 
 
 
@@ -557,6 +586,7 @@ a-c-e-g  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   aceg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -570,6 +600,7 @@ a--de-g  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   adeg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -582,10 +613,11 @@ ab---fg  [base tokens: 4]
   [f] : abcdefg  <- Full
   [g] : abcdefg  <- Full
 
-  aafg [12]
+  aafg [12]  <- MISS
   abfg [24]
-  affg [12]
-  afgg [12]
+  affg [12]  <- MISS
+  afgg [12]  <- MISS
+MISS: ['aafg', 'affg', 'afgg']
 TOTAL: 60 
 
 
@@ -599,6 +631,7 @@ a-c--fg  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   acfg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -612,6 +645,7 @@ a--d-fg  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   adfg [24]
+MISS: []
 TOTAL: 24 
 
 
@@ -625,9 +659,41 @@ a---efg  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   aefg [24]
+MISS: []
 TOTAL: 24 
 
 
 
-MISSED TOKENS: []
+MISSED TOKENS (30):
+  aade: ['abde', 'acde', 'adef', 'adeg']
+  adde: ['abde', 'acde', 'adef', 'adeg']
+  adee: ['abde', 'acde', 'adef', 'adeg']
+  bbef: ['bcef', 'bdef', 'abef', 'befg']
+  beef: ['bcef', 'bdef', 'abef', 'befg']
+  beff: ['bcef', 'bdef', 'abef', 'befg']
+  ccfg: ['cdfg', 'cefg', 'bcfg', 'acfg']
+  cffg: ['cdfg', 'cefg', 'bcfg', 'acfg']
+  cfgg: ['cdfg', 'cefg', 'bcfg', 'acfg']
+  aadf: ['abdf', 'acdf', 'adef', 'adfg']
+  addf: ['abdf', 'acdf', 'adef', 'adfg']
+  adff: ['abdf', 'acdf', 'adef', 'adfg']
+  bbeg: ['bceg', 'bdeg', 'befg', 'abeg']
+  beeg: ['bceg', 'bdeg', 'befg', 'abeg']
+  begg: ['bceg', 'bdeg', 'befg', 'abeg']
+  aaef: ['abef', 'acef', 'adef', 'aefg']
+  aeef: ['abef', 'acef', 'adef', 'aefg']
+  aeff: ['abef', 'acef', 'adef', 'aefg']
+  bbfg: ['bcfg', 'bdfg', 'befg', 'abfg']
+  bffg: ['bcfg', 'bdfg', 'befg', 'abfg']
+  bfgg: ['bcfg', 'bdfg', 'befg', 'abfg']
+  aadg: ['abdg', 'acdg', 'adeg', 'adfg']
+  addg: ['abdg', 'acdg', 'adeg', 'adfg']
+  adgg: ['abdg', 'acdg', 'adeg', 'adfg']
+  aaeg: ['abeg', 'aceg', 'adeg', 'aefg']
+  aeeg: ['abeg', 'aceg', 'adeg', 'aefg']
+  aegg: ['abeg', 'aceg', 'adeg', 'aefg']
+  aafg: ['abfg', 'acfg', 'adfg', 'aefg']
+  affg: ['abfg', 'acfg', 'adfg', 'aefg']
+  afgg: ['abfg', 'acfg', 'adfg', 'aefg']
+
 TOTAL TOKENS: 2401

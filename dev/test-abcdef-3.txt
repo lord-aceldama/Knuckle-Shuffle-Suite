@@ -17,6 +17,7 @@ abc----  [base tokens: 10]
   bbc [3]
   bcc [3]
   ccc [1]
+MISS: []
 TOTAL: 27 
 
 
@@ -35,6 +36,7 @@ TOTAL: 27
   ccd [3]
   cdd [3]
   ddd [1]
+MISS: []
 TOTAL: 19 
 
 
@@ -53,6 +55,7 @@ TOTAL: 19
   dde [3]
   dee [3]
   eee [1]
+MISS: []
 TOTAL: 19 
 
 
@@ -71,6 +74,7 @@ TOTAL: 19
   eef [3]
   eff [3]
   fff [1]
+MISS: []
 TOTAL: 19 
 
 
@@ -89,6 +93,7 @@ TOTAL: 19
   ffg [3]
   fgg [3]
   ggg [1]
+MISS: []
 TOTAL: 19 
 
 
@@ -104,6 +109,7 @@ ab-d---  [base tokens: 3]
   aad [3]
   abd [6]
   add [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -119,6 +125,7 @@ TOTAL: 12
   bbe [3]
   bce [6]
   bee [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -134,6 +141,7 @@ TOTAL: 12
   ccf [3]
   cdf [6]
   cff [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -149,6 +157,7 @@ TOTAL: 12
   ddg [3]
   deg [6]
   dgg [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -162,6 +171,7 @@ a-cd---  [base tokens: 1]
    g  : ---defg
 
   acd [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -175,6 +185,7 @@ TOTAL: 6
    g  : ---defg
 
   bde [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -188,6 +199,7 @@ TOTAL: 6
    g  : ---defg
 
   cef [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -201,6 +213,7 @@ TOTAL: 6
   [g] : ---defg  <- Full
 
   dfg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -216,6 +229,7 @@ ab--e--  [base tokens: 3]
   aae [3]
   abe [6]
   aee [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -231,6 +245,7 @@ TOTAL: 12
   bbf [3]
   bcf [6]
   bff [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -246,6 +261,7 @@ TOTAL: 12
   ccg [3]
   cdg [6]
   cgg [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -259,6 +275,7 @@ a-c-e--  [base tokens: 1]
    g  : --cdefg
 
   ace [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -272,6 +289,7 @@ TOTAL: 6
    g  : --cdefg
 
   bdf [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -285,6 +303,7 @@ TOTAL: 6
   [g] : --cdefg  <- Full
 
   ceg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -298,6 +317,7 @@ a--de--  [base tokens: 1]
    g  : --cdefg
 
   ade [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -311,6 +331,7 @@ TOTAL: 6
    g  : --cdefg
 
   bef [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -324,6 +345,7 @@ TOTAL: 6
   [g] : --cdefg  <- Full
 
   cfg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -339,6 +361,7 @@ ab---f-  [base tokens: 3]
   aaf [3]
   abf [6]
   aff [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -354,6 +377,7 @@ TOTAL: 12
   bbg [3]
   bcg [6]
   bgg [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -367,6 +391,7 @@ a-c--f-  [base tokens: 1]
    g  : -bcdefg
 
   acf [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -380,6 +405,7 @@ TOTAL: 6
   [g] : -bcdefg  <- Full
 
   bdg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -393,6 +419,7 @@ a--d-f-  [base tokens: 1]
    g  : -bcdefg
 
   adf [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -406,6 +433,7 @@ TOTAL: 6
   [g] : -bcdefg  <- Full
 
   beg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -419,6 +447,7 @@ a---ef-  [base tokens: 1]
    g  : -bcdefg
 
   aef [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -432,6 +461,7 @@ TOTAL: 6
   [g] : -bcdefg  <- Full
 
   bfg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -447,6 +477,7 @@ ab----g  [base tokens: 3]
   aag [3]
   abg [6]
   agg [3]
+MISS: []
 TOTAL: 12 
 
 
@@ -460,6 +491,7 @@ a-c---g  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   acg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -473,6 +505,7 @@ a--d--g  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   adg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -486,6 +519,7 @@ a---e-g  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   aeg [6]
+MISS: []
 TOTAL: 6 
 
 
@@ -499,9 +533,11 @@ a----fg  [base tokens: 1]
   [g] : abcdefg  <- Full
 
   afg [6]
+MISS: []
 TOTAL: 6 
 
 
 
-MISSED TOKENS: []
+MISSED TOKENS (0):
+
 TOTAL TOKENS: 343
