@@ -1,8 +1,8 @@
 ***
-#THIS PROJECT IS UNDER CONSTRUCTION
+# THIS PROJECT IS UNDER CONSTRUCTION
 ***
 
-###THE KNUCKLE-SHUFFLE SUITE:
+### THE KNUCKLE-SHUFFLE SUITE:
 Well, what can i say - if you have time on your hands...  
 ...The knuckle-shuffle suite is designed to be a more efficient way of brute-forcing a 
 keyspace. It consists of the following scripts:
@@ -13,7 +13,7 @@ keyspace. It consists of the following scripts:
   just here as a development script so i can experiment and develop the concept without altering the 
   future host. 
 
-###LICENSE:
+### LICENSE:
 Licensed under the GNU General Public License Version 2 (GNU GPL v2), 
 available \[[here](http://www.gnu.org/licenses/gpl-2.0.txt)].  
 
@@ -23,14 +23,14 @@ whatever you're brute-forcing and/or obtained it with the legal owner's permissi
 (C) 2015 David A Swanepoel
 
 
-###REQUREMENTS:
+### REQUREMENTS:
 The knuckle-shuffle suite was designed for use with Python 2.7.1 on Linux, but should work on Windows 
 too. I haven't tested it yet, so I don't know if I'll need to add a different EOL marker, or at least 
 add the option to use it as a command-line parameter.
 
 
-###SCRIPTS:
-####knuckle-shuffle.py
+### SCRIPTS:
+#### knuckle-shuffle.py
 **Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/doc/knuckle-shuffle.md)].  
   
 **Usage:** knuckle-shuffle.py -l=N -c=CHARSET \[-s=TOKEN]
@@ -42,18 +42,18 @@ add the option to use it as a command-line parameter.
   * knuckle-shuffle.py -l=3 -c=0123456789
   * knuckle-shuffle.py -l=8 -c=abcdefghjklmnpqrstuvwxyz -s=$(grep -Po "^\w+" sess.txt)
 
-####sausage-fest.py
+#### sausage-fest.py
 **Theory:** *[ToDo]*  
   
 **Usage:** *[ToDo]*  
 
-####abacus.py
+#### abacus.py
 **Theory:** The theory behind how and why this script can be found \[[here](https://github.com/lord-aceldama/Knuckle-Shuffle-Suite/blob/master/doc/abacus.md)].  
   
 **Usage:** *[ToDo]*
 
 
-###INSTALLATION:
+### INSTALLATION:
 Although installation is not strictly necessary, it certainly makes it easier if you copy the scripts 
 into the /usr/bin. I'll be sure to get back to this section once i have more than just knuckle-shuffle.py
 working.
