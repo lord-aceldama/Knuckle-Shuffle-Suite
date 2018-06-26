@@ -1,10 +1,10 @@
-###THE THEORY:
+### THE THEORY:
 The Abacus class is designed to break a large keyspace into smaller chunks. When you 
 consider the traditional incremental brute-force algoritm, it's clear  to see that 
 keys starting with larger characters render incremental searches inefficient.
 
 
-###FOR EXAMPLE:
+### FOR EXAMPLE:
 Consider the keyspace [0-9a-f] when the 4-character key is "dacb" Abacus will scan 
 permutations in keyspace as [0123------------], [1234, 2345, 3456, 4567, 5678, 6789, 
 789a, 89ab, 9abc] and [----------abcd--] which means that the key will be discovered 
@@ -13,7 +13,7 @@ through **grep -n "dacb"**, it showed that the token was found on line 1'897 whi
 is a vast improvement over 56'011 (of 65'536) keys had .
 
 
-###PITFALLS:
+### PITFALLS:
 Of course this method is not fool-proof. If we consider the keyspace we used in the
 example and "fed0" was the key, the entire keyspace would need to be scanned (as if 
 "ffff" were the key used in an incremental search). When you take a normal (random)
